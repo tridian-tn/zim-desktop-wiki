@@ -57,6 +57,7 @@ class NotebookConfig(INIConfigFile):
 			('document_root', String(None)), # XXX should be dir, but resolves relative
 			('short_links', Boolean(False)),
 			('shared', Boolean(True)),
+			('paste_image_template', String('pasted_image_%y%m%d')),
 			('endofline', Choice(endofline, {'dos', 'unix'})),
 			('disable_trash', Boolean(False)),
 			('default_file_format', String('zim-wiki')),

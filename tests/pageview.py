@@ -3662,7 +3662,11 @@ class TestDragAndDropFunctions(tests.TestCase):
 		self.assertIn('Foo:Bar', xml) # FIXME: should use tree api
 
 	def testDeserializeImageData(self):
+		import zim.datetimetz as datetime
+
 		notebook = self.setUpNotebook(name='imagedata', mock=tests.MOCK_ALWAYS_REAL)
+		notebook.config['Notebook']['paste_image_template'] = 'paste_image_test_%y%m%d'
+		wanted = datetime.strftime('paste_image_test_%y%m%d', datetime.now())
 		path = Path('Mock')
 
 		buffer = TextBuffer(notebook, path)
@@ -3672,7 +3676,7 @@ class TestDragAndDropFunctions(tests.TestCase):
 
 		tree = buffer.get_parsetree()
 		xml = tree.tostring()
-		self.assertIn("pasted_image.png", xml) # FIXME: should use tree api to get image
+		self.assertIn(wanted, xml) # FIXME: should use tree api to get image
 
 try:
 	import PIL
