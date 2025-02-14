@@ -7,6 +7,7 @@ import os
 import re
 import hashlib
 import contextlib
+import sys
 
 import logging
 
@@ -653,12 +654,18 @@ def get_mimetype_from_path(path):
 			return mimetype or 'application/octet-stream'
 
 
+if sys.version_info >= (3, 9):
+	import functools
+	md5_for_unsave_usage = functools.partial(hashlib.md5, usedforsecurity=False)
+else:
+	md5_for_unsave_usage = hashlib.md5
+
+
 def _md5(content):
 	# Provide encoded content to avoid double work
 	if isinstance(content, str):
 		content = (content,)
-
-	m = hashlib.md5()
+	m = md5_for_unsave_usage()
 	for l in content:
 		m.update(l.encode('UTF-8'))
 	return m.digest()
