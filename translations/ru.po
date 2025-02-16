@@ -8,17 +8,17 @@ msgstr ""
 "Project-Id-Version: zim\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-01-30 19:15+0100\n"
-"PO-Revision-Date: 2022-11-06 18:04+0000\n"
-"Last-Translator: Michael Krekin <mckryak@rambler.ru>\n"
-"Language-Team: Russian <https://hosted.weblate.org/projects/zim/develop/ru/"
-">\n"
+"PO-Revision-Date: 2025-02-16 18:54+0000\n"
+"Last-Translator: Chraaz <m.n.tarasov@gmail.com>\n"
+"Language-Team: Russian <https://hosted.weblate.org/projects/zim/develop/ru/>"
+"\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 4.14.2\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Generator: Weblate 5.10\n"
 "X-Launchpad-Export-Date: 2020-01-01 13:41+0000\n"
 
 #. Error message when external application could not be found, %s is the command
@@ -566,7 +566,7 @@ msgstr "Переключатель"
 #, fuzzy
 #| msgid "Use font color for dark theme"
 msgid "Prefer dark theme"
-msgstr "Использовать цвет шрифта для тёмной темы"
+msgstr "Предпочитать темную тему"
 
 #. info text for preferences dialog
 #: zim/gui/mainwindow.py:69
@@ -1633,7 +1633,7 @@ msgstr ""
 "Ваша системная кодировка установлена в %s. Если вам нужна поддержка "
 "специальных символов\n"
 "или вы видите возникшие из-за кодировки ошибки, пожалуйста, настройте "
-"систему на использование «UTF-8»."
+"систему на использование «UTF-8»"
 
 #. Dialog title
 #: zim/gui/preferencesdialog.py:55
@@ -2401,10 +2401,8 @@ msgstr "По правому краю"
 
 #. label for menu item which opens preferences dialog
 #: zim/gui/widgets.py:2377
-#, fuzzy
-#| msgid "Preferences"
 msgid "Preferences..."
-msgstr "Параметры"
+msgstr "Параметры..."
 
 #. Menu item
 #: zim/gui/widgets.py:2813
@@ -2715,10 +2713,8 @@ msgstr "Вло_жения"
 
 #. placeholder label for sidepane
 #: zim/plugins/attachmentbrowser/__init__.py:147
-#, fuzzy
-#| msgid "Attachments:"
 msgid "No attachments"
-msgstr "Вложения:"
+msgstr "Нет вложений"
 
 #. Label for the statusbar, %i is the number of attachments for the current page
 #: zim/plugins/attachmentbrowser/__init__.py:198
@@ -2765,10 +2761,8 @@ msgstr "Обратные ссылки"
 
 #. placeholder label in sidepane
 #: zim/plugins/backlinkpane.py:84
-#, fuzzy
-#| msgid "Backlinks:"
 msgid "No backlinks"
-msgstr "Обратные ссылки:"
+msgstr "Нет обратных ссылок"
 
 #. Label for the statusbar, %i is the number of BackLinks to the current page
 #: zim/plugins/backlinkpane.py:125
@@ -3088,10 +3082,13 @@ msgid ""
 "based on the FTS5 virtual table module of\n"
 "sqlite.\n"
 msgstr ""
+"Этот модуль обеспечивает полнотекстовое индексирование \n"
+"содержимого страниц для быстрого поиска, \n"
+"основан на модуле виртуальной таблицы FTS5 в SQLite.\n"
 
 #: zim/plugins/indexed_fts.py:57
 msgid "Remove diacritics before indexing"
-msgstr ""
+msgstr "Удалить диакритические знаки перед индексированием"
 
 #: zim/plugins/indexed_fts.py:58
 msgid "Additional token characters"
@@ -3315,10 +3312,8 @@ msgstr "Положение в окне"
 
 #. preferences option
 #: zim/plugins/linkmap.py:61
-#, fuzzy
-#| msgid "Open in New Window"
 msgid "Always open links in new windows"
-msgstr "Открыть в новом окне"
+msgstr "Всегда открывать ссылки в новых окнах"
 
 #. plugin name
 #: zim/plugins/mermaiddiagrameditor.py:23
@@ -3396,15 +3391,13 @@ msgstr "Использовать всплывающие подсказки"
 
 #. menu item
 #: zim/plugins/pageindex/__init__.py:129
-#, fuzzy
-#| msgid "Page Index"
 msgid "Collapse Page Index"
-msgstr "Содержание страницы"
+msgstr "Свернуть содержание страницы"
 
 #. menu item
 #: zim/plugins/pageindex/__init__.py:133
 msgid "Reveal Current Page in Page Index"
-msgstr ""
+msgstr "Показать текущую страницу в индексе страниц"
 
 #. tab label for side pane
 #: zim/plugins/pageindex/__init__.py:147
@@ -3424,8 +3417,9 @@ msgid ""
 "recent visited pages or recent edited pages.\n"
 msgstr ""
 "Модуль добавляет «панель пути» над окном текущей страницы.\n"
-"Эта «панель пути» может показывать путь к текущей странице, список недавно "
-"посещённых страниц или список недавно редактированных страниц.\n"
+"Эта «панель пути» может показывать путь к текущей странице,\n"
+"список недавно посещённых страниц или список недавно редактированных страниц."
+"\n"
 
 #. Menu title
 #: zim/plugins/pathbar.py:80
@@ -3492,10 +3486,8 @@ msgstr "_Печать"
 
 #. menu item
 #: zim/plugins/printtobrowser.py:75
-#, fuzzy
-#| msgid "Print to Browser"
 msgid "Print tasklist to browser"
-msgstr "Печать в браузер"
+msgstr "Распечатать список задач в браузере"
 
 #. plugin name
 #: zim/plugins/quicknote.py:143 zim/plugins/quicknote.py:178
@@ -3758,18 +3750,14 @@ msgstr "Проверка орфографии"
 
 #. plugin description
 #: zim/plugins/spell.py:104
-#, fuzzy
-#| msgid ""
-#| "Adds spell checking support using gtkspell.\n"
-#| "\n"
-#| "This is a core plugin shipping with zim.\n"
 msgid ""
 "Adds spell checking support using \n"
 "gtkspellchecker, Gspell, or gtkspell libraries.\n"
 "\n"
 "This is a core plugin shipping with zim.\n"
 msgstr ""
-"Добавляет проверку правописания с помощью gtkspell.\n"
+"Добавляет проверку правописания с помощью \n"
+"gtkspellchecker,  Gspell, или  gtkspell библиотек\n"
 "\n"
 "Это базовый модуль, поставляющийся с Zim.\n"
 
@@ -4077,15 +4065,13 @@ msgstr "Все задачи"
 
 #. list with tasks
 #: zim/plugins/tasklist/gui.py:91
-#, fuzzy
-#| msgid "Action"
 msgid "Active"
-msgstr "Действие"
+msgstr "Активные"
 
 #. list with tasks (GTD style category)
 #: zim/plugins/tasklist/gui.py:92
 msgid "Inbox"
-msgstr ""
+msgstr "Входящие"
 
 #. list with tasks (GTD style category)
 #: zim/plugins/tasklist/gui.py:93
@@ -4097,35 +4083,27 @@ msgstr "Действие"
 #. list with tasks (GTD style category)
 #: zim/plugins/tasklist/gui.py:94
 msgid "Projects"
-msgstr ""
+msgstr "Проекты"
 
 #. list with tasks (GTD style category)
 #: zim/plugins/tasklist/gui.py:95
-#, fuzzy
-#| msgid "Editing"
 msgid "Waiting"
-msgstr "Редактирование"
+msgstr "Ожидающие"
 
 #. placeholder label for sidepane
 #: zim/plugins/tasklist/gui.py:141
-#, fuzzy
-#| msgid "Tasks"
 msgid "No tasks"
-msgstr "Задачи"
+msgstr "Нет задач"
 
 #. tooltip
 #: zim/plugins/tasklist/gui.py:167
-#, fuzzy
-#| msgid "Show tasklist in sidepane"
 msgid "Show tasklist window"
-msgstr "Показывать список задач на боковой панели"
+msgstr "Показывать окно списка задач"
 
 #. label for filtering/searching tasks
 #: zim/plugins/tasklist/gui.py:212
-#, fuzzy
-#| msgid "Filter"
 msgid "Filter tasks"
-msgstr "Фильтр"
+msgstr "Фильтр задач"
 
 #. tab label for side pane
 #: zim/plugins/tasklist/gui.py:275
