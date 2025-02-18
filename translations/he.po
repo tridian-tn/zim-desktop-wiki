@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: zim\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-02-14 15:34+0100\n"
-"PO-Revision-Date: 2024-12-25 05:09+0000\n"
+"PO-Revision-Date: 2025-02-18 17:28+0000\n"
 "Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>\n"
 "Language-Team: Hebrew <https://hosted.weblate.org/projects/zim/develop/he/>\n"
 "Language: he\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Weblate 5.10-dev\n"
+"X-Generator: Weblate 5.10.1-dev\n"
 "X-Launchpad-Export-Date: 2020-01-01 13:41+0000\n"
 
 #. Error message when external application could not be found, %s is the command
@@ -1806,10 +1806,8 @@ msgid "Do not use system trash for this notebook"
 msgstr "לא להשתמש בסל האשפה של המערכת למחברת זו"
 
 #: zim/gui/propertiesdialog.py:23
-#, fuzzy
-#| msgid "Folder with templates for attachment files"
 msgid "Filename template for pasted images"
-msgstr "תיקייה עם תבניות לקבצים מצורפים"
+msgstr "תבנית שמות קבצים לתמונות מודבקות"
 
 #. Dialog title
 #: zim/gui/propertiesdialog.py:31
@@ -3037,11 +3035,11 @@ msgstr ""
 
 #: zim/plugins/indexed_fts.py:57
 msgid "Remove diacritics before indexing"
-msgstr ""
+msgstr "להסיר סימנים מבחינים לפני סידור במפתח"
 
 #: zim/plugins/indexed_fts.py:58
 msgid "Additional token characters"
-msgstr ""
+msgstr "תווי אסימונים נוספים"
 
 #. error description
 #: zim/plugins/inlinecalculator.py:192
