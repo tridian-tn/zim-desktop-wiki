@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: zim\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-02-14 15:34+0100\n"
-"PO-Revision-Date: 2025-01-31 16:52+0000\n"
+"PO-Revision-Date: 2025-02-18 17:28+0000\n"
 "Last-Translator: 麋麓 BigELK176 <BigELK176@gmail.com>\n"
 "Language-Team: Chinese (Traditional Han script) <https://hosted.weblate.org/"
 "projects/zim/develop/zh_Hant/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.10-dev\n"
+"X-Generator: Weblate 5.10.1-dev\n"
 "X-Launchpad-Export-Date: 2020-01-01 13:40+0000\n"
 
 #. Error message when external application could not be found, %s is the command
@@ -1799,10 +1799,8 @@ msgid "Do not use system trash for this notebook"
 msgstr "不使用系統垃圾桶用於此筆記本"
 
 #: zim/gui/propertiesdialog.py:23
-#, fuzzy
-#| msgid "Folder with templates for attachment files"
 msgid "Filename template for pasted images"
-msgstr "用於附件檔案含有範本的資料夾"
+msgstr "用於已經貼上的圖片的檔案名稱範本"
 
 #. Dialog title
 #: zim/gui/propertiesdialog.py:31
