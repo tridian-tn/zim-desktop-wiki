@@ -12,6 +12,7 @@ logger = logging.getLogger('tests.pageview')
 
 from zim.plugins import PluginManager
 from zim.newfs import LocalFile, LocalFolder
+from zim.config import XDG_DATA_HOME
 from zim.formats import get_format, ParseTree
 from zim.notebook import Path
 from zim.gui.clipboard import Clipboard
@@ -2570,6 +2571,54 @@ class TestCamelCase(tests.TestCase):
 
 
 class TestPageView(tests.TestCase, TextBufferTestCaseMixin):
+
+	def testInitPageTemplateWithoutPlaceCursor(self):
+		file = XDG_DATA_HOME.file('zim/templates/wiki/Default.txt')
+		file.write(
+			'======= [% page.basename %] =======\n'
+			'[% gettext("Created") %] [% strftime("%A %d %B %Y") %]\n'
+		)
+
+		buffer = self._test_init_page_template()
+		start, end = buffer.get_bounds()
+		iter = buffer.get_insert_iter()
+		self.assertTrue(iter.equal(end))
+
+	def testInitPageTemplateWithPlaceCursor(self):
+		file = XDG_DATA_HOME.file('zim/templates/wiki/Default.txt')
+		file.write(
+			'======= [% page.basename %] =======\n'
+			'[% place_cursor() %]\n'
+			'\n'
+			'[% gettext("Created") %] [% strftime("%A %d %B %Y") %]\n'
+		)
+
+		CURSOR_CHAR = '\ufffe' # unicode "non-character"
+		buffer = self._test_init_page_template()
+		start, end = buffer.get_bounds()
+		iter = buffer.get_insert_iter()
+		self.assertFalse(iter.equal(end))
+		self.assertNotIn(CURSOR_CHAR, start.get_text(end))
+
+	def _test_init_page_template(self):
+		# test we have text for a new page, but it does not get saved unless modified
+		notebook = self.setUpNotebook()
+		pageview = setUpPageView(notebook)
+		page = notebook.get_page(Path('nonexistingpage'))
+		self.assertFalse(page.exists())
+		pageview.set_page(page)
+
+		buffer = pageview.textview.get_buffer()
+		start, end = buffer.get_bounds()
+		self.assertTrue(len(start.get_text(end)) > 10)
+		parsetree = buffer.get_parsetree()
+		self.assertIsNone(parsetree)
+
+		buffer.insert_at_cursor('test')
+		parsetree = buffer.get_parsetree()
+		self.assertIsNotNone(parsetree)
+
+		return buffer
 
 	def testGetSelection(self):
 		pageview = setUpPageView(self.setUpNotebook())
