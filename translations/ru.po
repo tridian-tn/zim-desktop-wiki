@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: zim\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-02-14 15:34+0100\n"
-"PO-Revision-Date: 2025-02-18 17:28+0000\n"
+"PO-Revision-Date: 2025-02-27 01:21+0000\n"
 "Last-Translator: Chraaz <m.n.tarasov@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/zim/develop/ru/>"
 "\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 5.10.1-dev\n"
+"X-Generator: Weblate 5.10.2-dev\n"
 "X-Launchpad-Export-Date: 2020-01-01 13:41+0000\n"
 
 #. Error message when external application could not be found, %s is the command
@@ -570,10 +570,8 @@ msgstr "Предпочитать темную тему"
 
 #. info text for preferences dialog
 #: zim/gui/mainwindow.py:69
-#, fuzzy
-#| msgid "This option requires restart of the application"
 msgid "This option requires a Gtk theme supporting a dark variant"
-msgstr "Этот параметр требует перезапуска приложения"
+msgstr "Этот параметр требует тему GTK, поддерживающую тёмный вариант"
 
 #. info text for preferences dialog | 
 #. option for preferences dialog
@@ -1341,10 +1339,8 @@ msgstr "Копировать _ссылку"
 
 #. context menu item
 #: zim/gui/pageview/__init__.py:1493
-#, fuzzy
-#| msgid "Edit Link"
 msgid "Cut Lin_k"
-msgstr "Редактировать ссылку"
+msgstr "Удалить ссылку"
 
 #. context menu item
 #: zim/gui/pageview/__init__.py:1506
@@ -3476,7 +3472,7 @@ msgid ""
 msgstr ""
 "Этот модуль предоставляет отсутствующую в Zim\n"
 "поддержку печати. Он экспортирует текущую страницу\n"
-"в HTML и открывает ее в браузере. Если браузер имеет \n"
+"в HTML и открывает ее в браузере. Если браузер имеет\n"
 "поддержку печати, вы сможете произвести печать оттуда.\n"
 "\n"
 "Это базовый модуль, поставляющийся с Zim.\n"
