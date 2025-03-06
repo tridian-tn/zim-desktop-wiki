@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: zim\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-02-14 15:34+0100\n"
-"PO-Revision-Date: 2024-12-30 11:00+0000\n"
+"PO-Revision-Date: 2025-03-07 05:49+0000\n"
 "Last-Translator: Andreas Klostermaier <andreas.klostermaier@appendx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/zim/develop/de/>\n"
 "Language: de\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.10-dev\n"
+"X-Generator: Weblate 5.10.3-dev\n"
 "X-Launchpad-Export-Date: 2020-01-01 13:41+0000\n"
 
 #. Error message when external application could not be found, %s is the command
@@ -1819,10 +1819,8 @@ msgid "Do not use system trash for this notebook"
 msgstr "Für dieses Notizbuch nicht den System-Papierkorb verwenden"
 
 #: zim/gui/propertiesdialog.py:23
-#, fuzzy
-#| msgid "Folder with templates for attachment files"
 msgid "Filename template for pasted images"
-msgstr "Speicherort für Vorlagen von Dateianhängen"
+msgstr "Dateinamen-Muster für eingefügte Bilder"
 
 #. Dialog title
 #: zim/gui/propertiesdialog.py:31
@@ -3086,11 +3084,11 @@ msgstr ""
 
 #: zim/plugins/indexed_fts.py:57
 msgid "Remove diacritics before indexing"
-msgstr ""
+msgstr "Diakritische Zeichen vor dem Indizieren entfernen"
 
 #: zim/plugins/indexed_fts.py:58
 msgid "Additional token characters"
-msgstr ""
+msgstr "Zusätzliche Token-Zeichen"
 
 #. error description
 #: zim/plugins/inlinecalculator.py:192
