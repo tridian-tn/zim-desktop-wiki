@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: zim\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-02-14 15:34+0100\n"
-"PO-Revision-Date: 2025-03-07 22:47+0000\n"
+"PO-Revision-Date: 2025-03-08 02:13+0000\n"
 "Last-Translator: joel MKO <joelmko90@outlook.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/zim/develop/fr/>\n"
 "Language: fr\n"
@@ -635,7 +635,7 @@ msgstr "Panneaux _latéraux"
 #. menu item
 #: zim/gui/mainwindow.py:391
 msgid "Focus Sidepane"
-msgstr ""
+msgstr "Focus sur le volet latéral"
 
 #. Menu item | 
 #. Button label
@@ -1109,7 +1109,7 @@ msgstr ""
 #. option in preferences dialog
 #: zim/gui/pageview/__init__.py:87
 msgid "Preview link destination in overlay"
-msgstr ""
+msgstr "Prévisualisation de la destination du lien en superposition"
 
 #. option in preferences dialog
 #: zim/gui/pageview/__init__.py:90
@@ -2615,7 +2615,7 @@ msgstr ""
 #. plugin preference
 #: zim/plugins/arithmetic.py:28
 msgid "Output precision"
-msgstr ""
+msgstr "Précision de la sortie"
 
 #. menu item
 #: zim/plugins/arithmetic.py:38
@@ -3089,7 +3089,7 @@ msgstr "GNU R Plot"
 #. plugin name
 #: zim/plugins/indexed_fts.py:44
 msgid "Indexed Full-Text Search"
-msgstr ""
+msgstr "Recherche indexée en texte intégral"
 
 #. plugin description
 #: zim/plugins/indexed_fts.py:45
@@ -3099,14 +3099,18 @@ msgid ""
 "based on the FTS5 virtual table module of\n"
 "sqlite.\n"
 msgstr ""
+"Ce greffon fournit une indexation intégrale du contenu\n"
+"des pages pour une recherche complètee rapide,\n"
+"basée sur le module de table virtuelle FTS5 de\n"
+"sqlite.\n"
 
 #: zim/plugins/indexed_fts.py:57
 msgid "Remove diacritics before indexing"
-msgstr ""
+msgstr "Retirer les signes diacritiques avant l'indexation"
 
 #: zim/plugins/indexed_fts.py:58
 msgid "Additional token characters"
-msgstr ""
+msgstr "Caractères symboliques supplémentaires"
 
 #. error description
 #: zim/plugins/inlinecalculator.py:192
@@ -4101,7 +4105,7 @@ msgstr "Action"
 #. list with tasks (GTD style category)
 #: zim/plugins/tasklist/gui.py:94
 msgid "Projects"
-msgstr ""
+msgstr "Projets"
 
 #. list with tasks (GTD style category)
 #: zim/plugins/tasklist/gui.py:95
