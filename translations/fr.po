@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: zim\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-02-14 15:34+0100\n"
-"PO-Revision-Date: 2025-03-08 21:45+0000\n"
+"PO-Revision-Date: 2025-03-09 08:11+0000\n"
 "Last-Translator: joel MKO <joelmko90@outlook.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/zim/develop/fr/>\n"
 "Language: fr\n"
@@ -826,7 +826,7 @@ msgstr "Copier l'image dans le bloc-notes"
 #: zim/gui/pageview/dialogs.py:204
 #, python-format
 msgid "File type not supported: %s"
-msgstr "Type de fichier non supporté: %s"
+msgstr "Type de fichier non pris en charge : %s"
 
 #. Dialog title
 #: zim/gui/pageview/dialogs.py:229
@@ -1000,7 +1000,7 @@ msgstr "_Déplacer"
 #. Input in 'move text' dialog
 #: zim/gui/pageview/dialogs.py:781
 msgid "Move text to"
-msgstr "Déplacer le texte vers..."
+msgstr "Déplacer le texte vers"
 
 #. Input in 'move text' dialog
 #: zim/gui/pageview/dialogs.py:782
@@ -1291,7 +1291,7 @@ msgstr "_Indice"
 #: zim/gui/pageview/__init__.py:1268
 #, python-format
 msgid "No such wiki defined: %s"
-msgstr "Pas de lien wiki défini: %s"
+msgstr "Aucun wiki de ce type n'a été défini : %s"
 
 #. error when anchor location in page not found
 #: zim/gui/pageview/__init__.py:1321
@@ -1763,7 +1763,7 @@ msgid ""
 "see the notebook properties dialog"
 msgstr ""
 "Ce greffon a aussi des propriétés,\n"
-"consultez la fenêtre des propriétés du bloc-notes."
+"consultez la fenêtre des propriétés du bloc-notes"
 
 #. button in preferences dialog to change default text editor
 #: zim/gui/preferencesdialog.py:518
@@ -1971,7 +1971,7 @@ msgstr "_Nouvelle page ici..."
 #. Menu item
 #: zim/gui/uiactions.py:120
 msgid "_Open Another Notebook..."
-msgstr "_Ouvrir un autre bloc-notes"
+msgstr "_Ouvrir un autre bloc-notes..."
 
 #. Menu item
 #: zim/gui/uiactions.py:126
@@ -2049,7 +2049,7 @@ msgstr "Chercher dans cette section"
 #. Menu item
 #: zim/gui/uiactions.py:282
 msgid "Search _Backlinks..."
-msgstr "Rechercher les _rétroliens"
+msgstr "Rechercher les _rétroliens..."
 
 #. Menu item
 #: zim/gui/uiactions.py:290
@@ -2292,41 +2292,40 @@ msgstr "Un wiki pour le bureau"
 msgid "translator-credits"
 msgstr ""
 "Jean Demartini\n"
-"Launchpad Contributions:\n"
-"  BobMauchin https://launchpad.net/~zebob.m\n"
-"  Calinou https://launchpad.net/~calinou\n"
-"  Daniel Stoyanov https://launchpad.net/~dankh\n"
-"  Etienne LB https://launchpad.net/~etiennelb-deactivatedaccount\n"
-"  François Boulogne https://launchpad.net/~sciunto.org\n"
-"  Herve Robin https://launchpad.net/~robin-herve\n"
-"  Jaap Karssenberg https://launchpad.net/~jaap.karssenberg\n"
-"  Jean DEMARTINI https://launchpad.net/~jean-demartini-dem-tech\n"
-"  Jean-Baptiste Holcroft https://launchpad.net/~jibecfed\n"
-"  Jean-Marc https://launchpad.net/~m-balthazar\n"
-"  Jean-Philippe Rutault https://launchpad.net/~rutault-jp\n"
-"  Jigho https://launchpad.net/~jigho\n"
-"  Joseph Martinot-Lagarde https://launchpad.net/~contrebasse\n"
-"  Jérôme Guelfucci https://launchpad.net/~jerome-guelfucci-"
-"deactivatedaccount\n"
-"  Kernel https://launchpad.net/~larrieuandy\n"
-"  LEROY Jean-Christophe https://launchpad.net/~celtic2-deactivatedaccount\n"
-"  Le Bouquetin https://launchpad.net/~damien-accorsi\n"
-"  Loïc Meunier https://launchpad.net/~lomr\n"
-"  Makidoko https://launchpad.net/~makidoko\n"
-"  Pascollin https://launchpad.net/~pascollin\n"
-"  Quentin THEURET @Amaris https://launchpad.net/~qtheuret\n"
-"  Raphaël Hertzog https://launchpad.net/~hertzog\n"
-"  Rui Nibau https://launchpad.net/~ruinibau\n"
-"  Steve Grosbois https://launchpad.net/~steve.grosbois\n"
-"  Stéphane Aulery https://launchpad.net/~lkppo\n"
-"  TROUVERIE Joachim https://launchpad.net/~joachim-trouverie\n"
-"  Thomas LAROCHE https://launchpad.net/~mikaye\n"
-"  Xavier Jacquelin https://launchpad.net/~ygster\n"
-"  andré https://launchpad.net/~andr55\n"
-"  marius DAVID https://launchpad.net/~marius851000\n"
-"  oswald_volant https://launchpad.net/~obordas\n"
-"  pitchum https://launchpad.net/~pitchum\n"
-"  samuel poette https://launchpad.net/~fracte"
+"Contributions à la plate-forme de lancement :\n"
+"BobMauchin https://launchpad.net/~zebob.m\n"
+"Calinou https://launchpad.net/~calinou\n"
+"Daniel Stoyanov https://launchpad.net/~dankh\n"
+"Etienne LB https://launchpad.net/~etiennelb-deactivatedaccount\n"
+"François Boulogne https://launchpad.net/~sciunto.org\n"
+"Herve Robin https://launchpad.net/~robin-herve\n"
+"Jaap Karssenberg https://launchpad.net/~jaap.karssenberg\n"
+"Jean DEMARTINI https://launchpad.net/~jean-demartini-dem-tech\n"
+"Jean-Baptiste Holcroft https://launchpad.net/~jibecfed\n"
+"Jean-Marc https://launchpad.net/~m-balthazar\n"
+"Jean-Philippe Rutault https://launchpad.net/~rutault-jp\n"
+"Jigho https://launchpad.net/~jigho\n"
+"Joseph Martinot-Lagarde https://launchpad.net/~contrebasse\n"
+"Jérôme Guelfucci https://launchpad.net/~jerome-guelfucci-deactivatedaccount\n"
+"Kernel https://launchpad.net/~larrieuandy\n"
+"LEROY Jean-Christophe https://launchpad.net/~celtic2-deactivatedaccount\n"
+"Le Bouquetin https://launchpad.net/~damien-accorsi\n"
+"Loïc Meunier https://launchpad.net/~lomr\n"
+"Makidoko https://launchpad.net/~makidoko\n"
+"Pascollin https://launchpad.net/~pascollin\n"
+"Quentin THEURET @Amaris https://launchpad.net/~qtheuret\n"
+"Raphaël Hertzog https://launchpad.net/~hertzog\n"
+"Rui Nibau https://launchpad.net/~ruinibau\n"
+"Steve Grosbois https://launchpad.net/~steve.grosbois\n"
+"Stéphane Aulery https://launchpad.net/~lkppo\n"
+"TROUVERIE Joachim https://launchpad.net/~joachim-trouverie\n"
+"Thomas LAROCHE https://launchpad.net/~mikaye\n"
+"Xavier Jacquelin https://launchpad.net/~ygster\n"
+"andré https://launchpad.net/~andr55\n"
+"marius DAVID https://launchpad.net/~marius851000\n"
+"oswald_volant https://launchpad.net/~obordas\n"
+"pitchum https://launchpad.net/~pitchum\n"
+"samuel poette https://launchpad.net/~fracte"
 
 #. dialog title
 #: zim/gui/widgets.py:519 zim/gui/widgets.py:1602
@@ -2535,13 +2534,13 @@ msgstr "Mise à jour de l'index"
 #: zim/notebook/notebook.py:114
 #, python-format
 msgid "No such page: %s"
-msgstr "Pas de page: %s"
+msgstr "Aucune page de ce type : %s"
 
 #. message for PageNotAllowedError
 #: zim/notebook/notebook.py:118
 #, python-format
 msgid "Page not allowed: %s"
-msgstr "Page non autorisée: %s"
+msgstr "Page non autorisée : %s"
 
 #. description for PageNotAllowedError
 #: zim/notebook/notebook.py:119
@@ -2568,13 +2567,13 @@ msgstr ""
 #: zim/notebook/notebook.py:134
 #, python-format
 msgid "Page already exists: %s"
-msgstr "Cette page existe déjà: %s"
+msgstr "La page existe déjà : %s"
 
 #. error message for read-only pages
 #: zim/notebook/page.py:424
 #, python-format
 msgid "Can not modify page: %s"
-msgstr "Ne peut pas modifier la page: %s"
+msgstr "Impossible de modifier la page : %s"
 
 #. placeholder for unknown file name
 #: zim/parse/regexparser.py:70
@@ -3462,7 +3461,7 @@ msgid ""
 msgstr ""
 "Ce greffon permet de contourner l'absence de fonctionnalités\n"
 "d'impression dans zim. Il exporte la page courante en HTML\n"
-"et ouvre un navigateur web.  Si celui-ci a la possibilité\n"
+"et ouvre un navigateur web. Si celui-ci a la possibilité\n"
 "d'imprimer, il enverra vos données à l'imprimante en\n"
 "deux étapes.\n"
 "\n"
@@ -3772,7 +3771,7 @@ msgid ""
 "dictionaries installed"
 msgstr ""
 "Cela peut signifier que vous n'avez pas le bon\n"
-"dictionnaire installé."
+"dictionnaire installé"
 
 #. alignment option
 #: zim/plugins/tableeditor.py:55
@@ -3958,7 +3957,7 @@ msgstr "Déplacer la colonne vers la gauche"
 #. popup dialog
 #: zim/plugins/tableeditor.py:1137
 msgid "A table needs to have at least one column."
-msgstr "Un tableau doit avoir au moins une colonne"
+msgstr "Un tableau doit avoir au moins une colonne."
 
 #. plugin name
 #: zim/plugins/tableofcontents.py:93
@@ -4659,7 +4658,7 @@ msgstr "Journaliser les évènements avec Zeitgeist"
 #. plugin description
 #: zim/plugins/zeitgeist-logger.py:34
 msgid "Pushes events to the Zeitgeist daemon."
-msgstr "Passer les évènements au démon Zeitgeist"
+msgstr "Passer les évènements au démon Zeitgeist."
 
 #. label for how zim pages show up in the recent files menu, %s is the page name
 #: zim/plugins/zeitgeist-logger.py:64
@@ -4692,12 +4691,12 @@ msgstr "Suivant"
 #: data/templates/html/Default.html:82
 #: data/templates/html/Default_with_index.html:97
 msgid "Backlinks:"
-msgstr "Rétroliens"
+msgstr "Rétroliens :"
 
 #: data/templates/html/Default.html:91
 #: data/templates/html/Default_with_index.html:106
 msgid "Attachments:"
-msgstr "Fichiers liés"
+msgstr "Pièces jointes :"
 
 #~ msgid "_BackLinks"
 #~ msgstr "_Rétro-liens"
