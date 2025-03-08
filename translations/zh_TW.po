@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: zim\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-02-14 15:34+0100\n"
-"PO-Revision-Date: 2025-02-18 17:28+0000\n"
+"PO-Revision-Date: 2025-03-08 02:13+0000\n"
 "Last-Translator: 麋麓 BigELK176 <BigELK176@gmail.com>\n"
 "Language-Team: Chinese (Traditional Han script) <https://hosted.weblate.org/"
 "projects/zim/develop/zh_Hant/>\n"
@@ -12,20 +12,20 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.10.1-dev\n"
+"X-Generator: Weblate 5.10.3-dev\n"
 "X-Launchpad-Export-Date: 2020-01-01 13:40+0000\n"
 
 #. Error message when external application could not be found, %s is the command
 #: zim/applications.py:133
 #, python-format
 msgid "Cound not find application: %s"
-msgstr "無法找到應用程式: %s"
+msgstr "無法找到應用程式： %s"
 
 #. Error message when external application failed, %s is the command
 #: zim/applications.py:150
 #, python-format
 msgid "Failed to run application: %s"
-msgstr "執行應用程式失敗: %s"
+msgstr "執行應用程式失敗： %s"
 
 #. Error message when external application failed, %(cmd)s is the command, %(code)i the exit code
 #: zim/applications.py:153
@@ -41,7 +41,7 @@ msgstr ""
 #: zim/applications.py:436
 #, python-format
 msgid "Failed running: %s"
-msgstr "執行失敗: %s"
+msgstr "執行失敗： %s"
 
 #. label for default webbrowser | 
 #. label for default application
@@ -63,7 +63,7 @@ msgstr "似乎你發現了一個問題 bug"
 #: zim/fs.py:275 zim/newfs/base.py:66
 #, python-format
 msgid "Could not read: %s"
-msgstr "無法讀取: %s"
+msgstr "無法讀取： %s"
 
 #. message for FileUnicodeError
 #: zim/fs.py:277 zim/newfs/base.py:68
@@ -81,13 +81,13 @@ msgstr "詳細資訊"
 #: zim/fs.py:1171
 #, python-format
 msgid "File is not writable: %s"
-msgstr "檔案無法寫入: %s"
+msgstr "檔案無法寫入： %s"
 
 #. error message
 #: zim/fs.py:1243
 #, python-format
 msgid "File changed on disk: %s"
-msgstr "硬碟中的檔案已經修改: %s"
+msgstr "磁碟中的檔案已經變更： %s"
 
 #. option in preferences dialog
 #: zim/gui/applications.py:45
@@ -283,7 +283,7 @@ msgid ""
 "</tt>\n"
 msgstr ""
 "執行指令之時，\n"
-"下列參數將會被置換: \n"
+"下列參數將會被置換： \n"
 "<tt>\n"
 "<b>%f</b> 頁面原始檔案作為暫時檔案\n"
 "<b>%d</b> 目前頁面附件的路徑\n"
@@ -291,8 +291,8 @@ msgstr ""
 "<b>%p</b> 頁面名稱\n"
 "<b>%n</b> 筆記本位置 (檔案或資料夾)\n"
 "<b>%D</b> 文件根目錄 (如果有）\n"
-"<b>%t</b> 所選的內文或游標下的文字\n"
-"<b>%T</b> 包含維基格式之所選的內文\n"
+"<b>%t</b> 選取的內文或游標下的文字\n"
+"<b>%T</b> 包含維基格式之所選取內文\n"
 "</tt>\n"
 
 #. dialog title
@@ -309,7 +309,7 @@ msgstr "匯出筆記本"
 #: zim/gui/exportdialog.py:143
 #, python-format
 msgid "Folder exists: %s"
-msgstr "資料夾存在: %s"
+msgstr "資料夾存在： %s"
 
 #. detailed message, answers are Yes and No
 #: zim/gui/exportdialog.py:144
@@ -468,7 +468,7 @@ msgstr "查看紀錄(_L)"
 #: zim/gui/insertedobjects.py:276
 #, python-format
 msgid "No plugin available to display objects of type: %s"
-msgstr "沒有外掛可用於顯示此物件類型: %s"
+msgstr "沒有外掛程式可用於顯示此物件類型： %s"
 
 #. Label for object manager - "%s" is the plugin name
 #: zim/gui/insertedobjects.py:284
@@ -810,7 +810,7 @@ msgstr "附加圖像首先"
 #: zim/gui/pageview/dialogs.py:204
 #, python-format
 msgid "File type not supported: %s"
-msgstr "不支援檔案類型: %s"
+msgstr "不支援檔案類型： %s"
 
 #. Dialog title
 #: zim/gui/pageview/dialogs.py:229
@@ -1168,7 +1168,7 @@ msgstr "用於附件檔案含有範本的資料夾"
 #: zim/gui/pageview/__init__.py:261
 #, python-format
 msgid "Could not save page: %s"
-msgstr "無法儲存頁面: %s"
+msgstr "無法儲存頁面： %s"
 
 #. text in error dialog when saving page failed
 #: zim/gui/pageview/__init__.py:265
@@ -1270,7 +1270,7 @@ msgstr "下標(_b)"
 #: zim/gui/pageview/__init__.py:1268
 #, python-format
 msgid "No such wiki defined: %s"
-msgstr "無此 wiki 定義: %s"
+msgstr "無此 wiki 定義： %s"
 
 #. error when anchor location in page not found
 #: zim/gui/pageview/__init__.py:1321
@@ -2259,7 +2259,7 @@ msgstr "桌面維基 wiki"
 #: zim/gui/uiactions.py:799
 msgid "translator-credits"
 msgstr ""
-"譯文貢獻:\n"
+"譯文貢獻：\n"
 " DreamerC https://launchpad.net/~dreamerwolf\n"
 " Henry Lee https://launchpad.net/~henrylee\n"
 " Jaap Karssenberg https://launchpad.net/~jaap.karssenberg\n"
@@ -2403,7 +2403,7 @@ msgstr "請指定某個筆記本"
 #: zim/main/__init__.py:171
 #, python-format
 msgid "Could not find notebook: %s"
-msgstr "找不到筆記本: %s"
+msgstr "找不到筆記本： %s"
 
 #. error in export command
 #: zim/main/__init__.py:460
@@ -2446,7 +2446,7 @@ msgstr ""
 #: zim/newfs/local.py:47
 #, python-format
 msgid "File name too long: %s"
-msgstr "檔案名稱過長: %s"
+msgstr "檔案名稱過長： %s"
 
 #. Error explanation
 #: zim/newfs/local.py:52
@@ -2463,7 +2463,7 @@ msgstr ""
 #: zim/newfs/local.py:58
 #, python-format
 msgid "File path too long: %s"
-msgstr "檔案路徑過長: %s"
+msgstr "檔案路徑過長： %s"
 
 #. Title of progressbar dialog
 #: zim/notebook/index/__init__.py:436
@@ -2474,13 +2474,13 @@ msgstr "更新索引"
 #: zim/notebook/notebook.py:114
 #, python-format
 msgid "No such page: %s"
-msgstr "無此頁面: %s"
+msgstr "無此頁面： %s"
 
 #. message for PageNotAllowedError
 #: zim/notebook/notebook.py:118
 #, python-format
 msgid "Page not allowed: %s"
-msgstr "頁面不允許: %s"
+msgstr "頁面不允許： %s"
 
 #. description for PageNotAllowedError
 #: zim/notebook/notebook.py:119
@@ -2492,7 +2492,7 @@ msgstr "此頁面名稱無法使用，因為儲存容量技術限制"
 #: zim/notebook/notebook.py:124
 #, python-format
 msgid "Page not available: %s"
-msgstr "頁面不可使用: %s"
+msgstr "頁面不可使用： %s"
 
 #. description for PageNotAvailableError
 #: zim/notebook/notebook.py:125
@@ -2503,13 +2503,13 @@ msgstr "此頁面名稱不可使用，因為儲存中檔案有所衝突"
 #: zim/notebook/notebook.py:134
 #, python-format
 msgid "Page already exists: %s"
-msgstr "頁面已經存在: %s"
+msgstr "頁面已經存在： %s"
 
 #. error message for read-only pages
 #: zim/notebook/page.py:424
 #, python-format
 msgid "Can not modify page: %s"
-msgstr "無法修改頁面: %s"
+msgstr "無法修改頁面： %s"
 
 #. placeholder for unknown file name
 #: zim/parse/regexparser.py:70
@@ -3174,6 +3174,7 @@ msgid ""
 msgstr ""
 "此外掛程式可將所選的行列依字母排序，\n"
 "若是已經排序則會逆向排序(A-Z 變成 Z-A)。\n"
+"\n"
 "附加功能：上下移動文字行列、重複或移除文字行列。\n"
 
 #. Error message for linesorter plugin
@@ -4489,8 +4490,8 @@ msgid ""
 "\n"
 "All changes since the last saved version will be lost !"
 msgstr ""
-"您想要還原此頁面: %(page)s\n"
-"至已經儲存的版本: %(version)s 是嗎？\n"
+"您想要還原此頁面： %(page)s\n"
+"至已經儲存的版本： %(version)s 是嗎？\n"
 "\n"
 "上次儲存版本以來全部變動都將會遺失喔！"
 
@@ -4522,7 +4523,7 @@ msgstr "頁面名稱 — 頁面標題 — Zim"
 #. Option for Window Title template
 #: zim/plugins/windowtitleeditor.py:22
 msgid "Notebook Name: Page Title (Page Source Path)"
-msgstr "筆記本名稱: 頁面標題 (頁面來源路徑)"
+msgstr "筆記本名稱： 頁面標題 (頁面來源路徑)"
 
 #. Option for Window Title template
 #: zim/plugins/windowtitleeditor.py:23
@@ -4576,7 +4577,7 @@ msgstr "將活動事件推送至 Zeitgeist 伺服器。"
 #: zim/plugins/zeitgeist-logger.py:64
 #, python-format
 msgid "Wiki page: %s"
-msgstr "維基頁面: %s"
+msgstr "維基頁面： %s"
 
 #: data/templates/wiki/Default.txt:2 data/templates/wiki/Journal.txt:22
 msgid "Created"
@@ -4603,12 +4604,12 @@ msgstr "下一個"
 #: data/templates/html/Default.html:82
 #: data/templates/html/Default_with_index.html:97
 msgid "Backlinks:"
-msgstr "反向連結:"
+msgstr "反向連結："
 
 #: data/templates/html/Default.html:91
 #: data/templates/html/Default_with_index.html:106
 msgid "Attachments:"
-msgstr "附件:"
+msgstr "附件："
 
 #~ msgid "_BackLinks"
 #~ msgstr "反向連結(_B)"
