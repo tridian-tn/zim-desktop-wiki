@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: zim\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-02-14 15:34+0100\n"
-"PO-Revision-Date: 2025-03-08 21:15+0000\n"
+"PO-Revision-Date: 2025-03-08 21:33+0000\n"
 "Last-Translator: joel MKO <joelmko90@outlook.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/zim/develop/fr/>\n"
 "Language: fr\n"
@@ -3079,7 +3079,7 @@ msgstr "GNU R Plot"
 #. plugin name
 #: zim/plugins/indexed_fts.py:44
 msgid "Indexed Full-Text Search"
-msgstr "Recherche indexée en texte intégral"
+msgstr "Recherche en texte intégral indexée"
 
 #. plugin description
 #: zim/plugins/indexed_fts.py:45
