@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: zim\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-02-14 15:34+0100\n"
-"PO-Revision-Date: 2025-03-08 02:13+0000\n"
+"PO-Revision-Date: 2025-03-10 05:28+0000\n"
 "Last-Translator: 麋麓 BigELK176 <BigELK176@gmail.com>\n"
 "Language-Team: Chinese (Traditional Han script) <https://hosted.weblate.org/"
 "projects/zim/develop/zh_Hant/>\n"
@@ -158,7 +158,7 @@ msgstr "使用 \"%s\" 開啟"
 #: zim/gui/applications.py:1145
 #, python-format
 msgid "Configure an application to open \"%s\" links"
-msgstr "調設應用程式以開啟 “%s” 個連結"
+msgstr "設定應用程式以開啟 “%s” 連結"
 
 #. Text in the 'custom command' dialog, "%s" will be mimetype like "text/plain"
 #: zim/gui/applications.py:1148
@@ -167,13 +167,13 @@ msgid ""
 "Configure an application to open files\n"
 "of type \"%s\""
 msgstr ""
-"調設應用程式用於開啟\n"
+"設定應用程式用於開啟\n"
 "\"%s\" 類型檔案"
 
 #. Dialog title
 #: zim/gui/applications.py:1160
 msgid "Configure Applications"
-msgstr "調設應用程式"
+msgstr "設定應用程式"
 
 #. Button for adding a new application to the 'open with' menu | 
 #. Dialog title
@@ -231,7 +231,7 @@ msgid ""
 "You can configure custom tools that will appear\n"
 "in the tool menu and in the tool bar or context menus."
 msgstr ""
-"可以調設自訂各項工具，其將會顯示於\n"
+"可以設定自訂各項工具，其將會顯示於\n"
 "工具選單及工具列中、或滑鼠右鍵選單中。"
 
 #. Dialog title
@@ -342,12 +342,12 @@ msgstr "選擇頁面用來匯出"
 #. Option in versions dialog to show version for complete notebook
 #: zim/gui/exportdialog.py:175 zim/plugins/versioncontrol/__init__.py:820
 msgid "Complete _notebook"
-msgstr "完整筆記本(_n)"
+msgstr "完整筆記本(_N)"
 
 #. Option in export dialog to export selection
 #: zim/gui/exportdialog.py:180
 msgid "Single _page"
-msgstr "單一頁面(_p)"
+msgstr "單一頁面(_P)"
 
 #. Input field in export dialog | 
 #. label in word count dialog | 
@@ -527,7 +527,7 @@ msgstr "搜尋(_S)"
 #. Menu title
 #: zim/gui/mainwindow.py:54
 msgid "For_mat"
-msgstr "格式(_m)"
+msgstr "格式(_M)"
 
 #. Menu title
 #: zim/gui/mainwindow.py:55
@@ -652,7 +652,7 @@ msgstr "唯讀"
 #. Menu item
 #: zim/gui/mainwindow.py:906
 msgid "_Jump To..."
-msgstr "跳往(_J)..."
+msgstr "跳至(_J)..."
 
 #. Menu item | 
 #. Button label
@@ -1019,12 +1019,12 @@ msgstr "上一個(_P)"
 #. checkbox option in find bar and find & replace dialog
 #: zim/gui/pageview/find.py:524
 msgid "Match _case"
-msgstr "符合大小寫(_c)"
+msgstr "符合大小寫(_C)"
 
 #. checkbox option in find bar and find & replace dialog
 #: zim/gui/pageview/find.py:529
 msgid "Whole _word"
-msgstr "完整字詞(_w)"
+msgstr "完整字詞(_W)"
 
 #. checkbox option in find bar and find & replace dialog
 #: zim/gui/pageview/find.py:534
@@ -1083,7 +1083,7 @@ msgid ""
 "(If disabled you can still use <Alt><Enter>)"
 msgstr ""
 "使用 <Enter> 鍵來跟隨連結\n"
-"(若不勾用，仍可使用 <Alt><Enter>)"
+"(若是停用，仍可使用 <Alt><Enter>)"
 
 #. option in preferences dialog
 #: zim/gui/pageview/__init__.py:87
@@ -1132,7 +1132,7 @@ msgid ""
 "(If disabled you can still use <Shift><Tab>)"
 msgstr ""
 "用 <BackSpace> 鍵取消縮排\n"
-"(若不選用，仍可用 <Shift><Tab>)"
+"(若是停用，仍可用 <Shift><Tab> 鍵)"
 
 #. option in preferences dialog
 #: zim/gui/pageview/__init__.py:114
@@ -1259,12 +1259,12 @@ msgstr "原文樣式(_V)"
 #. menu item for formatting
 #: zim/gui/pageview/__init__.py:528
 msgid "Su_perscript"
-msgstr "上標(_p)"
+msgstr "上標(_P)"
 
 #. menu item for formatting
 #: zim/gui/pageview/__init__.py:529
 msgid "Su_bscript"
-msgstr "下標(_b)"
+msgstr "下標(_B)"
 
 #. error when unknown interwiki link is clicked
 #: zim/gui/pageview/__init__.py:1268
@@ -1298,7 +1298,7 @@ msgstr "移動所選取的文字..."
 #. menu item
 #: zim/gui/pageview/__init__.py:1417 zim/plugins/tableofcontents.py:443
 msgid "Copy _link to this location"
-msgstr "複製連結至此位置(_l)"
+msgstr "複製連結至此位置(_L)"
 
 #. Menu item
 #: zim/gui/pageview/__init__.py:1458 zim/gui/pageview/__init__.py:1723
@@ -1323,7 +1323,7 @@ msgstr "複製連結(_L)"
 #. context menu item
 #: zim/gui/pageview/__init__.py:1493
 msgid "Cut Lin_k"
-msgstr "剪下連結(_k)"
+msgstr "剪下連結(_K)"
 
 #. context menu item
 #: zim/gui/pageview/__init__.py:1506
@@ -1410,7 +1410,7 @@ msgstr "重做動作(_R)"
 #. Menu item
 #: zim/gui/pageview/__init__.py:1623
 msgid "Cu_t"
-msgstr "剪下(_t)"
+msgstr "剪下(_T)"
 
 #. Menu item | 
 #. Button label | 
@@ -1489,7 +1489,7 @@ msgstr "附件(_A)..."
 #. Menu item,
 #: zim/gui/pageview/__init__.py:1816 zim/gui/pageview/__init__.py:1843
 msgid "Bulle_t List"
-msgstr "條列清單(_t)"
+msgstr "條列清單(_T)"
 
 #. Menu item | 
 #. Menu item,
@@ -1501,7 +1501,7 @@ msgstr "編號清單(_N)"
 #. Menu item,
 #: zim/gui/pageview/__init__.py:1826 zim/gui/pageview/__init__.py:1853
 msgid "Checkbo_x List"
-msgstr "核取方塊清單(_x)"
+msgstr "核取方塊清單(_X)"
 
 #. Menu item,
 #: zim/gui/pageview/__init__.py:1858
@@ -1546,12 +1546,12 @@ msgstr "尋找(_F)..."
 #. Menu item
 #: zim/gui/pageview/__init__.py:2085
 msgid "Find Ne_xt"
-msgstr "尋找下一個(_x)"
+msgstr "尋找下一個(_X)"
 
 #. Menu item
 #: zim/gui/pageview/__init__.py:2093
 msgid "Find Pre_vious"
-msgstr "尋找上一個(_v)"
+msgstr "尋找上一個(_V)"
 
 #. Menu item
 #: zim/gui/pageview/__init__.py:2099
@@ -1608,7 +1608,7 @@ msgid ""
 "\"UTF-8\""
 msgstr ""
 "您的系統編碼目前設定為 %s 。若是想要支援特殊字元\n"
-"或是看到編碼所致錯誤，請確定系統調設使用 \"UTF-8\""
+"或是看到編碼造成錯誤，請確定系統設定使用 \"UTF-8\""
 
 #. Dialog title
 #: zim/gui/preferencesdialog.py:55
@@ -1643,7 +1643,7 @@ msgstr "更多(_M)"
 #. Button in plugin tab
 #: zim/gui/preferencesdialog.py:254
 msgid "C_onfigure"
-msgstr "調設(_o)"
+msgstr "設定(_O)"
 
 #. Button in plugin tab
 #: zim/gui/preferencesdialog.py:259
@@ -1724,7 +1724,7 @@ msgstr "外掛程式"
 #. Dialog title
 #: zim/gui/preferencesdialog.py:477
 msgid "Configure Plugin"
-msgstr "調設外掛程式"
+msgstr "設定外掛程式"
 
 #. Heading for 'configure plugin' dialog - %s is the plugin name
 #: zim/gui/preferencesdialog.py:482
@@ -1935,7 +1935,7 @@ msgstr "新建頁面(_N)..."
 #. Menu item
 #: zim/gui/uiactions.py:104
 msgid "New S_ub Page..."
-msgstr "新建下層頁面(_u)..."
+msgstr "新建下層頁面(_U)..."
 
 #. Menu item
 #: zim/gui/uiactions.py:112
@@ -1960,7 +1960,7 @@ msgstr "另存副本(_C)..."
 #. Menu item
 #: zim/gui/uiactions.py:154
 msgid "E_xport..."
-msgstr "匯出(_x)..."
+msgstr "匯出(_X)..."
 
 #. Menu item
 #: zim/gui/uiactions.py:161
@@ -1985,7 +1985,7 @@ msgstr "垃圾桶處理失敗，要改為永遠刪除處理嗎？"
 #. Menu item
 #: zim/gui/uiactions.py:218
 msgid "Proper_ties"
-msgstr "屬性(_t)"
+msgstr "屬性(_T)"
 
 #. Menu item | 
 #. menu item in tray icon menu
@@ -2006,7 +2006,7 @@ msgstr "範本(_T)"
 #. Menu item
 #: zim/gui/uiactions.py:246
 msgid "Pr_eferences"
-msgstr "偏好設定(_e)"
+msgstr "偏好設定(_E)"
 
 #. Menu item
 #: zim/gui/uiactions.py:256
@@ -2655,7 +2655,7 @@ msgstr "支援 SVG 縮圖"
 #. label for attachment browser pane
 #: zim/plugins/attachmentbrowser/__init__.py:130
 msgid "Atta_chments"
-msgstr "附件(_c)"
+msgstr "附件(_C)"
 
 #. placeholder label for sidepane
 #: zim/plugins/attachmentbrowser/__init__.py:147
@@ -2667,7 +2667,7 @@ msgstr "無附件"
 #, python-format
 msgid "%i Atta_chment"
 msgid_plural "%i Atta_chments"
-msgstr[0] "%i 個附件(_c)"
+msgstr[0] "%i 個附件(_C)"
 
 #. plugin name
 #: zim/plugins/backlinkpane.py:22
@@ -3091,7 +3091,7 @@ msgstr ""
 #. menu item
 #: zim/plugins/insertsymbol.py:77
 msgid "Sy_mbol..."
-msgstr "字元符號(_m)..."
+msgstr "字元符號(_M)..."
 
 #. plugin name
 #: zim/plugins/journal.py:97
@@ -3147,7 +3147,7 @@ msgstr "各別使用一個頁面"
 #. menu item
 #: zim/plugins/journal.py:272
 msgid "To_day"
-msgstr "今日(_d)"
+msgstr "今日(_D)"
 
 #. side pane title
 #: zim/plugins/journal.py:336
@@ -3327,7 +3327,7 @@ msgstr "在頁面索引中明示目前頁面"
 #. tab label for side pane
 #: zim/plugins/pageindex/__init__.py:147
 msgid "Inde_x"
-msgstr "索引(_x)"
+msgstr "索引(_X)"
 
 #. plugin name
 #: zim/plugins/pathbar.py:38
@@ -3348,7 +3348,7 @@ msgstr ""
 #. Menu title
 #: zim/plugins/pathbar.py:80
 msgid "P_athbar"
-msgstr "路徑列(_a)"
+msgstr "路徑列(_A)"
 
 #. Menu option for View->Pathbar
 #: zim/plugins/pathbar.py:81
@@ -3960,7 +3960,7 @@ msgstr "此外掛程式提供索引頁面，依標記雲中所選擇的標記來
 #. title for sidepane tab
 #: zim/plugins/tags.py:98
 msgid "T_ags"
-msgstr "標記(_a)"
+msgstr "標記(_A)"
 
 #. menu option
 #: zim/plugins/tags.py:148
@@ -4025,7 +4025,7 @@ msgstr "篩選任務"
 #. tab label for side pane
 #: zim/plugins/tasklist/gui.py:275
 msgid "Tas_ks"
-msgstr "任務(_k)"
+msgstr "任務(_K)"
 
 #. Window title for tasklist
 #: zim/plugins/tasklist/gui.py:375 zim/plugins/tasklist/gui.py:380
@@ -4545,7 +4545,7 @@ msgid ""
 msgstr ""
 "此外掛程式允許編輯視窗標題。\n"
 "\n"
-"按下方的〔調設〕來選用預設\n"
+"按下方的〔設定〕來選用預設\n"
 "或是建立自訂項目。\n"
 
 #. window title editor preference option
