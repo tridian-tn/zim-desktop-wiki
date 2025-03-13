@@ -953,6 +953,9 @@ class PageView(GSignalEmitterMixin, Gtk.VBox):
 			# Finish hooking up the new page
 			if cursor is not None:
 				self.set_cursor_pos(cursor)
+			elif not buffer.showing_template:
+				self.set_cursor_pos(0)
+			# else the template might already have placed it, or leave it at the end
 
 			self._buffer_signals += (
 				buffer.connect('textstyle-changed', lambda o, *a: self.emit('textstyle-changed', *a)),
