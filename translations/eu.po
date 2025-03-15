@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: zim\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-02-14 15:34+0100\n"
-"PO-Revision-Date: 2023-09-11 22:54+0000\n"
+"PO-Revision-Date: 2025-03-15 17:03+0000\n"
 "Last-Translator: Alexander Gabilondo <alexgabi@openmailbox.org>\n"
 "Language-Team: Basque <https://hosted.weblate.org/projects/zim/develop/eu/>\n"
 "Language: eu\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.0.1-dev\n"
+"X-Generator: Weblate 5.11-dev\n"
 "X-Launchpad-Export-Date: 2020-01-01 13:41+0000\n"
 
 #. Error message when external application could not be found, %s is the command
@@ -561,17 +561,13 @@ msgstr "_Kontrol-laukia"
 
 #. option for preferences dialog
 #: zim/gui/mainwindow.py:68
-#, fuzzy
-#| msgid "Use font color for dark theme"
 msgid "Prefer dark theme"
-msgstr "Erabili letra kolorea gai ilunetarako"
+msgstr "Nahiago gai iluna"
 
 #. info text for preferences dialog
 #: zim/gui/mainwindow.py:69
-#, fuzzy
-#| msgid "This option requires restart of the application"
 msgid "This option requires a Gtk theme supporting a dark variant"
-msgstr "Aukera honek aplikazioa berrabiaraztea eskatzen du"
+msgstr "Aukera honek aldaera ilun bat onartzen duen GTK gaia behar du"
 
 #. info text for preferences dialog | 
 #. option for preferences dialog
@@ -1102,7 +1098,7 @@ msgstr ""
 #. option in preferences dialog
 #: zim/gui/pageview/__init__.py:87
 msgid "Preview link destination in overlay"
-msgstr ""
+msgstr "Aurreikusi estekaren helburua gainjartzean"
 
 #. option in preferences dialog
 #: zim/gui/pageview/__init__.py:90
@@ -1820,10 +1816,8 @@ msgid "Do not use system trash for this notebook"
 msgstr "Ez erabili sistemaren zakarrontzia koaderno honetarako"
 
 #: zim/gui/propertiesdialog.py:23
-#, fuzzy
-#| msgid "Folder with templates for attachment files"
 msgid "Filename template for pasted images"
-msgstr "Erantsitako fitxategientzat txantiloiak dituen karpeta"
+msgstr "Itsatsitako irudien fitxategi-izenaren txantiloia"
 
 #. Dialog title
 #: zim/gui/propertiesdialog.py:31
@@ -2373,10 +2367,8 @@ msgstr "Eskuinean"
 
 #. label for menu item which opens preferences dialog
 #: zim/gui/widgets.py:2406
-#, fuzzy
-#| msgid "Preferences"
 msgid "Preferences..."
-msgstr "Hobespenak"
+msgstr "Hobespenak..."
 
 #. Menu item
 #: zim/gui/widgets.py:2842
@@ -2570,7 +2562,7 @@ msgstr ""
 #. plugin preference
 #: zim/plugins/arithmetic.py:28
 msgid "Output precision"
-msgstr ""
+msgstr "Irteerako zehaztasuna"
 
 #. menu item
 #: zim/plugins/arithmetic.py:38
@@ -2905,10 +2897,8 @@ msgstr "Sortu diagramak SVG formatuan"
 
 #. Plugin preference for diagram editor
 #: zim/plugins/diagrameditor.py:44
-#, fuzzy
-#| msgid "Default"
 msgid "Default text"
-msgstr "Lehenetsia"
+msgstr "Testu lehenetsia"
 
 #. menu item
 #: zim/plugins/diagrameditor.py:58
@@ -3050,7 +3040,7 @@ msgstr "GNU R Plot"
 #. plugin name
 #: zim/plugins/indexed_fts.py:44
 msgid "Indexed Full-Text Search"
-msgstr ""
+msgstr "Testu osoko bilaketa indexatua"
 
 #. plugin description
 #: zim/plugins/indexed_fts.py:45
@@ -3060,14 +3050,17 @@ msgid ""
 "based on the FTS5 virtual table module of\n"
 "sqlite.\n"
 msgstr ""
+"Plugin honek testu osoko indexazioa eskaintzen du\n"
+"orriaren edukiaren testu osoko bilaketa azkarra egiteko,\n"
+"sqlite-ko FTS5 taula birtualaren moduluan oinarrituta.\n"
 
 #: zim/plugins/indexed_fts.py:57
 msgid "Remove diacritics before indexing"
-msgstr ""
+msgstr "Kendu diakritikoak indexatu aurretik"
 
 #: zim/plugins/indexed_fts.py:58
 msgid "Additional token characters"
-msgstr ""
+msgstr "Token karaktere osagarriak"
 
 #. error description
 #: zim/plugins/inlinecalculator.py:192
@@ -3290,31 +3283,22 @@ msgstr "Ireki beti estekak leiho berrietan"
 
 #. plugin name
 #: zim/plugins/mermaiddiagrameditor.py:23
-#, fuzzy
-#| msgid "Insert Diagram"
 msgid "Insert Mermaid Diagram"
-msgstr "Txertatu grafikoa"
+msgstr "Txertatu Mermaid Diagrama"
 
 #. plugin description
 #: zim/plugins/mermaiddiagrameditor.py:24
-#, fuzzy
-#| msgid ""
-#| "This plugin provides a sequence diagram editor for zim based on seqdiag.\n"
-#| "It allows easy editing of sequence diagrams.\n"
 msgid ""
 "This plugin provides a Mermaid diagram editor for zim.\n"
 "It allows easy editing of Mermaid diagrams.\n"
 msgstr ""
-"Plugin honek zim-entzat seqdiag-en oinarritutako diagrama editorea "
-"eskaintzen du.\n"
-"Sekuentzien diagramak erraz editatzeko aukera ematen du.\n"
+"Plugin honek zim-entzat Mermaid diagrama editorea eskaintzen du.\n"
+"Mermaid diagramak erraz editatzeko aukera ematen du.\n"
 
 #. menu item
 #: zim/plugins/mermaiddiagrameditor.py:56
-#, fuzzy
-#| msgid "Insert Diagram"
 msgid "Mermaid Diagram"
-msgstr "Txertatu grafikoa"
+msgstr "Mermaid grafikoa"
 
 #. plugin name
 #: zim/plugins/osx_menubar.py:74
@@ -3349,7 +3333,7 @@ msgstr "Zabaldu atala automatikoki orria irekitzean"
 #. preferences option
 #: zim/plugins/pageindex/__init__.py:67 zim/plugins/tags.py:51
 msgid "Automatically collapse sections on close page"
-msgstr "Tolestu atalak automatikoki orria ixtean."
+msgstr "Tolestu atalak automatikoki orria ixtean"
 
 #. preferences option
 #: zim/plugins/pageindex/__init__.py:69 zim/plugins/tags.py:53
@@ -3524,7 +3508,7 @@ msgstr ""
 "Plugin honek zim-entzat GNU Lilypond-en oinarritutako puntuazio editorea "
 "eskaintzen du.\n"
 "\n"
-"Hau zim-ekin batera hornitzen den  oinarrizko plugina da.\n"
+"Hau zim-ekin batera hornitzen den oinarrizko plugina da.\n"
 
 #. plugin preference
 #: zim/plugins/scoreeditor.py:55
@@ -3723,18 +3707,14 @@ msgstr "Ortografia zuzentzailea"
 
 #. plugin description
 #: zim/plugins/spell.py:104
-#, fuzzy
-#| msgid ""
-#| "Adds spell checking support using gtkspell.\n"
-#| "\n"
-#| "This is a core plugin shipping with zim.\n"
 msgid ""
 "Adds spell checking support using \n"
 "gtkspellchecker, Gspell, or gtkspell libraries.\n"
 "\n"
 "This is a core plugin shipping with zim.\n"
 msgstr ""
-"Gtkspell bidezko zuzenketa ortografikoa gehitzen du.\n"
+"Gtkspell bidezko zuzenketa ortografikoa gehitzen du\n"
+"gtkspellchecker, Gspell, edo gtkspell liburutegiei esker.\n"
 "\n"
 "Hau zim-ekin batera hornitzen den oinarrizko plugina da.\n"
 
@@ -4573,36 +4553,33 @@ msgstr "Berrik."
 #. Option for Window Title template
 #: zim/plugins/windowtitleeditor.py:19
 msgid "Page Path - Notebook Name"
-msgstr ""
+msgstr "Orriaren bidea - Koadernoaren izena"
 
 #. Option for Window Title template
 #: zim/plugins/windowtitleeditor.py:20
 msgid "Notebook Name - Zim"
-msgstr ""
+msgstr "Koadernoaren izena - Zim"
 
 #. Option for Window Title template
 #: zim/plugins/windowtitleeditor.py:21
 msgid "Page Name — Page Title — Zim"
-msgstr ""
+msgstr "Orriaren izena - Orriaren izenburua - Zim"
 
 #. Option for Window Title template
 #: zim/plugins/windowtitleeditor.py:22
 msgid "Notebook Name: Page Title (Page Source Path)"
 msgstr ""
+"Koadernoaren izena: Orriaren izenburua (Orrialdearen iturburuaren bidea)"
 
 #. Option for Window Title template
 #: zim/plugins/windowtitleeditor.py:23
-#, fuzzy
-#| msgid "Customize..."
 msgid "Custom"
-msgstr "Pertsonalizatu..."
+msgstr "Pertsonalizatu"
 
 #. plugin name
 #: zim/plugins/windowtitleeditor.py:28
-#, fuzzy
-#| msgid "Table Editor"
 msgid "Window Title Editor"
-msgstr "Taula-editorea"
+msgstr "Leihoaren izenburuaren editorea"
 
 #. plugin description
 #: zim/plugins/windowtitleeditor.py:29
@@ -4612,23 +4589,25 @@ msgid ""
 "Press \"Configure\" below to choose a preset\n"
 "or to create a custom one.\n"
 msgstr ""
+"Plugin honek leihoaren izenburua editatzea ahalbidetzen du.\n"
+"\n"
+"Sakatu \"Konfiguratu\" behean aurrez ezarritakoa aukeratzeko\n"
+"edo pertsonalizatu bat sortzeko.\n"
 
 #. window title editor preference option
 #: zim/plugins/windowtitleeditor.py:41
-#, fuzzy
-#| msgid "Template"
 msgid "Title template"
-msgstr "Txantiloia"
+msgstr "Izenburuaren txantiloia"
 
 #. window title editor preference option
 #: zim/plugins/windowtitleeditor.py:45
 msgid "Template string for custom format"
-msgstr ""
+msgstr "Txantiloi-katea formatu pertsonalizatua egiteko"
 
 #. window title in case of critical error
 #: zim/plugins/windowtitleeditor.py:98
 msgid "Plugin error - check debug log! - Zim"
-msgstr ""
+msgstr "Pluginen errorea - Egiaztatu arazketa erregistroa! - Zim"
 
 #. plugin name
 #: zim/plugins/zeitgeist-logger.py:33
