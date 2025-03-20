@@ -342,7 +342,8 @@ some <b>bold</b> text
 		parsetree = page.get_parsetree()
 		Clipboard.set_parsetree(self.notebook, page, parsetree)
 
-		newtree = Clipboard.get_parsetree(self.notebook, page)
+		with tests.LoggingFilter('zim.notebook', 'Could not resolve filename'):
+			newtree = Clipboard.get_parsetree(self.notebook, page)
 		self.assertEqual(newtree.tostring(),
 			'<?xml version=\'1.0\' encoding=\'utf-8\'?>\n'
 			'<zim-tree><p>'
@@ -358,7 +359,8 @@ some <b>bold</b> text
 		parsetree = page.get_parsetree()
 		Clipboard.set_parsetree(self.notebook, page, parsetree)
 
-		newtree = Clipboard.get_parsetree(self.notebook, Path('OtherPage'))
+		with tests.LoggingFilter('zim.notebook', 'Could not resolve filename'):
+			newtree = Clipboard.get_parsetree(self.notebook, Path('OtherPage'))
 		self.assertEqual(newtree.tostring(),
 			'<?xml version=\'1.0\' encoding=\'utf-8\'?>\n'
 			'<zim-tree><p>'
