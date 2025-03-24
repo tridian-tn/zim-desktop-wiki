@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-02-14 15:34+0100\n"
-"PO-Revision-Date: 2025-03-24 17:08+0000\n"
+"PO-Revision-Date: 2025-03-24 21:50+0000\n"
 "Last-Translator: தமிழ்நேரம் <anishprabu.t@gmail.com>\n"
 "Language-Team: Tamil <https://hosted.weblate.org/projects/zim/develop/ta/>\n"
 "Language: ta\n"
@@ -2647,6 +2647,8 @@ msgid ""
 "This plugin shows the attachments folder of the current page as an\n"
 "icon view at bottom pane.\n"
 msgstr ""
+"இந்த சொருகி தற்போதைய பக்கத்தின் இணைப்புகள் கோப்புறையை ஒரு எனக் காட்டுகிறது\n"
+" கீழே உள்ள பலகத்தில் படவுரு பார்வை.\n"
 
 #. option for plugin preferences | 
 #. preferences option
@@ -2655,40 +2657,40 @@ msgstr ""
 #: zim/plugins/tableofcontents.py:107 zim/plugins/tags.py:47
 #: zim/plugins/tasklist/__init__.py:51 zim/plugins/toolbar.py:55
 msgid "Position in the window"
-msgstr ""
+msgstr "சாளரத்தில் நிலை"
 
 #. option for plugin preferences
 #: zim/plugins/attachmentbrowser/__init__.py:84
 msgid "Use thumbnails"
-msgstr ""
+msgstr "சிறுபடங்களைப் பயன்படுத்துங்கள்"
 
 #. option for plugin preferences
 #: zim/plugins/attachmentbrowser/__init__.py:86
 msgid "Support thumbnails for SVG"
-msgstr ""
+msgstr "எச்.வி.சி.க்கு சிறுபடங்களை ஆதரிக்கவும்"
 
 #. label for attachment browser pane
 #: zim/plugins/attachmentbrowser/__init__.py:130
 msgid "Atta_chments"
-msgstr ""
+msgstr "Atta_chments"
 
 #. placeholder label for sidepane
 #: zim/plugins/attachmentbrowser/__init__.py:147
 msgid "No attachments"
-msgstr ""
+msgstr "இணைப்புகள் இல்லை"
 
 #. Label for the statusbar, %i is the number of attachments for the current page
 #: zim/plugins/attachmentbrowser/__init__.py:198
 #, python-format
 msgid "%i Atta_chment"
 msgid_plural "%i Atta_chments"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%i atta_chment"
+msgstr[1] "%i atta_chments"
 
 #. plugin name
 #: zim/plugins/backlinkpane.py:22
 msgid "BackLinks Pane"
-msgstr ""
+msgstr "பின்னிணைப்பு பலகம்"
 
 #. plugin description
 #: zim/plugins/backlinkpane.py:23
@@ -2698,50 +2700,54 @@ msgid ""
 "\n"
 "This is a core plugin shipping with zim.\n"
 msgstr ""
+"இந்த சொருகி பக்கங்களின் பட்டியலைக் காட்டும் கூடுதல் விட்செட்டை சேர்க்கிறது\n"
+" தற்போதைய பக்கத்துடன் இணைகிறது.\n"
+"\n"
+" இது சிம்முடன் ஒரு முக்கிய சொருகி கப்பல்.\n"
 
 #. option for plugin preferences
 #: zim/plugins/backlinkpane.py:37
 msgid "Show BackLink count in title"
-msgstr ""
+msgstr "தலைப்பில் பின்னிணைப்பு எண்ணிக்கையைக் காட்டு"
 
 #. option for plugin preferences
 #: zim/plugins/backlinkpane.py:39
 msgid "Show full Page Names"
-msgstr ""
+msgstr "முழு பக்க பெயர்களையும் காட்டு"
 
 #. widget label
 #: zim/plugins/backlinkpane.py:71
 msgid "BackLinks"
-msgstr ""
+msgstr "பின்னிணைப்புகள்"
 
 #. placeholder label in sidepane
 #: zim/plugins/backlinkpane.py:84
 msgid "No backlinks"
-msgstr ""
+msgstr "பின்னிணைப்புகள் இல்லை"
 
 #. Label for the statusbar, %i is the number of BackLinks to the current page
 #: zim/plugins/backlinkpane.py:125
 #, python-format
 msgid "%i _BackLink"
 msgid_plural "%i _BackLinks"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%i _backlink"
+msgstr[1] "%i _backlinks"
 
 #. context menu for inserted objects
 #: zim/plugins/base/imagegenerator.py:382
 msgid "_Edit..."
-msgstr ""
+msgstr "தொகு (_E) ..."
 
 #. dialog title, %s is the object name like "Equation"
 #: zim/plugins/base/imagegenerator.py:411
 #, python-format
 msgid "Edit %s"
-msgstr ""
+msgstr "திருத்து %s"
 
 #. button in e.g. equation editor dialog
 #: zim/plugins/base/imagegenerator.py:436
 msgid "_Preview"
-msgstr ""
+msgstr "_Preview"
 
 #. Question prompt when e.g. equation editor encountered an error generating the image to insert
 #: zim/plugins/base/imagegenerator.py:499
@@ -2749,11 +2755,13 @@ msgid ""
 "An error occurred while generating the image.\n"
 "Do you want to save the source text anyway?"
 msgstr ""
+"படத்தை உருவாக்கும் போது பிழை ஏற்பட்டது.\n"
+" எப்படியும் மூல உரையை சேமிக்க விரும்புகிறீர்களா?"
 
 #. plugin name
 #: zim/plugins/bookmarksbar.py:36
 msgid "BookmarksBar"
-msgstr ""
+msgstr "புக்மார்க்ச்பார்"
 
 #. plugin description
 #: zim/plugins/bookmarksbar.py:37
@@ -2761,91 +2769,93 @@ msgid ""
 "\t\tThis plugin provides bar for bookmarks.\n"
 "\t\t"
 msgstr ""
+"\t\tஇந்த சொருகி புக்மார்க்குகளுக்கு பட்டியை வழங்குகிறது.\n"
+"\t\t"
 
 #. plugin preference
 #: zim/plugins/bookmarksbar.py:45
 msgid "Maximum number of bookmarks"
-msgstr ""
+msgstr "அதிகபட்ச புக்மார்க்குகள்"
 
 #. preferences option
 #: zim/plugins/bookmarksbar.py:46
 msgid "Save bookmarks"
-msgstr ""
+msgstr "புக்மார்க்குகளை சேமிக்கவும்"
 
 #. preferences option
 #: zim/plugins/bookmarksbar.py:47
 msgid "Add new bookmarks to the beginning of the bar"
-msgstr ""
+msgstr "பட்டியின் தொடக்கத்தில் புதிய புக்மார்க்குகளைச் சேர்க்கவும்"
 
 #. menu item bookmark plugin
 #: zim/plugins/bookmarksbar.py:99 zim/plugins/bookmarksbar.py:160
 msgid "Add Bookmark"
-msgstr ""
+msgstr "புக்மார்க்கைச் சேர்க்கவும்"
 
 #. menu item bookmark plugin
 #: zim/plugins/bookmarksbar.py:149
 msgid "Bookmarks"
-msgstr ""
+msgstr "புக்மார்க்குகள்"
 
 #. button label
 #: zim/plugins/bookmarksbar.py:184
 msgid "Add bookmark/Show settings"
-msgstr ""
+msgstr "புக்மார்க்கைச் சேர்க்கவும்/அமைப்புகளைக் காட்டு"
 
 #. message for bookmark plugin
 #: zim/plugins/bookmarksbar.py:294
 msgid "Do you want to delete all bookmarks?"
-msgstr ""
+msgstr "எல்லா புக்மார்க்குகளையும் நீக்க விரும்புகிறீர்களா?"
 
 #. menu item for context menu
 #: zim/plugins/bookmarksbar.py:375
 msgid "Show full Page Name"
-msgstr ""
+msgstr "முழு பக்க பெயரையும் காட்டு"
 
 #. button label
 #: zim/plugins/bookmarksbar.py:397
 msgid "Set New Name"
-msgstr ""
+msgstr "புதிய பெயரை அமைக்கவும்"
 
 #. button label
 #: zim/plugins/bookmarksbar.py:399
 msgid "Back to Original Name"
-msgstr ""
+msgstr "அசல் பெயருக்குத் திரும்பு"
 
 #. menu item
 #: zim/plugins/bookmarksbar.py:404
 msgid "Remove"
-msgstr ""
+msgstr "அகற்று"
 
 #. menu item
 #: zim/plugins/bookmarksbar.py:405
 msgid "Remove All"
-msgstr ""
+msgstr "அனைத்தையும் அகற்று"
 
 #. menu item
 #: zim/plugins/bookmarksbar.py:407
 msgid "Copy"
-msgstr ""
+msgstr "நகலெடு"
 
 #. menu item
 #: zim/plugins/bookmarksbar.py:408
 msgid "Paste"
-msgstr ""
+msgstr "ஒட்டு"
 
 #. menu item
 #: zim/plugins/bookmarksbar.py:410
 msgid "Open in New Window"
-msgstr ""
+msgstr "புதிய சாளரத்தில் திறக்கவும்"
 
 #. menu item
 #: zim/plugins/bookmarksbar.py:413
 msgid "Set to Current Page"
-msgstr ""
+msgstr "தற்போதைய பக்கத்திற்கு அமைக்கவும்"
 
 #. plugin name
 #: zim/plugins/commandpalette.py:43 zim/plugins/commandpalette.py:115
 msgid "Command Palette"
-msgstr ""
+msgstr "கட்டளை தட்டு"
 
 #. plugin description
 #: zim/plugins/commandpalette.py:44
@@ -2854,11 +2864,14 @@ msgid ""
 "The search dialog can be opened by pressing the keyboard shortcut "
 "Ctrl+Shift+P which can be customized via Zim's key bindings preferences."
 msgstr ""
+"பட்டியல் உள்ளீடுகளை விரைவாக இயக்க அனுமதிக்க இந்த சொருகி ஒரு தேடல் உரையாடலைத் திறக்கிறது"
+". விசைப்பலகை குறுக்குவழி CTRL+SHIFT+P ஐ அழுத்துவதன் மூலம் தேடல் உரையாடலைத் திறக்க "
+"முடியும், இது சிம்மின் முக்கிய பிணைப்பு விருப்பத்தேர்வுகள் வழியாக தனிப்பயனாக்கப்படலாம்."
 
 #. plugin name
 #: zim/plugins/diagrameditor.py:23
 msgid "Insert Diagram"
-msgstr ""
+msgstr "வரைபடத்தை செருகவும்"
 
 #. plugin description
 #: zim/plugins/diagrameditor.py:24
@@ -2867,26 +2880,29 @@ msgid ""
 "\n"
 "This is a core plugin shipping with zim.\n"
 msgstr ""
+"இந்த சொருகி கிராப்விசை அடிப்படையாகக் கொண்ட சிம்மிற்கான வரைபட எடிட்டரை வழங்குகிறது.\n"
+"\n"
+" இது சிம்முடன் ஒரு முக்கிய சொருகி கப்பல்.\n"
 
 #. plugin preference
 #: zim/plugins/diagrameditor.py:38 zim/plugins/sequencediagrameditor.py:38
 msgid "Generate diagrams in SVG format"
-msgstr ""
+msgstr "எச்.வி.சி வடிவத்தில் வரைபடங்களை உருவாக்குங்கள்"
 
 #. Plugin preference for diagram editor
 #: zim/plugins/diagrameditor.py:44
 msgid "Default text"
-msgstr ""
+msgstr "இயல்புநிலை உரை"
 
 #. menu item
 #: zim/plugins/diagrameditor.py:58
 msgid "Diagram"
-msgstr ""
+msgstr "வரைபடம்"
 
 #. plugin name
 #: zim/plugins/distractionfree.py:25
 msgid "Distraction Free Editing"
-msgstr ""
+msgstr "கவனச்சிதறல் இல்லாத திருத்துதல்"
 
 #. plugin description
 #: zim/plugins/distractionfree.py:27
@@ -2894,37 +2910,39 @@ msgid ""
 "This plugin adds settings that help using zim\n"
 "as a distraction free editor.\n"
 msgstr ""
+"இந்த சொருகி சிம்மைப் பயன்படுத்த உதவும் அமைப்புகளைச் சேர்க்கிறது\n"
+" கவனச்சிதறல் இல்லாத எடிட்டராக.\n"
 
 #. plugin preference
 #: zim/plugins/distractionfree.py:36
 msgid "Hide menubar in fullscreen mode"
-msgstr ""
+msgstr "முழுத்திரை பயன்முறையில் மெனுபரை மறைக்கவும்"
 
 #. plugin preference
 #: zim/plugins/distractionfree.py:37
 msgid "Maximum page width"
-msgstr ""
+msgstr "அதிகபட்ச பக்க அகலம்"
 
 #. plugin preference | 
 #. preference option for sourceview plugin
 #: zim/plugins/distractionfree.py:38 zim/plugins/sourceview.py:99
 msgid "Border width"
-msgstr ""
+msgstr "எல்லை அகலம்"
 
 #. plugin preference
 #: zim/plugins/distractionfree.py:39
 msgid "Text background color"
-msgstr ""
+msgstr "உரை பின்னணி நிறம்"
 
 #. plugin preference
 #: zim/plugins/distractionfree.py:40
 msgid "Text foreground color"
-msgstr ""
+msgstr "உரை முன்புற நிறம்"
 
 #. plugin name
 #: zim/plugins/ditaaeditor.py:28
 msgid "Insert Ditaa"
-msgstr ""
+msgstr "டிட்டாவை செருகவும்"
 
 #. plugin description
 #: zim/plugins/ditaaeditor.py:29
@@ -2933,16 +2951,19 @@ msgid ""
 "\n"
 "This is a core plugin shipping with zim.\n"
 msgstr ""
+"இந்த சொருகி டிட்டாவை அடிப்படையாகக் கொண்ட சிம்மிற்கான வரைபட எடிட்டரை வழங்குகிறது.\n"
+"\n"
+" இது சிம்முடன் ஒரு முக்கிய சொருகி கப்பல்.\n"
 
 #. menu item
 #: zim/plugins/ditaaeditor.py:47
 msgid "Ascii graph (Ditaa)"
-msgstr ""
+msgstr "தபஅஇகு வரைபடம் (டிட்டா)"
 
 #. plugin name
 #: zim/plugins/equationeditor.py:21
 msgid "Insert Equation"
-msgstr ""
+msgstr "சமன்பாடு செருகவும்"
 
 #. plugin description
 #: zim/plugins/equationeditor.py:22
@@ -2951,61 +2972,65 @@ msgid ""
 "\n"
 "This is a core plugin shipping with zim.\n"
 msgstr ""
+"இந்த சொருகி லேடெக்சை அடிப்படையாகக் கொண்ட சிம்மிற்கான சமன்பாடு எடிட்டரை வழங்குகிறது.\n"
+"\n"
+" இது சிம்முடன் ஒரு முக்கிய சொருகி கப்பல்.\n"
 
 #. plugin preference
 #: zim/plugins/equationeditor.py:33
 msgid "Use font color for dark theme"
-msgstr ""
+msgstr "இருண்ட கருப்பொருளுக்கு எழுத்துரு வண்ணத்தைப் பயன்படுத்தவும்"
 
 #. plugin preference
 #: zim/plugins/equationeditor.py:34
 msgid "Font size"
-msgstr ""
+msgstr "எழுத்துரு அளவு"
 
 #. plugin preference
 #: zim/plugins/equationeditor.py:35
 msgid "Equation image DPI"
-msgstr ""
+msgstr "சமன்பாடு படம் டிபிஐ"
 
 #. menu item
 #: zim/plugins/equationeditor.py:49
 msgid "Equation"
-msgstr ""
+msgstr "சமன்பாடு"
 
 #. plugin name
 #: zim/plugins/gnuplot_ploteditor.py:32
 msgid "Insert Gnuplot"
-msgstr ""
+msgstr "குனுப்லாட்டை செருகவும்"
 
 #. plugin description
 #: zim/plugins/gnuplot_ploteditor.py:33
 msgid "This plugin provides a plot editor for zim based on Gnuplot.\n"
 msgstr ""
+"இந்த சொருகி குனுப்லாட்டை அடிப்படையாகக் கொண்ட சிம்மிற்கான சூழ்ச்சி எடிட்டரை வழங்குகிறது.\n"
 
 #. menu item
 #: zim/plugins/gnuplot_ploteditor.py:49
 msgid "Gnuplot"
-msgstr ""
+msgstr "குனுப்லாட்"
 
 #. plugin name
 #: zim/plugins/gnu_r_ploteditor.py:35
 msgid "Insert GNU R Plot"
-msgstr ""
+msgstr "குனு ஆர் சூழ்ச்சி செருகவும்"
 
 #. plugin description
 #: zim/plugins/gnu_r_ploteditor.py:36
 msgid "This plugin provides a plot editor for zim based on GNU R.\n"
-msgstr ""
+msgstr "இந்த சொருகி குனு ஆர்.\n"
 
 #. menu item
 #: zim/plugins/gnu_r_ploteditor.py:52
 msgid "GNU R Plot"
-msgstr ""
+msgstr "குனு ஆர் சூழ்ச்சி"
 
 #. plugin name
 #: zim/plugins/indexed_fts.py:44
 msgid "Indexed Full-Text Search"
-msgstr ""
+msgstr "குறியிடப்பட்ட முழு உரை தேடல்"
 
 #. plugin description
 #: zim/plugins/indexed_fts.py:45
@@ -3015,14 +3040,18 @@ msgid ""
 "based on the FTS5 virtual table module of\n"
 "sqlite.\n"
 msgstr ""
+"இந்த சொருகி முழு உரை அட்டவணைப்படுத்தலை வழங்குகிறது\n"
+" வேகமான முழு உரை தேடலுக்கான பக்க உள்ளடக்கங்கள்,\n"
+" fts5 மெய்நிகர் அட்டவணை தொகுதியின் அடிப்படையில்\n"
+" sqlite.\n"
 
 #: zim/plugins/indexed_fts.py:57
 msgid "Remove diacritics before indexing"
-msgstr ""
+msgstr "குறியீட்டுக்கு முன் டயாக்ரிடிக்சை அகற்று"
 
 #: zim/plugins/indexed_fts.py:58
 msgid "Additional token characters"
-msgstr ""
+msgstr "கூடுதல் கிள்ளாக்கு எழுத்துக்கள்"
 
 #. error description
 #: zim/plugins/inlinecalculator.py:192
@@ -3030,11 +3059,13 @@ msgid ""
 "The inline calculator plugin was not able\n"
 "to evaluate the expression at the cursor."
 msgstr ""
+"இன்லைன் கால்குலேட்டர் சொருகி முடியவில்லை\n"
+" கர்சரில் வெளிப்பாட்டை மதிப்பீடு செய்ய."
 
 #. plugin name
 #: zim/plugins/inlinecalculator.py:204
 msgid "Inline Calculator"
-msgstr ""
+msgstr "இன்லைன் கால்குலேட்டர்"
 
 #. plugin description
 #: zim/plugins/inlinecalculator.py:205
@@ -3044,22 +3075,26 @@ msgid ""
 "\n"
 "This is a core plugin shipping with zim.\n"
 msgstr ""
+"இந்த சொருகி எளிமையை விரைவாக மதிப்பீடு செய்ய உங்களை அனுமதிக்கிறது\n"
+" சிம்மில் கணித வெளிப்பாடுகள்.\n"
+"\n"
+" இது சிம்முடன் ஒரு முக்கிய சொருகி கப்பல்.\n"
 
 #. error message
 #: zim/plugins/inlinecalculator.py:271
 msgid "Could not parse expression"
-msgstr ""
+msgstr "வெளிப்பாட்டை அலச முடியவில்லை"
 
 #. menu item
 #: zim/plugins/inlinecalculator.py:293
 msgid "Evaluate _Math"
-msgstr ""
+msgstr "_மாத் மதிப்பீடு செய்யுங்கள்"
 
 #. plugin name | 
 #. Dialog title
 #: zim/plugins/insertsymbol.py:25 zim/plugins/insertsymbol.py:130
 msgid "Insert Symbol"
-msgstr ""
+msgstr "சின்னத்தை செருகவும்"
 
 #. plugin description
 #: zim/plugins/insertsymbol.py:26
@@ -3069,16 +3104,20 @@ msgid ""
 "\n"
 "This is a core plugin shipping with zim.\n"
 msgstr ""
+"இந்த சொருகி 'செருகும் அடையாளம்' உரையாடலைச் சேர்த்து அனுமதிக்கிறது\n"
+" தானாக வடிவமைக்கும் அச்சுக்கலை எழுத்துக்கள்.\n"
+"\n"
+" இது சிம்முடன் ஒரு முக்கிய சொருகி கப்பல்.\n"
 
 #. menu item
 #: zim/plugins/insertsymbol.py:77
 msgid "Sy_mbol..."
-msgstr ""
+msgstr "மற்றும்_ம்போல் ..."
 
 #. plugin name
 #: zim/plugins/journal.py:97
 msgid "Journal"
-msgstr ""
+msgstr "செய்தித் தாள்"
 
 #. plugin description
 #: zim/plugins/journal.py:98
@@ -3087,61 +3126,64 @@ msgid ""
 "with a page per day, week or month.\n"
 "Also adds a calendar widget to access these pages.\n"
 msgstr ""
+"இந்த சொருகி நோட்புக்கின் ஒரு பகுதியை ஒரு பத்திரிகையாக மாற்றுகிறது\n"
+" ஒரு நாளைக்கு ஒரு பக்கம், வாரம் அல்லது மாதம்.\n"
+" இந்த பக்கங்களை அணுக ஒரு காலண்டர் விட்செட்டையும் சேர்க்கிறது.\n"
 
 #. option value
 #: zim/plugins/journal.py:109
 msgid "Day"
-msgstr ""
+msgstr "நாள்"
 
 #. option value
 #: zim/plugins/journal.py:110
 msgid "Week"
-msgstr ""
+msgstr "வாரம்"
 
 #. option value
 #: zim/plugins/journal.py:111
 msgid "Month"
-msgstr ""
+msgstr "மாதம்"
 
 #. option value
 #: zim/plugins/journal.py:112
 msgid "Year"
-msgstr ""
+msgstr "ஆண்டு"
 
 #. preferences option
 #: zim/plugins/journal.py:117
 msgid "Hide Journal pane if empty"
-msgstr ""
+msgstr "காலியாக இருந்தால் சர்னல் பேனை மறைக்கவும்"
 
 #. input label
 #: zim/plugins/journal.py:121
 msgid "Section"
-msgstr ""
+msgstr "பிரிவு"
 
 #. preferences option, values will be "Day", "Month", ...
 #: zim/plugins/journal.py:122
 msgid "Use a page for each"
-msgstr ""
+msgstr "ஒவ்வொன்றிற்கும் ஒரு பக்கத்தைப் பயன்படுத்தவும்"
 
 #. menu item
 #: zim/plugins/journal.py:272
 msgid "To_day"
-msgstr ""
+msgstr "To_day"
 
 #. side pane title
 #: zim/plugins/journal.py:336
 msgid "_Journal"
-msgstr ""
+msgstr "_ சர்னல்"
 
 #. strftime format for current date label
 #: zim/plugins/journal.py:397
 msgid "%A %d %B %Y"
-msgstr ""
+msgstr "%A %d %b %y"
 
 #. plugin name
 #: zim/plugins/linesorter.py:21
 msgid "Line Sorter"
-msgstr ""
+msgstr "வரி சார்ட்டர்"
 
 #. plugin description
 #: zim/plugins/linesorter.py:22
@@ -3151,42 +3193,46 @@ msgid ""
 "(A-Z to Z-A). Additional features: move text lines up or down,\n"
 "duplicate or remove lines of text.\n"
 msgstr ""
+"இந்த சொருகி தேர்ந்தெடுக்கப்பட்ட வரிகளை அகர வரிசைப்படி வரிசைப்படுத்துகிறது.\n"
+" பட்டியல் ஏற்கனவே வரிசைப்படுத்தப்பட்டிருந்தால், ஆர்டர் மாற்றப்படும்\n"
+" (A-Z முதல் Z-A). கூடுதல் அம்சங்கள்: உரை வரிகளை மேலே அல்லது கீழ் நகர்த்தவும்,\n"
+" உரையின் வரிகளை நகல் அல்லது அகற்றவும்.\n"
 
 #. Error message for linesorter plugin
 #: zim/plugins/linesorter.py:36
 msgid "Please select more than one line of text"
-msgstr ""
+msgstr "ஒன்றுக்கு மேற்பட்ட வரிகளைத் தேர்ந்தெடுக்கவும்"
 
 #. menu item
 #: zim/plugins/linesorter.py:66
 msgid "_Sort lines"
-msgstr ""
+msgstr "_சார்ட் கோடுகள்"
 
 #. Menu item
 #: zim/plugins/linesorter.py:171
 msgid "_Move Line Up"
-msgstr ""
+msgstr "_மோவ் லைன் அப்"
 
 #. Menu item
 #: zim/plugins/linesorter.py:177
 msgid "_Move Line Down"
-msgstr ""
+msgstr "_ வரி கீழே"
 
 #. Menu item
 #: zim/plugins/linesorter.py:183
 msgid "_Duplicate Line"
-msgstr ""
+msgstr "_DUPLICATE வரி"
 
 #. Menu item
 #: zim/plugins/linesorter.py:194
 msgid "_Remove Line"
-msgstr ""
+msgstr "_ அகற்று வரி"
 
 #. plugin name | 
 #. menu item
 #: zim/plugins/linkmap.py:39 zim/plugins/linkmap.py:146
 msgid "Link Map"
-msgstr ""
+msgstr "இணைப்பு வரைபடம்"
 
 #. plugin description
 #: zim/plugins/linkmap.py:40
@@ -3198,31 +3244,37 @@ msgid ""
 "\n"
 "This is a core plugin shipping with zim.\n"
 msgstr ""
+"இந்த சொருகி ஒரு வரைகலை கொண்ட உரையாடலை வழங்குகிறது\n"
+" இணைக்கும் கட்டமைப்பின் பிரதிநிதித்துவம்\n"
+" நோட்புக். இது ஒரு வகையான \"மன வரைபடம்\" ஆக பயன்படுத்தப்படலாம்\n"
+" பக்கங்கள் எவ்வாறு தொடர்புபடுகின்றன என்பதைக் காட்டுகிறது.\n"
+"\n"
+" இது சிம்முடன் ஒரு முக்கிய சொருகி கப்பல்.\n"
 
 #. preferences option
 #: zim/plugins/linkmap.py:55
 msgid "Show linkmap button in headerbar"
-msgstr ""
+msgstr "எடர்பாரில் லிங்க்மேப் பொத்தானைக் காட்டுங்கள்"
 
 #. preferences option
 #: zim/plugins/linkmap.py:57
 msgid "Autozoom to fit map"
-msgstr ""
+msgstr "வரைபடத்திற்கு பொருந்தக்கூடிய ஆட்டம்சூம்"
 
 #. preferences option
 #: zim/plugins/linkmap.py:59
 msgid "Follow main window"
-msgstr ""
+msgstr "முதன்மையான சாளரத்தைப் பின்பற்றுங்கள்"
 
 #. preferences option
 #: zim/plugins/linkmap.py:61
 msgid "Always open links in new windows"
-msgstr ""
+msgstr "புதிய சாளரங்களில் எப்போதும் இணைப்புகளைத் திறக்கவும்"
 
 #. plugin name
 #: zim/plugins/mermaiddiagrameditor.py:23
 msgid "Insert Mermaid Diagram"
-msgstr ""
+msgstr "தேவதை வரைபடத்தை செருகவும்"
 
 #. plugin description
 #: zim/plugins/mermaiddiagrameditor.py:24
@@ -3230,76 +3282,79 @@ msgid ""
 "This plugin provides a Mermaid diagram editor for zim.\n"
 "It allows easy editing of Mermaid diagrams.\n"
 msgstr ""
+"இந்த சொருகி சிம்மிற்கான தேவதை வரைபட எடிட்டரை வழங்குகிறது.\n"
+" இது தேவதை வரைபடங்களை எளிதாக திருத்த அனுமதிக்கிறது.\n"
 
 #. menu item
 #: zim/plugins/mermaiddiagrameditor.py:56
 msgid "Mermaid Diagram"
-msgstr ""
+msgstr "தேவதை வரைபடம்"
 
 #. plugin name
 #: zim/plugins/osx_menubar.py:74
 msgid "macOS Menubar"
-msgstr ""
+msgstr "மேகோச் மெனுபார்"
 
 #. plugin description
 #: zim/plugins/osx_menubar.py:75
 msgid "This plugin provides a macOS menubar for zim."
-msgstr ""
+msgstr "இந்த சொருகி சிம்மிற்கு ஒரு மேகோச் மெனுபரை வழங்குகிறது."
 
 #. plugin name
 #: zim/plugins/pageindex/__init__.py:51
 msgid "Page Index"
-msgstr ""
+msgstr "பக்க அட்டவணை"
 
 #. plugin description
 #: zim/plugins/pageindex/__init__.py:52
 msgid "This plugin adds the page index pane to the main window.\n"
 msgstr ""
+"இந்த சொருகி முதன்மையான சாளரத்தில் பக்க குறியீட்டு பலகத்தை சேர்க்கிறது.\n"
 
 #. preferences option
 #: zim/plugins/pageindex/__init__.py:63
 msgid "Use drag&drop to move pages in the notebook"
-msgstr ""
+msgstr "நோட்புக்கில் பக்கங்களை நகர்த்த இழுவை துளி பயன்படுத்தவும்"
 
 #. preferences option
 #: zim/plugins/pageindex/__init__.py:65 zim/plugins/tags.py:49
 msgid "Automatically expand sections on open page"
-msgstr ""
+msgstr "திறந்த பக்கத்தில் உள்ள பிரிவுகளை தானாக விரிவாக்கவும்"
 
 #. preferences option
 #: zim/plugins/pageindex/__init__.py:67 zim/plugins/tags.py:51
 msgid "Automatically collapse sections on close page"
-msgstr ""
+msgstr "நெருக்கமான பக்கத்தில் தானாகவே பகுதிகளை வீழ்த்துங்கள்"
 
 #. preferences option
 #: zim/plugins/pageindex/__init__.py:69 zim/plugins/tags.py:53
 msgid "Use horizontal scrollbar (may need restart)"
-msgstr ""
+msgstr "கிடைமட்ட உருள் பட்டியைப் பயன்படுத்தவும் (மறுதொடக்கம் தேவைப்படலாம்)"
 
 #. preferences option
 #: zim/plugins/pageindex/__init__.py:71 zim/plugins/tags.py:55
 msgid "Use tooltips"
-msgstr ""
+msgstr "உதவிக்குறிப்புகளைப் பயன்படுத்தவும்"
 
 #. menu item
 #: zim/plugins/pageindex/__init__.py:129
 msgid "Collapse Page Index"
-msgstr ""
+msgstr "பக்க குறியீட்டை வீழ்த்துங்கள்"
 
 #. menu item
 #: zim/plugins/pageindex/__init__.py:133
 msgid "Reveal Current Page in Page Index"
-msgstr ""
+msgstr "பக்க குறியீட்டில் தற்போதைய பக்கத்தை வெளிப்படுத்துங்கள்"
 
 #. tab label for side pane
 #: zim/plugins/pageindex/__init__.py:147
 msgid "Inde_x"
-msgstr ""
+msgstr "Inde_x"
 
 #. plugin name
 #: zim/plugins/pathbar.py:38
 msgid "Path Bar"
-msgstr ""
+msgstr "பாதை பட்டி"
 
 #. plugin description
 #: zim/plugins/pathbar.py:39
@@ -3308,41 +3363,44 @@ msgid ""
 "This \"path bar\" can show the notebook path for the current page,\n"
 "recent visited pages or recent edited pages.\n"
 msgstr ""
+"இந்த சொருகி சாளரத்தின் மேற்புறத்தில் \"பாதைப் பட்டி\" சேர்க்கிறது.\n"
+" இந்த \"பாதைப் பட்டி\" தற்போதைய பக்கத்திற்கான நோட்புக் பாதையைக் காட்டலாம்,\n"
+" அண்மைக் கால பார்வையிடப்பட்ட பக்கங்கள் அல்லது அண்மைக் கால திருத்தப்பட்ட பக்கங்கள்.\n"
 
 #. Menu title
 #: zim/plugins/pathbar.py:80
 msgid "P_athbar"
-msgstr ""
+msgstr "P_athbar"
 
 #. Menu option for View->Pathbar
 #: zim/plugins/pathbar.py:81
 msgid "_None"
-msgstr ""
+msgstr "_ இல்லை"
 
 #. Menu option for View->Pathbar
 #: zim/plugins/pathbar.py:82
 msgid "_Recent pages"
-msgstr ""
+msgstr "_ -ரிசென்ட் பக்கங்கள்"
 
 #. Menu option for View->Pathbar
 #: zim/plugins/pathbar.py:83
 msgid "Recently _Changed pages"
-msgstr ""
+msgstr "அண்மைக் காலத்தில் _ மாற்றப்பட்ட பக்கங்கள்"
 
 #. Menu option for View->Pathbar
 #: zim/plugins/pathbar.py:84
 msgid "_History"
-msgstr ""
+msgstr "_ வரலாறு"
 
 #. Menu option for View->Pathbar
 #: zim/plugins/pathbar.py:85
 msgid "_Page Hierarchy"
-msgstr ""
+msgstr "_ பக்கம் வரிசைமுறை"
 
 #. plugin name
 #: zim/plugins/printtobrowser.py:30
 msgid "Print to Browser"
-msgstr ""
+msgstr "உலாவிக்கு அச்சிடுக"
 
 #. plugin description
 #: zim/plugins/printtobrowser.py:31
@@ -3355,26 +3413,33 @@ msgid ""
 "\n"
 "This is a core plugin shipping with zim.\n"
 msgstr ""
+"இந்த சொருகி பற்றாக்குறைக்கு ஒரு பணித்தொகுப்பை வழங்குகிறது\n"
+" சிம்மில் அச்சிடும் உதவி. இது தற்போதைய பக்கத்தை ஏற்றுமதி செய்கிறது\n"
+" உஉகுமொ க்கு மற்றும் ஒரு உலாவியைத் திறக்கிறது. உலாவியைக் கருதி\n"
+" அச்சிடும் உதவி உள்ளது இது உங்களுடையது\n"
+" அச்சுப்பொறிக்கு இரண்டு படிகளில் தரவு.\n"
+"\n"
+" இது சிம்முடன் ஒரு முக்கிய சொருகி கப்பல்.\n"
 
 #. menu item
 #: zim/plugins/printtobrowser.py:63
 msgid "_Print to Browser"
-msgstr ""
+msgstr "_ உலாவிக்கு முன்மாதிரி"
 
 #. menu item
 #: zim/plugins/printtobrowser.py:75
 msgid "_Print"
-msgstr ""
+msgstr "_Print"
 
 #. menu item
 #: zim/plugins/printtobrowser.py:75
 msgid "Print tasklist to browser"
-msgstr ""
+msgstr "டாச்க்ச்லிச்ட்டை உலாவிக்கு அச்சிடுக"
 
 #. plugin name
 #: zim/plugins/quicknote.py:143 zim/plugins/quicknote.py:178
 msgid "Quick Note"
-msgstr ""
+msgstr "விரைவான குறிப்பு"
 
 #. plugin description
 #: zim/plugins/quicknote.py:144
@@ -3384,41 +3449,45 @@ msgid ""
 "\n"
 "This is a core plugin shipping with zim.\n"
 msgstr ""
+"இந்த சொருகி சில உரை அல்லது கிளிப்போர்டை விரைவாக கைவிட ஒரு உரையாடலைச் சேர்க்கிறது\n"
+" சிம் பக்கத்தில் உள்ளடக்கம்.\n"
+"\n"
+" இது சிம்முடன் ஒரு முக்கிய சொருகி கப்பல்.\n"
 
 #. menu item
 #: zim/plugins/quicknote.py:161
 msgid "Quick Note..."
-msgstr ""
+msgstr "விரைவான குறிப்பு ..."
 
 #. text entry field
 #: zim/plugins/quicknote.py:222
 msgid "Page section"
-msgstr ""
+msgstr "பக்க பிரிவு"
 
 #. checkbox in Quick Note dialog
 #: zim/plugins/quicknote.py:223
 msgid "Create a new page for each note"
-msgstr ""
+msgstr "ஒவ்வொரு குறிப்பிற்கும் புதிய பக்கத்தை உருவாக்கவும்"
 
 #. text entry field
 #: zim/plugins/quicknote.py:224 zim/plugins/tableeditor.py:1004
 msgid "Title"
-msgstr ""
+msgstr "தலைப்பு"
 
 #. Option in quicknote dialog
 #: zim/plugins/quicknote.py:261
 msgid "Open _Page"
-msgstr ""
+msgstr "திறந்த _ பக்கம்"
 
 #. confirm closing quick note dialog
 #: zim/plugins/quicknote.py:325
 msgid "Discard note?"
-msgstr ""
+msgstr "குறிப்பை நிராகரிக்கவா?"
 
 #. plugin name
 #: zim/plugins/scoreeditor.py:43
 msgid "Insert Score"
-msgstr ""
+msgstr "மதிப்பெண் செருகவும்"
 
 #. plugin description
 #: zim/plugins/scoreeditor.py:44
@@ -3427,27 +3496,31 @@ msgid ""
 "\n"
 "This is a core plugin shipping with zim.\n"
 msgstr ""
+"இந்த சொருகி குனு லில்லிபாண்டின் அடிப்படையில் சிம்மிற்கான மதிப்பெண் எடிட்டரை வழங்குகிறது."
+"\n"
+"\n"
+" இது சிம்முடன் ஒரு முக்கிய சொருகி கப்பல்.\n"
 
 #. plugin preference
 #: zim/plugins/scoreeditor.py:55
 msgid "Common include header"
-msgstr ""
+msgstr "பொதுவான தலைப்பு தலைப்பு"
 
 #. plugin preference
 #: zim/plugins/scoreeditor.py:56
 msgid "Common include footer"
-msgstr ""
+msgstr "பொதுவானது அடிக்குறிப்பு"
 
 #. menu item
 #: zim/plugins/scoreeditor.py:72
 msgid "Musical Score"
-msgstr ""
+msgstr "இசை மதிப்பெண்"
 
 #. plugin name | 
 #. dialog title
 #: zim/plugins/screenshot.py:126 zim/plugins/screenshot.py:193
 msgid "Insert Screenshot"
-msgstr ""
+msgstr "திரை சாட்டை செருகவும்"
 
 #. plugin description
 #: zim/plugins/screenshot.py:127
@@ -3457,47 +3530,51 @@ msgid ""
 "\n"
 "This is a core plugin shipping with zim.\n"
 msgstr ""
+"இந்த சொருகி ஒரு திரை சாட்டை எடுத்து நேரடியாக செருக அனுமதிக்கிறது\n"
+" ஒரு சிம் பக்கத்தில்.\n"
+"\n"
+" இது சிம்முடன் ஒரு முக்கிய சொருகி கப்பல்.\n"
 
 #. plugin preference
 #: zim/plugins/screenshot.py:138
 msgid "Screenshot Command"
-msgstr ""
+msgstr "திரைக்காட்சி கட்டளை"
 
 #. menu item for insert screenshot plugin
 #: zim/plugins/screenshot.py:180
 msgid "_Screenshot..."
-msgstr ""
+msgstr "திரை காட்சி ..."
 
 #. option in 'insert screenshot' dialog
 #: zim/plugins/screenshot.py:198
 msgid "Capture whole screen"
-msgstr ""
+msgstr "முழு திரையையும் பிடிக்கவும்"
 
 #. option in 'insert screenshot' dialog
 #: zim/plugins/screenshot.py:200
 msgid "Select window or region"
-msgstr ""
+msgstr "சாளரம் அல்லது பகுதியைத் தேர்ந்தெடுக்கவும்"
 
 #. input in 'insert screenshot' dialog
 #: zim/plugins/screenshot.py:209
 msgid "Delay"
-msgstr ""
+msgstr "சுணக்கம்"
 
 #. label behind timer
 #: zim/plugins/screenshot.py:215
 msgid "seconds"
-msgstr ""
+msgstr "நொடிகள்"
 
 #. Error message in "insert screenshot" dialog, %s will be replaced by application name
 #: zim/plugins/screenshot.py:240
 #, python-format
 msgid "Some error occurred while running \"%s\""
-msgstr ""
+msgstr "\"%s\" இயங்கும் போது சில பிழை ஏற்பட்டது"
 
 #. plugin name
 #: zim/plugins/sequencediagrameditor.py:24
 msgid "Insert Sequence Diagram"
-msgstr ""
+msgstr "வரிசை வரைபடத்தை செருகவும்"
 
 #. plugin description
 #: zim/plugins/sequencediagrameditor.py:25
@@ -3505,16 +3582,18 @@ msgid ""
 "This plugin provides a sequence diagram editor for zim based on seqdiag.\n"
 "It allows easy editing of sequence diagrams.\n"
 msgstr ""
+"இந்த சொருகி செக்டியாக் அடிப்படையில் சிம்மிற்கான வரிசை வரைபட எடிட்டரை வழங்குகிறது.\n"
+" இது வரிசை வரைபடங்களை எளிதாக திருத்த அனுமதிக்கிறது.\n"
 
 #. menu item
 #: zim/plugins/sequencediagrameditor.py:52
 msgid "Sequence Diagram"
-msgstr ""
+msgstr "வரிசை வரைபடம்"
 
 #. plugin name
 #: zim/plugins/sourceview.py:70
 msgid "Source View"
-msgstr ""
+msgstr "மூல பார்வை"
 
 #. plugin description
 #: zim/plugins/sourceview.py:71
@@ -3522,96 +3601,99 @@ msgid ""
 "This plugin allows inserting 'Code Blocks' in the page. These will be\n"
 "shown as embedded widgets with syntax highlighting, line numbers etc.\n"
 msgstr ""
+"இந்த சொருகி பக்கத்தில் 'குறியீடு தொகுதிகள்' செருக அனுமதிக்கிறது. இவை இருக்கும்\n"
+" தொடரியல் சிறப்பம்சமாக, வரி எண்கள் போன்றவற்றுடன் உட்பொதிக்கப்பட்ட விட்செட்களாக "
+"காட்டப்பட்டுள்ளது.\n"
 
 #. option value
 #: zim/plugins/sourceview.py:80
 msgid "Never wrap lines"
-msgstr ""
+msgstr "ஒருபோதும் கோடுகளை மடிக்க வேண்டாம்"
 
 #. option value
 #: zim/plugins/sourceview.py:81
 msgid "Try wrap at word boundaries or character"
-msgstr ""
+msgstr "சொல் எல்லைகள் அல்லது தன்மையில் மடக்க முயற்சிக்கவும்"
 
 #. option value
 #: zim/plugins/sourceview.py:82
 msgid "Always wrap at character"
-msgstr ""
+msgstr "எப்போதும் கதாபாத்திரத்தில் போர்த்தவும்"
 
 #. option value
 #: zim/plugins/sourceview.py:83
 msgid "Always wrap at word boundaries"
-msgstr ""
+msgstr "எப்போதும் சொல் எல்லைகளை மடிக்கவும்"
 
 #. preference option for sourceview plugin
 #: zim/plugins/sourceview.py:87
 msgid "Auto indenting"
-msgstr ""
+msgstr "ஆட்டோ இன்டென்டிங்"
 
 #. preference option for sourceview plugin
 #: zim/plugins/sourceview.py:89
 msgid "Smart Home key"
-msgstr ""
+msgstr "அறிவுள்ள ஓம் திறவுகோல்"
 
 #. preference option for sourceview plugin
 #: zim/plugins/sourceview.py:91
 msgid "Highlight current line"
-msgstr ""
+msgstr "தற்போதைய வரியை முன்னிலைப்படுத்தவும்"
 
 #. preference option for sourceview plugin
 #: zim/plugins/sourceview.py:93
 msgid "Show right margin"
-msgstr ""
+msgstr "சரியான விளிம்பைக் காட்டு"
 
 #. preference option for sourceview plugin
 #: zim/plugins/sourceview.py:95
 msgid "Right margin position"
-msgstr ""
+msgstr "வலது விளிம்பு நிலை"
 
 #. preference option for sourceview plugin
 #: zim/plugins/sourceview.py:97
 msgid "Tab width"
-msgstr ""
+msgstr "தாவல் அகலம்"
 
 #. preference option for sourceview plugin
 #: zim/plugins/sourceview.py:101
 msgid "Text wrap mode"
-msgstr ""
+msgstr "உரை மடக்கு முறை"
 
 #. preference option for sourceview plugin
 #: zim/plugins/sourceview.py:103
 msgid "Theme"
-msgstr ""
+msgstr "கருப்பொருள்"
 
 #. menu item
 #: zim/plugins/sourceview.py:118
 msgid "Code Block"
-msgstr ""
+msgstr "குறியீடு தொகுதி"
 
 #. preference option for sourceview plugin
 #: zim/plugins/sourceview.py:344
 msgid "Show Line Numbers"
-msgstr ""
+msgstr "வரி எண்களைக் காட்டு"
 
 #. input label
 #: zim/plugins/sourceview.py:354 zim/plugins/sourceview.py:380
 msgid "Syntax"
-msgstr ""
+msgstr "தொடரியல்"
 
 #. dialog title
 #: zim/plugins/sourceview.py:371
 msgid "Insert Code Block"
-msgstr ""
+msgstr "குறியீடு தொகுதியைச் செருகவும்"
 
 #. input checkbox
 #: zim/plugins/sourceview.py:407
 msgid "Display line numbers"
-msgstr ""
+msgstr "வரி எண்களைக் காண்பி"
 
 #. plugin name
 #: zim/plugins/spell.py:103
 msgid "Spell Checker"
-msgstr ""
+msgstr "எழுத்துப்பிழை சரிபார்ப்பு"
 
 #. plugin description
 #: zim/plugins/spell.py:104
@@ -3621,16 +3703,20 @@ msgid ""
 "\n"
 "This is a core plugin shipping with zim.\n"
 msgstr ""
+"பயன்படுத்தி எழுத்துப்பிழை சோதனை ஆதரவை சேர்க்கிறது\n"
+" GTKSPELLCHECKER, GSPELL அல்லது GTKSPELL நூலகங்கள்.\n"
+"\n"
+" இது சிம்முடன் ஒரு முக்கிய சொருகி கப்பல்.\n"
 
 #. menu item
 #: zim/plugins/spell.py:166
 msgid "Check _spelling"
-msgstr ""
+msgstr "எழுத்துப்பிழை சரிபார்க்கவும்"
 
 #. error message
 #: zim/plugins/spell.py:198
 msgid "Could not load spell checking"
-msgstr ""
+msgstr "எழுத்துப்பிழை சோதனை ஏற்ற முடியவில்லை"
 
 #. error message explanation
 #: zim/plugins/spell.py:200
@@ -3638,21 +3724,23 @@ msgid ""
 "This could mean you don't have the proper\n"
 "dictionaries installed"
 msgstr ""
+"இதன் பொருள் உங்களிடம் சரியானது இல்லை\n"
+" அகராதிகள் நிறுவப்பட்டுள்ளன"
 
 #. alignment option
 #: zim/plugins/tableeditor.py:55
 msgid "Center"
-msgstr ""
+msgstr "நடுவண்"
 
 #. alignment option
 #: zim/plugins/tableeditor.py:57
 msgid "Unspecified"
-msgstr ""
+msgstr "குறிப்பிடப்படாத"
 
 #. plugin name
 #: zim/plugins/tableeditor.py:121
 msgid "Table Editor"
-msgstr ""
+msgstr "அட்டவணை ஆசிரியர்"
 
 #. plugin description
 #: zim/plugins/tableeditor.py:122
@@ -3662,91 +3750,95 @@ msgid ""
 "Exporting them to various formats (i.e. HTML/LaTeX) completes the feature "
 "set.\n"
 msgstr ""
+"இந்த சொருகி மூலம் நீங்கள் விக்கி பக்கத்தில் ஒரு 'அட்டவணை' உட்பொதிக்கலாம். அட்டவணைகள் "
+"சி.டி.கே ட்ரீவியூ விட்செட்களாக காண்பிக்கப்படும்.\n"
+" அவற்றை பல்வேறு வடிவங்களுக்கு ஏற்றுமதி செய்வது (அதாவது HTML/Latex) அம்சத் தொகுப்பை "
+"நிறைவு செய்கிறது.\n"
 
 #. option value
 #: zim/plugins/tableeditor.py:131
 msgid "with lines"
-msgstr ""
+msgstr "கோடுகளுடன்"
 
 #. option value
 #: zim/plugins/tableeditor.py:132
 msgid "no grid lines"
-msgstr ""
+msgstr "கட்டம் கோடுகள் இல்லை"
 
 #. option value
 #: zim/plugins/tableeditor.py:133
 msgid "horizontal lines"
-msgstr ""
+msgstr "கிடைமட்ட கோடுகள்"
 
 #. option value
 #: zim/plugins/tableeditor.py:134
 msgid "vertical lines"
-msgstr ""
+msgstr "செங்குத்து கோடுகள்"
 
 #. preference description
 #: zim/plugins/tableeditor.py:140
 msgid "Show helper toolbar"
-msgstr ""
+msgstr "உதவி கருவிப்பட்டியைக் காட்டு"
 
 #. preference description
 #: zim/plugins/tableeditor.py:143
 msgid "Grid lines"
-msgstr ""
+msgstr "கட்டம் கோடுகள்"
 
 #. menu item
 #: zim/plugins/tableeditor.py:193
 msgid "Table"
-msgstr ""
+msgstr "அட்டவணை"
 
 #. tooltip on mouse hover | 
 #. menu item
 #: zim/plugins/tableeditor.py:534 zim/plugins/tableeditor.py:690
 msgid "Add row"
-msgstr ""
+msgstr "வரிசையைச் சேர்க்கவும்"
 
 #. tooltip on mouse hover
 #: zim/plugins/tableeditor.py:535
 msgid "Remove row"
-msgstr ""
+msgstr "வரிசையை அகற்று"
 
 #. tooltip on mouse hover | 
 #. menu item
 #: zim/plugins/tableeditor.py:536 zim/plugins/tableeditor.py:692
 msgid "Clone row"
-msgstr ""
+msgstr "நகலி வரிசை"
 
 #. tooltip on mouse hover | 
 #. menu item
 #: zim/plugins/tableeditor.py:538 zim/plugins/tableeditor.py:696
 msgid "Row up"
-msgstr ""
+msgstr "வரிசைப்படுத்துங்கள்"
 
 #. tooltip on mouse hover | 
 #. menu item
 #: zim/plugins/tableeditor.py:539 zim/plugins/tableeditor.py:697
 msgid "Row down"
-msgstr ""
+msgstr "கீழே வரிசையில்"
 
 #. tooltip on mouse hover | 
 #. menu item
 #: zim/plugins/tableeditor.py:541 zim/plugins/tableeditor.py:699
 msgid "Change columns"
-msgstr ""
+msgstr "நெடுவரிசைகளை மாற்றவும்"
 
 #. tooltip on mouse hover
 #: zim/plugins/tableeditor.py:543
 msgid "Open help"
-msgstr ""
+msgstr "திறந்த உதவி"
 
 #. menu item
 #: zim/plugins/tableeditor.py:691
 msgid "Delete row"
-msgstr ""
+msgstr "வரிசையை நீக்கு"
 
 #. menu item
 #: zim/plugins/tableeditor.py:694
 msgid "Open cell content link"
-msgstr ""
+msgstr "செல் உள்ளடக்க இணைப்பைத் திறக்கவும்"
 
 #. Popup dialog
 #: zim/plugins/tableeditor.py:757
@@ -3754,31 +3846,33 @@ msgid ""
 "The table must consist of at least on row!\n"
 " No deletion done."
 msgstr ""
+"அட்டவணை குறைந்தபட்சம் வரிசையில் இருக்க வேண்டும்!\n"
+" நீக்குதல் எதுவும் செய்யப்படவில்லை."
 
 #. Popup dialog
 #: zim/plugins/tableeditor.py:854 zim/plugins/tableeditor.py:1163
 msgid "Please select a row, before you push the button."
-msgstr ""
+msgstr "நீங்கள் பொத்தானை அழுத்துவதற்கு முன், ஒரு வரிசையைத் தேர்ந்தெடுக்கவும்."
 
 #. Dialog title
 #: zim/plugins/tableeditor.py:941
 msgid "Insert Table"
-msgstr ""
+msgstr "அட்டவணையைச் செருகவும்"
 
 #. Dialog title
 #: zim/plugins/tableeditor.py:941
 msgid "Edit Table"
-msgstr ""
+msgstr "அட்டவணையைத் திருத்து"
 
 #. Description of "Table-Insert" Dialog
 #: zim/plugins/tableeditor.py:950
 msgid "Managing table columns"
-msgstr ""
+msgstr "அட்டவணை நெடுவரிசைகளை நிர்வகித்தல்"
 
 #. Initial data for column title in table
 #: zim/plugins/tableeditor.py:980
 msgid "Column 1"
-msgstr ""
+msgstr "நெடுவரிசை 1"
 
 #. table header
 #: zim/plugins/tableeditor.py:1013
@@ -3786,41 +3880,43 @@ msgid ""
 "Auto\n"
 "Wrap"
 msgstr ""
+"ஆட்டோ\n"
+" மடக்கு"
 
 #. table header
 #: zim/plugins/tableeditor.py:1023
 msgid "Align"
-msgstr ""
+msgstr "சீரமைத்தல்"
 
 #. hoover tooltip
 #: zim/plugins/tableeditor.py:1050
 msgid "Add column"
-msgstr ""
+msgstr "நெடுவரிசையைச் சேர்க்கவும்"
 
 #. hoover tooltip
 #: zim/plugins/tableeditor.py:1051
 msgid "Remove column"
-msgstr ""
+msgstr "நெடுவரிசையை அகற்று"
 
 #. hoover tooltip
 #: zim/plugins/tableeditor.py:1052
 msgid "Move column ahead"
-msgstr ""
+msgstr "நெடுவரிசைக்கு முன்னால் நகர்த்தவும்"
 
 #. hoover tooltip
 #: zim/plugins/tableeditor.py:1053
 msgid "Move column backward"
-msgstr ""
+msgstr "நெடுவரிசையை பின்னோக்கி நகர்த்தவும்"
 
 #. popup dialog
 #: zim/plugins/tableeditor.py:1137
 msgid "A table needs to have at least one column."
-msgstr ""
+msgstr "ஒரு அட்டவணையில் குறைந்தது ஒரு நெடுவரிசை இருக்க வேண்டும்."
 
 #. plugin name
 #: zim/plugins/tableofcontents.py:93
 msgid "Table of Contents"
-msgstr ""
+msgstr "உள்ளடக்க அட்டவணை"
 
 #. plugin description
 #: zim/plugins/tableofcontents.py:94
@@ -3830,52 +3926,56 @@ msgid ""
 "\n"
 "This is a core plugin shipping with zim.\n"
 msgstr ""
+"இந்த சொருகி ஒரு அட்டவணையைக் காட்டும் கூடுதல் விட்செட்டை சேர்க்கிறது\n"
+" தற்போதைய பக்கத்திற்கான உள்ளடக்கங்கள்.\n"
+"\n"
+" இது சிம்முடன் ஒரு முக்கிய சொருகி கப்பல்.\n"
 
 #. option for plugin preferences
 #: zim/plugins/tableofcontents.py:109
 msgid "Show ToC as floating widget instead of in sidepane"
-msgstr ""
+msgstr "TOC ஐ சைட்பேனுக்கு பதிலாக மிதக்கும் விட்செட்டாகக் காட்டுங்கள்"
 
 #. option for plugin preferences
 #: zim/plugins/tableofcontents.py:111
 msgid "Show the page title heading in the ToC"
-msgstr ""
+msgstr "TOC இல் பக்க தலைப்பைக் காட்டு"
 
 #. option for plugin preferences
 #: zim/plugins/tableofcontents.py:113
 msgid "Include horizontal lines in the ToC"
-msgstr ""
+msgstr "TOC இல் கிடைமட்ட கோடுகளைச் சேர்க்கவும்"
 
 #. option for plugin preferences
 #: zim/plugins/tableofcontents.py:115
 msgid "Set ToC fontsize"
-msgstr ""
+msgstr "TOC எழுத்துரு அமைக்கவும்"
 
 #. action to lower level of heading in the text
 #: zim/plugins/tableofcontents.py:429
 msgid "Demote"
-msgstr ""
+msgstr "பதவி"
 
 #. action to raise level of heading in the text
 #: zim/plugins/tableofcontents.py:431
 msgid "Promote"
-msgstr ""
+msgstr "ஊக்குவிக்கவும்"
 
 #. widget label
 #: zim/plugins/tableofcontents.py:545
 msgid "T_oC"
-msgstr ""
+msgstr "T_oc"
 
 #. small label above Table Of Contents
 #: zim/plugins/tableofcontents.py:575
 msgid "ToC"
-msgstr ""
+msgstr "TOC"
 
 #. plugin name | 
 #. header in selection drop down
 #: zim/plugins/tags.py:37 zim/plugins/tasklist/gui.py:753
 msgid "Tags"
-msgstr ""
+msgstr "குறிச்சொற்கள்"
 
 #. plugin description
 #: zim/plugins/tags.py:38
@@ -3883,150 +3983,152 @@ msgid ""
 "This plugin provides a page index filtered by means of selecting tags in a "
 "cloud.\n"
 msgstr ""
+"இந்த சொருகி ஒரு மேகக்கட்டத்தில் குறிச்சொற்களைத் தேர்ந்தெடுப்பதன் மூலம் வடிகட்டப்பட்ட பக்க "
+"குறியீட்டை வழங்குகிறது.\n"
 
 #. title for sidepane tab
 #: zim/plugins/tags.py:98
 msgid "T_ags"
-msgstr ""
+msgstr "T_ags"
 
 #. menu option
 #: zim/plugins/tags.py:148
 msgid "Show full page name"
-msgstr ""
+msgstr "முழு பக்க பெயரையும் காட்டு"
 
 #. menu option
 #: zim/plugins/tags.py:153
 msgid "Sort pages by tags"
-msgstr ""
+msgstr "குறிச்சொற்களால் பக்கங்களை வரிசைப்படுத்தவும்"
 
 #. Context menu item for tag cloud
 #: zim/plugins/tags.py:444
 msgid "Sort alphabetically"
-msgstr ""
+msgstr "அகர வரிசைப்படி வரிசைப்படுத்துங்கள்"
 
 #. list with tasks
 #: zim/plugins/tasklist/gui.py:90
 msgid "All Tasks"
-msgstr ""
+msgstr "அனைத்து பணிகளும்"
 
 #. list with tasks
 #: zim/plugins/tasklist/gui.py:91
 msgid "Active"
-msgstr ""
+msgstr "செயலில்"
 
 #. list with tasks (GTD style category)
 #: zim/plugins/tasklist/gui.py:92
 msgid "Inbox"
-msgstr ""
+msgstr "இன்பாக்ச்"
 
 #. list with tasks (GTD style category)
 #: zim/plugins/tasklist/gui.py:93
 msgid "Next Actions"
-msgstr ""
+msgstr "அடுத்த செயல்கள்"
 
 #. list with tasks (GTD style category)
 #: zim/plugins/tasklist/gui.py:94
 msgid "Projects"
-msgstr ""
+msgstr "திட்டங்கள்"
 
 #. list with tasks (GTD style category)
 #: zim/plugins/tasklist/gui.py:95
 msgid "Waiting"
-msgstr ""
+msgstr "காத்திருக்கிறது"
 
 #. placeholder label for sidepane
 #: zim/plugins/tasklist/gui.py:141
 msgid "No tasks"
-msgstr ""
+msgstr "பணிகள் இல்லை"
 
 #. tooltip
 #: zim/plugins/tasklist/gui.py:167
 msgid "Show tasklist window"
-msgstr ""
+msgstr "டாச்க்ச்லிச்ட் சாளரத்தைக் காட்டு"
 
 #. label for filtering/searching tasks
 #: zim/plugins/tasklist/gui.py:212
 msgid "Filter tasks"
-msgstr ""
+msgstr "பணிகளை வடிகட்டவும்"
 
 #. tab label for side pane
 #: zim/plugins/tasklist/gui.py:275
 msgid "Tas_ks"
-msgstr ""
+msgstr "Tas_ks"
 
 #. Window title for tasklist
 #: zim/plugins/tasklist/gui.py:375 zim/plugins/tasklist/gui.py:380
 msgid "Tasks"
-msgstr ""
+msgstr "பணிகள்"
 
 #. number of tasks shown in tasklist window
 #: zim/plugins/tasklist/gui.py:454
 #, python-format
 msgid "%s shown"
-msgstr ""
+msgstr "%காட்டப்பட்டுள்ளது"
 
 #. selection menu option
 #: zim/plugins/tasklist/gui.py:506
 msgid "Show open tasks"
-msgstr ""
+msgstr "திறந்த பணிகளைக் காட்டு"
 
 #. selection menu option
 #: zim/plugins/tasklist/gui.py:507
 msgid "Show closed tasks"
-msgstr ""
+msgstr "மூடிய பணிகளைக் காட்டு"
 
 #. selection menu option
 #: zim/plugins/tasklist/gui.py:508
 msgid "Show cancelled tasks"
-msgstr ""
+msgstr "ரத்து செய்யப்பட்ட பணிகளைக் காட்டு"
 
 #. selection menu option
 #: zim/plugins/tasklist/gui.py:509
 msgid "Show migrated tasks"
-msgstr ""
+msgstr "இடம்பெயர்ந்த பணிகளைக் காட்டு"
 
 #. selection menu option
 #: zim/plugins/tasklist/gui.py:510
 msgid "Show trans-migrated tasks"
-msgstr ""
+msgstr "டிரான்ச் இடம்பெயர்ந்த பணிகளைக் காட்டு"
 
 #. Header for list selection in tasklist window
 #: zim/plugins/tasklist/gui.py:603
 msgid "Lists"
-msgstr ""
+msgstr "பட்டியல்கள்"
 
 #. selection of tasks without tags
 #: zim/plugins/tasklist/gui.py:696
 msgid "Untagged"
-msgstr ""
+msgstr "அவிழ்க்கப்படாதது"
 
 #. header in selection drop down
 #: zim/plugins/tasklist/gui.py:751
 msgid "Labels"
-msgstr ""
+msgstr "சிட்டைகள்"
 
 #. Column header Task List dialog
 #: zim/plugins/tasklist/gui.py:895
 msgid "Task"
-msgstr ""
+msgstr "பணி"
 
 #. Column header Task List dialog | 
 #. due date for task
 #: zim/plugins/tasklist/gui.py:946 zim/plugins/tasklist/gui.py:1241
 msgid "Due"
-msgstr ""
+msgstr "காரணமாக"
 
 #. Column header Task List dialog | 
 #. start date for task
 #: zim/plugins/tasklist/gui.py:947 zim/plugins/tasklist/gui.py:1239
 msgid "Start"
-msgstr ""
+msgstr "தொடங்கு"
 
 #. plugin name | 
 #. menu item
 #: zim/plugins/tasklist/__init__.py:31 zim/plugins/tasklist/__init__.py:163
 msgid "Task List"
-msgstr ""
+msgstr "பணி பட்டியல்"
 
 #. plugin description
 #: zim/plugins/tasklist/__init__.py:32
@@ -4037,156 +4139,164 @@ msgid ""
 "\n"
 "This is a core plugin shipping with zim.\n"
 msgstr ""
+"இந்த சொருகி அனைத்து திறந்த பணிகளையும் காட்டும் உரையாடலைச் சேர்க்கிறது\n"
+" இந்த நோட்புக். திறந்த பணிகள் திறந்த தேர்வுப்பெட்டிகளாக இருக்கலாம்\n"
+" அல்லது \"செய்யவேண்டிய\" அல்லது \"ஃபிக்ம்\" போன்ற குறிச்சொற்களால் குறிக்கப்பட்ட உருப்படிகள்."
+"\n"
+"\n"
+" இது சிம்முடன் ஒரு முக்கிய சொருகி கப்பல்.\n"
 
 #. preferences option
 #: zim/plugins/tasklist/__init__.py:45
 msgid "Show tasklist button in headerbar"
-msgstr ""
+msgstr "எடர்பாரில் டாச்க்ச்லிச்ட் பொத்தானைக் காட்டுங்கள்"
 
 #. preferences option - "GTD" means "Getting Things Done" methodology
 #: zim/plugins/tasklist/__init__.py:47
 msgid "Show \"GTD-style\" inbox & next actions lists"
 msgstr ""
+"\"சி.டி.டி-பாணி\" இன்பாக்ச் மற்றும் அடுத்த செயல்கள் பட்டியல்களைக் காட்டு"
 
 #. preferences option
 #: zim/plugins/tasklist/__init__.py:49
 msgid "Show tasklist in sidepane"
-msgstr ""
+msgstr "தகவல்தொடர்புகளில் பணிப்பட்டியலைக் காட்டு"
 
 #. preferences option
 #: zim/plugins/tasklist/__init__.py:53
 msgid "Show due date in sidepane"
-msgstr ""
+msgstr "சைட்பேனில் உரிய தேதியைக் காட்டு"
 
 #. preferences option
 #: zim/plugins/tasklist/__init__.py:55
 msgid "Show start date in sidepane"
-msgstr ""
+msgstr "பக்கவாட்டில் தொடக்க தேதியைக் காட்டு"
 
 #. preferences option
 #: zim/plugins/tasklist/__init__.py:57
 msgid "Show page column in the sidepane"
-msgstr ""
+msgstr "பக்க நெடுவரிசையில் பக்க நெடுவரிசையைக் காட்டு"
 
 #. label for plugin preferences dialog
 #: zim/plugins/tasklist/__init__.py:63
 msgid "Consider all checkboxes as tasks"
-msgstr ""
+msgstr "அனைத்து தேர்வுப்பெட்டிகளையும் பணிகளாகக் கருதுங்கள்"
 
 #. label for plugin preferences dialog - labels are e.g. "FIXME", "TODO"
 #: zim/plugins/tasklist/__init__.py:65
 msgid "Labels marking tasks"
-msgstr ""
+msgstr "பணிகளைக் குறிக்கும் லேபிள்கள்"
 
 #. label for plugin preferences dialog - labels are e.g. "Waiting", "Planned"
 #: zim/plugins/tasklist/__init__.py:67
 msgid "Labels for \"waiting\" tasks"
-msgstr ""
+msgstr "\"காத்திருப்பு\" பணிகளுக்கான லேபிள்கள்"
 
 #. label for plugin preferences dialog - tags are e.g. "@waiting", "@planned"
 #: zim/plugins/tasklist/__init__.py:69
 msgid "Tags for \"waiting\" tasks"
-msgstr ""
+msgstr "\"காத்திருப்பு\" பணிகளுக்கான குறிச்சொற்கள்"
 
 #. label for preference with multiple options
 #: zim/plugins/tasklist/__init__.py:71
 msgid "Use date from journal pages"
-msgstr ""
+msgstr "செய்தித் தாள் பக்கங்களிலிருந்து தேதியைப் பயன்படுத்தவும்"
 
 #. choice for "Use date from journal pages"
 #: zim/plugins/tasklist/__init__.py:72
 msgid "do not use"
-msgstr ""
+msgstr "பயன்படுத்த வேண்டாம்"
 
 #. choice for "Use date from journal pages"
 #: zim/plugins/tasklist/__init__.py:73
 msgid "as start date for tasks"
-msgstr ""
+msgstr "பணிகளுக்கான தொடக்க தேதியாக"
 
 #. choice for "Use date from journal pages"
 #: zim/plugins/tasklist/__init__.py:74
 msgid "as due date for tasks"
-msgstr ""
+msgstr "பணிகளுக்கு உரிய தேதி"
 
 #. Notebook sections to search for tasks - default is the whole tree (empty string means everything)
 #: zim/plugins/tasklist/__init__.py:76
 msgid "Section(s) to index"
-msgstr ""
+msgstr "பிரிவு (கள்) குறியீட்டுக்கு"
 
 #. Notebook sections to exclude when searching for tasks - default is none
 #: zim/plugins/tasklist/__init__.py:78
 msgid "Section(s) to ignore"
-msgstr ""
+msgstr "புறக்கணிக்க பிரிவு (கள்)"
 
 #. label for plugin preferences dialog
 #: zim/plugins/tasklist/__init__.py:83
 msgid "Show page names in selection pane"
-msgstr ""
+msgstr "தேர்வு பலகத்தில் பக்க பெயர்களைக் காட்டு"
 
 #. label for plugin preferences dialog
 #: zim/plugins/tasklist/__init__.py:85
 msgid "Don't count Saturday and Sunday as working days"
-msgstr ""
+msgstr "காரி மற்றும் ஞாயிற்றுக்கிழமை வேலை நாட்களாக எண்ண வேண்டாம்"
 
 #. toolbar style
 #: zim/plugins/toolbar.py:19
 msgid "Icons"
-msgstr ""
+msgstr "சின்னங்கள்"
 
 #. toolbar style
 #: zim/plugins/toolbar.py:21
 msgid "Icons & Text"
-msgstr ""
+msgstr "சின்னங்கள் & உரை"
 
 #. toolbar style
 #: zim/plugins/toolbar.py:22
 msgid "Icons & Text horizontal"
-msgstr ""
+msgstr "சின்னங்கள் & உரை கிடைமட்டமாக"
 
 #. Toolbar size small
 #: zim/plugins/toolbar.py:30
 msgid "Small"
-msgstr ""
+msgstr "சிறிய"
 
 #. Toolbar size large
 #: zim/plugins/toolbar.py:31
 msgid "Large"
-msgstr ""
+msgstr "பெரிய"
 
 #. plugin name
 #: zim/plugins/toolbar.py:41
 msgid "Tool Bar"
-msgstr ""
+msgstr "கருவி பட்டி"
 
 #. plugin description
 #: zim/plugins/toolbar.py:42
 msgid "This plugin allows to customize the toolbar in the main window.\n"
 msgstr ""
+"இந்த சொருகி முதன்மையான சாளரத்தில் கருவிப்பட்டியைத் தனிப்பயனாக்க அனுமதிக்கிறது.\n"
 
 #. option for plugin preferences
 #: zim/plugins/toolbar.py:51
 msgid "Show toolbar"
-msgstr ""
+msgstr "கருவிப்பட்டியைக் காட்டு"
 
 #. option for plugin preferences
 #: zim/plugins/toolbar.py:53
 msgid "Include formatting tools in toolbar"
-msgstr ""
+msgstr "கருவிப்பட்டியில் வடிவமைப்பு கருவிகளைச் சேர்க்கவும்"
 
 #. option for plugin preferences
 #: zim/plugins/toolbar.py:57
 msgid "Toolbar style"
-msgstr ""
+msgstr "கருவிப்பட்டி நடை"
 
 #. option for plugin preferences
 #: zim/plugins/toolbar.py:59
 msgid "Toolbar size"
-msgstr ""
+msgstr "கருவிப்பட்டி அளவு"
 
 #. plugin name
 #: zim/plugins/trayicon.py:69
 msgid "Tray Icon"
-msgstr ""
+msgstr "தட்டு படவுரு"
 
 #. plugin description
 #: zim/plugins/trayicon.py:70
@@ -4197,6 +4307,11 @@ msgid ""
 "\n"
 "This is a core plugin shipping with zim.\n"
 msgstr ""
+"இந்த சொருகி விரைவான அணுகலுக்கான தட்டு ஐகானை சேர்க்கிறது.\n"
+"\n"
+" இந்த சொருகி GTK+ பதிப்பு 2.10 அல்லது புதியதைப் பொறுத்தது.\n"
+"\n"
+" இது சிம்முடன் ஒரு முக்கிய சொருகி கப்பல்.\n"
 
 #. preferences option
 #: zim/plugins/trayicon.py:83
@@ -4204,32 +4319,34 @@ msgid ""
 "Classic trayicon,\n"
 "do not use new style status icon on Ubuntu"
 msgstr ""
+"கிளாசிக் ட்ராயிகான்,\n"
+" உபுண்டுவில் புதிய பாணி நிலை ஐகானைப் பயன்படுத்த வேண்டாம்"
 
 #. menu item in tray icon menu
 #: zim/plugins/trayicon.py:135
 msgid "_Quick Note..."
-msgstr ""
+msgstr "_Quick குறிப்பு ..."
 
 #. menu item in tray icon menu
 #: zim/plugins/trayicon.py:144
 msgid "_Other..."
-msgstr ""
+msgstr "_ மற்றவர் ..."
 
 #. menu item in tray icon menu
 #: zim/plugins/trayicon.py:200
 msgid "Notebooks"
-msgstr ""
+msgstr "குறிப்பேடுகள்"
 
 #. tooltip for tray icon | 
 #. short description of zim
 #: zim/plugins/trayicon.py:259 zim/plugins/zeitgeist-logger.py:49
 msgid "Zim Desktop Wiki"
-msgstr ""
+msgstr "சிம் டெச்க்டாப் விக்கி"
 
 #. plugin name
 #: zim/plugins/versioncontrol/__init__.py:54
 msgid "Version Control"
-msgstr ""
+msgstr "பதிப்பு கட்டுப்பாடு"
 
 #. plugin description
 #: zim/plugins/versioncontrol/__init__.py:55
@@ -4240,72 +4357,79 @@ msgid ""
 "\n"
 "This is a core plugin shipping with zim.\n"
 msgstr ""
+"இந்த சொருகி குறிப்பேடுகளுக்கான பதிப்பு கட்டுப்பாட்டை சேர்க்கிறது.\n"
+"\n"
+" இந்த சொருகி கடைவீதி, அறிவிலி மற்றும் மெர்குரியல் பதிப்பு கட்டுப்பாட்டு அமைப்புகளை "
+"ஆதரிக்கிறது.\n"
+"\n"
+" இது சிம்முடன் ஒரு முக்கிய சொருகி கப்பல்.\n"
 
 #. Label for plugin preference
 #: zim/plugins/versioncontrol/__init__.py:67
 msgid "Autosave version when the notebook is closed"
-msgstr ""
+msgstr "ஆட்டோசேவ் பதிப்பு நோட்புக் மூடப்படும் போது"
 
 #. Label for plugin preference
 #: zim/plugins/versioncontrol/__init__.py:68
 msgid "Autosave version on regular intervals"
-msgstr ""
+msgstr "ஆட்டோசேவ் பதிப்பு வழக்கமான இடைவெளியில்"
 
 #. Label for plugin preference
 #: zim/plugins/versioncontrol/__init__.py:69
 msgid "Autosave interval in minutes"
-msgstr ""
+msgstr "நிமிடங்களில் ஆட்டோசேவ் இடைவெளி"
 
 #. default version comment for auto-saved versions
 #: zim/plugins/versioncontrol/__init__.py:201
 msgid "Automatically saved version from zim"
-msgstr ""
+msgstr "சிம்மிலிருந்து தானாக சேமிக்கப்பட்ட பதிப்பு"
 
 #. menu item
 #: zim/plugins/versioncontrol/__init__.py:209
 msgid "S_ave Version..."
-msgstr ""
+msgstr "S_AVE பதிப்பு ..."
 
 #. menu item
 #: zim/plugins/versioncontrol/__init__.py:226
 msgid "_Versions..."
-msgstr ""
+msgstr "_Versions ..."
 
 #. verbose error description
 #: zim/plugins/versioncontrol/__init__.py:238
 msgid ""
 "There are no changes in this notebook since the last version that was saved"
 msgstr ""
+"சேமிக்கப்பட்ட கடைசி பதிப்பிலிருந்து இந்த நோட்புக்கில் எந்த மாற்றங்களும் இல்லை"
 
 #. Short error descriotion
 #: zim/plugins/versioncontrol/__init__.py:241
 msgid "No changes since last version"
-msgstr ""
+msgstr "கடைசி பதிப்பிலிருந்து மாற்றங்கள் இல்லை"
 
 #. option value
 #: zim/plugins/versioncontrol/__init__.py:257
 msgid "Bazaar"
-msgstr ""
+msgstr "கடைவீதி"
 
 #. option value
 #: zim/plugins/versioncontrol/__init__.py:258
 msgid "Mercurial"
-msgstr ""
+msgstr "மெர்குரியல்"
 
 #. option value
 #: zim/plugins/versioncontrol/__init__.py:259
 msgid "Git"
-msgstr ""
+msgstr "அறிவிலி"
 
 #. option value
 #: zim/plugins/versioncontrol/__init__.py:260
 msgid "Fossil"
-msgstr ""
+msgstr "புதைபடிவ"
 
 #. Question dialog
 #: zim/plugins/versioncontrol/__init__.py:720
 msgid "Enable Version Control?"
-msgstr ""
+msgstr "பதிப்பு கட்டுப்பாட்டை இயக்கவா?"
 
 #. Detailed question
 #: zim/plugins/versioncontrol/__init__.py:722
@@ -4313,42 +4437,44 @@ msgid ""
 "Version control is currently not enabled for this notebook.\n"
 "Do you want to enable it?"
 msgstr ""
+"இந்த நோட்புக்குக்கு பதிப்பு கட்டுப்பாடு தற்போது இயக்கப்படவில்லை.\n"
+" அதை இயக்க விரும்புகிறீர்களா?"
 
 #. option to chose versioncontrol backend
 #: zim/plugins/versioncontrol/__init__.py:733
 msgid "Backend"
-msgstr ""
+msgstr "பின்தளத்தில்"
 
 #. dialog title
 #: zim/plugins/versioncontrol/__init__.py:751
 msgid "Save Version"
-msgstr ""
+msgstr "பதிப்பை சேமிக்கவும்"
 
 #. Dialog text
 #: zim/plugins/versioncontrol/__init__.py:758
 msgid "Please enter a comment for this version"
-msgstr ""
+msgstr "இந்த பதிப்பிற்கு ஒரு கருத்தை உள்ளிடவும்"
 
 #. default version comment in the "save version" dialog
 #: zim/plugins/versioncontrol/__init__.py:764
 msgid "Saved version from zim"
-msgstr ""
+msgstr "சிம்மிலிருந்து சேமிக்கப்பட்ட பதிப்பு"
 
 #. dialog title
 #: zim/plugins/versioncontrol/__init__.py:798
 #: zim/plugins/versioncontrol/__init__.py:815
 msgid "Versions"
-msgstr ""
+msgstr "பதிப்புகள்"
 
 #. Option in versions dialog to show version for single page
 #: zim/plugins/versioncontrol/__init__.py:822
 msgid "_Page"
-msgstr ""
+msgstr "_ பக்கம்"
 
 #. Button label
 #: zim/plugins/versioncontrol/__init__.py:837
 msgid "View _Annotated"
-msgstr ""
+msgstr "_ANNOTATED ஐக் காண்க"
 
 #. Help text in versions dialog
 #: zim/plugins/versioncontrol/__init__.py:842
@@ -4356,36 +4482,40 @@ msgid ""
 "Select a version to see changes between that version and the current\n"
 "state. Or select multiple versions to see changes between those versions.\n"
 msgstr ""
+"அந்த பதிப்பிற்கும் மின்னோட்டத்திற்கும் இடையிலான மாற்றங்களைக் காண ஒரு பதிப்பைத் "
+"தேர்ந்தெடுக்கவும்\n"
+" மாநிலம். அல்லது அந்த பதிப்புகளுக்கு இடையில் மாற்றங்களைக் காண பல பதிப்புகளைத் "
+"தேர்ந்தெடுக்கவும்.\n"
 
 #. version details
 #: zim/plugins/versioncontrol/__init__.py:867
 msgid "Comment"
-msgstr ""
+msgstr "கருத்து"
 
 #. Button label
 #: zim/plugins/versioncontrol/__init__.py:882
 msgid "_Restore Version"
-msgstr ""
+msgstr "_ ரெச்டோர் பதிப்பு"
 
 #. button in versions dialog for diff
 #: zim/plugins/versioncontrol/__init__.py:887
 msgid "Show _Changes"
-msgstr ""
+msgstr "_ மாற்றங்களைக் காட்டு"
 
 #. button in versions dialog for side by side comparison
 #: zim/plugins/versioncontrol/__init__.py:893
 msgid "_Side by Side"
-msgstr ""
+msgstr "பக்கவாட்டில் (_S)"
 
 #. dialog title
 #: zim/plugins/versioncontrol/__init__.py:981
 msgid "Annotated Page Source"
-msgstr ""
+msgstr "சிறுகுறிப்பு பக்க மூல"
 
 #. Confirmation question
 #: zim/plugins/versioncontrol/__init__.py:990
 msgid "Restore page to saved version?"
-msgstr ""
+msgstr "சேமித்த பதிப்பிற்கு பக்கத்தை மீட்டெடுக்கவா?"
 
 #. Detailed question, "%(page)s" is replaced by the page, "%(version)s" by the version id
 #: zim/plugins/versioncontrol/__init__.py:991
@@ -4396,46 +4526,50 @@ msgid ""
 "\n"
 "All changes since the last saved version will be lost !"
 msgstr ""
+"பக்கத்தை மீட்டெடுக்க விரும்புகிறீர்களா: %(page)s\n"
+" சேமித்த பதிப்பிற்கு: %(version)s?\n"
+"\n"
+" கடைசியாக சேமிக்கப்பட்ட பதிப்பிலிருந்து அனைத்து மாற்றங்களும் இழக்கப்படும்!"
 
 #. dialog title
 #: zim/plugins/versioncontrol/__init__.py:1006
 msgid "Changes"
-msgstr ""
+msgstr "மாற்றங்கள்"
 
 #. Column header versions dialog
 #: zim/plugins/versioncontrol/__init__.py:1064
 msgid "Rev"
-msgstr ""
+msgstr "ரெவ்"
 
 #. Option for Window Title template
 #: zim/plugins/windowtitleeditor.py:19
 msgid "Page Path - Notebook Name"
-msgstr ""
+msgstr "பக்க பாதை - நோட்புக் பெயர்"
 
 #. Option for Window Title template
 #: zim/plugins/windowtitleeditor.py:20
 msgid "Notebook Name - Zim"
-msgstr ""
+msgstr "நோட்புக் பெயர் - சிம்"
 
 #. Option for Window Title template
 #: zim/plugins/windowtitleeditor.py:21
 msgid "Page Name — Page Title — Zim"
-msgstr ""
+msgstr "பக்கத்தின் பெயர் - பக்க தலைப்பு - சிம்"
 
 #. Option for Window Title template
 #: zim/plugins/windowtitleeditor.py:22
 msgid "Notebook Name: Page Title (Page Source Path)"
-msgstr ""
+msgstr "நோட்புக் பெயர்: பக்க தலைப்பு (பக்க மூல பாதை)"
 
 #. Option for Window Title template
 #: zim/plugins/windowtitleeditor.py:23
 msgid "Custom"
-msgstr ""
+msgstr "தனிப்பயன்"
 
 #. plugin name
 #: zim/plugins/windowtitleeditor.py:28
 msgid "Window Title Editor"
-msgstr ""
+msgstr "சாளர தலைப்பு ஆசிரியர்"
 
 #. plugin description
 #: zim/plugins/windowtitleeditor.py:29
@@ -4445,66 +4579,70 @@ msgid ""
 "Press \"Configure\" below to choose a preset\n"
 "or to create a custom one.\n"
 msgstr ""
+"இந்த சொருகி சாளர தலைப்பைத் திருத்த அனுமதிக்கிறது.\n"
+"\n"
+" முன்னமைவைத் தேர்வுசெய்ய கீழே உள்ள \"உள்ளமைவு\" ஐ அழுத்தவும்\n"
+" அல்லது தனிப்பயன் ஒன்றை உருவாக்க.\n"
 
 #. window title editor preference option
 #: zim/plugins/windowtitleeditor.py:41
 msgid "Title template"
-msgstr ""
+msgstr "தலைப்பு வார்ப்புரு"
 
 #. window title editor preference option
 #: zim/plugins/windowtitleeditor.py:45
 msgid "Template string for custom format"
-msgstr ""
+msgstr "தனிப்பயன் வடிவமைப்பிற்கான வார்ப்புரு சரம்"
 
 #. window title in case of critical error
 #: zim/plugins/windowtitleeditor.py:98
 msgid "Plugin error - check debug log! - Zim"
-msgstr ""
+msgstr "சொருகி பிழை - பிழைத்திருத்த பதிவை சரிபார்க்கவும்! - சிம்"
 
 #. plugin name
 #: zim/plugins/zeitgeist-logger.py:33
 msgid "Log events with Zeitgeist"
-msgstr ""
+msgstr "சீட்சீச்டுடன் நிகழ்வுகளை பதிவு செய்யுங்கள்"
 
 #. plugin description
 #: zim/plugins/zeitgeist-logger.py:34
 msgid "Pushes events to the Zeitgeist daemon."
-msgstr ""
+msgstr "சீட்சீச்ட் டீமனுக்கு நிகழ்வுகளைத் தள்ளுகிறது."
 
 #. label for how zim pages show up in the recent files menu, %s is the page name
 #: zim/plugins/zeitgeist-logger.py:64
 #, python-format
 msgid "Wiki page: %s"
-msgstr ""
+msgstr "விக்கி பக்கம்: %s"
 
 #: data/templates/wiki/Default.txt:2 data/templates/wiki/Journal.txt:22
 msgid "Created"
-msgstr ""
+msgstr "உருவாக்கப்பட்டது"
 
 #: data/templates/html/Default.html:46 data/templates/html/Default.html:48
 #: data/templates/html/Default_with_index.html:55
 #: data/templates/html/Default_with_index.html:57
 msgid "Prev"
-msgstr ""
+msgstr "முந்தைய"
 
 #: data/templates/html/Default.html:52 data/templates/html/Default.html:54
 #: data/templates/html/Default_with_index.html:61
 #: data/templates/html/Default_with_index.html:63
 msgid "Index"
-msgstr ""
+msgstr "குறியெண்"
 
 #: data/templates/html/Default.html:58 data/templates/html/Default.html:60
 #: data/templates/html/Default_with_index.html:67
 #: data/templates/html/Default_with_index.html:69
 msgid "Next"
-msgstr ""
+msgstr "அடுத்தது"
 
 #: data/templates/html/Default.html:82
 #: data/templates/html/Default_with_index.html:97
 msgid "Backlinks:"
-msgstr ""
+msgstr "பின்னிணைப்புகள்:"
 
 #: data/templates/html/Default.html:91
 #: data/templates/html/Default_with_index.html:106
 msgid "Attachments:"
-msgstr ""
+msgstr "இணைப்புகள்:"
