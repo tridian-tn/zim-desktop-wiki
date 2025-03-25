@@ -520,9 +520,9 @@ class Folder(FSObjectBase):
 		p = self.get_childpath(path.replace('%', '%%'))
 		if '.' in p.basename:
 			basename, ext = p.basename.split('.', 1)
-			pattern = p.relpath(self)[:len(basename)] + '%03i.' + ext
+			pattern = p.relpath(self)[:len(basename)] + '-%03i.' + ext
 		else:
-			pattern = p.relpath(self) + '%03i'
+			pattern = p.relpath(self) + '-%03i'
 
 		i = 0
 		trypath = path
