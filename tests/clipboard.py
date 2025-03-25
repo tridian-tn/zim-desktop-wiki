@@ -508,9 +508,9 @@ some <b>bold</b> text
 
 		newpage = self.notebook.get_page(Path('OtherPage'))
 		newpage.attachments_folder.file('foo.png').touch() # Let file exist already
-		newpage.attachments_folder.file('foo001.tex').touch() # Let file exist already
-		newfile_1 = newpage.attachments_folder.file('foo002.png')
-		newfile_2 = newpage.attachments_folder.file('foo002.tex')
+		newpage.attachments_folder.file('foo-001.tex').touch() # Let file exist already
+		newfile_1 = newpage.attachments_folder.file('foo-002.png')
+		newfile_2 = newpage.attachments_folder.file('foo-002.tex')
 		self.assertFalse(newfile_1.exists())
 		self.assertFalse(newfile_2.exists())
 
@@ -522,7 +522,7 @@ some <b>bold</b> text
 			'<?xml version=\'1.0\' encoding=\'utf-8\'?>\n'
 			'<zim-tree><p>'
 			'<object src="%s" type="image+equation" />'
-			'</p></zim-tree>' % os_native_path('./foo002.png')
+			'</p></zim-tree>' % os_native_path('./foo-002.png')
 		) # Sources are copied and number is added due to existing files
 		self.assertTrue(newfile_1.exists())
 		self.assertTrue(newfile_2.exists())
