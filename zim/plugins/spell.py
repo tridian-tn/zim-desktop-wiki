@@ -149,12 +149,13 @@ class SpellPageViewExtension(PageViewExtension):
 		self._adapter_cls = choose_adapter_cls()
 		self.checker = None
 
-		self.properties = self.plugin.notebook_properties(self.pageview.notebook)
-		self.connectto(self.properties, 'changed', self.on_properties_changed)
-		self.on_properties_changed(self.properties)
-
 		self.uistate.setdefault('active', False)
 		self.toggle_spellcheck(self.uistate['active'])
+
+		self.properties = self.plugin.notebook_properties(self.pageview.notebook)
+		self.on_properties_changed(self.properties)
+		self.connectto(self.properties, 'changed', self.on_properties_changed)
+
 		self.connectto(self.pageview, 'page-changed', order=SIGNAL_AFTER)
 
 	def on_properties_changed(self, properties):
@@ -166,6 +167,10 @@ class SpellPageViewExtension(PageViewExtension):
 		logger.debug('Spellcheck language: %s', lang)
 		try:
 			self.checker = self._adapter_cls(textview, lang)
+			if self.uistate['active']:
+				self.checker.enable()
+			else:
+				self.checker.disable()
 		except:
 			ErrorDialog(self.pageview, (
 				_('Could not load spell checking'),
