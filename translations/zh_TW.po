@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: zim\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-02-14 15:34+0100\n"
-"PO-Revision-Date: 2025-03-10 08:07+0000\n"
+"PO-Revision-Date: 2025-03-21 01:33+0000\n"
 "Last-Translator: 麋麓 BigELK176 <BigELK176@gmail.com>\n"
 "Language-Team: Chinese (Traditional Han script) <https://hosted.weblate.org/"
 "projects/zim/develop/zh_Hant/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.10.3-dev\n"
+"X-Generator: Weblate 5.11-dev\n"
 "X-Launchpad-Export-Date: 2020-01-01 13:40+0000\n"
 
 #. Error message when external application could not be found, %s is the command
@@ -393,7 +393,7 @@ msgstr "範本"
 #. radio option in export dialog
 #: zim/gui/exportdialog.py:229
 msgid "Link files under document root with full file path"
-msgstr "連結檔案在完整路徑的文件根目錄下"
+msgstr "在文件根目錄下的連結檔案，其使用完整檔案路徑"
 
 #. radio option in export dialog
 #: zim/gui/exportdialog.py:230
@@ -1405,7 +1405,7 @@ msgstr "取消動作(_U)"
 #. Menu item
 #: zim/gui/pageview/__init__.py:1616
 msgid "_Redo"
-msgstr "重做動作(_R)"
+msgstr "再次動作(_R)"
 
 #. Menu item
 #: zim/gui/pageview/__init__.py:1623
