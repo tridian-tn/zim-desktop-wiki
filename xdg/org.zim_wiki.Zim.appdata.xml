@@ -37,6 +37,16 @@
     </screenshot>
   </screenshots>
   <releases>
+    <release date="2025-03-28" version="0.76.3">
+      <description>
+        <ul>
+          <li>Add seperator to template for new files</li>
+          <li>Fix spellcheck state at startup</li>
+          <li>Fix cursor position after undo indent</li>
+          <li>Fix test suite release 0.76.2</li>
+        </ul>
+      </description>
+    </release>
     <release date="2025-03-13" version="0.76.2">
       <description>
         <ul>

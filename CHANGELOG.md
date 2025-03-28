@@ -5,6 +5,12 @@ Jaap Karssenberg <jaap.karssenberg@gmail.com>
 This branch is the Python rewrite and starts with version 0.42.
 Earlier version numbers for zim correspond to the Perl branch.
 
+##  0.76.3 - Fri 28 Mar 2025
+* Add seperator to template for new files
+* Fix spellcheck state at startup
+* Fix cursor position after undo indent
+* Fix test suite release 0.76.2
+
 ##  0.76.2 - Thu 13 Mar 2025
 * Let new page and quicknote templates place cursor
 * Let find match within sourceview blocks
