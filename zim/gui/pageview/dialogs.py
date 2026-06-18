@@ -380,14 +380,16 @@ class EditImageDialog(Dialog):
 			src = src[:i]
 		href = image_data.get('href', '')
 		anchor = image_data.get('id', '')
+		alt = image_data.get('alt', '')
 		self.add_form([
 				('file', 'image', _('Location')), # T: Input in 'edit image' dialog
 				('href', 'link', _('Link to'), path), # T: Input in 'edit image' dialog
+				('alt', 'string', _('Alternate text')), # T: Input in 'edit image' dialog
 				('width', 'int', _('Width'), (0, 1)), # T: Input in 'edit image' dialog
 				('height', 'int', _('Height'), (0, 1)), # T: Input in 'edit image' dialog
 				('anchor', 'string', _('Id'))
 			],
-			{'file': src, 'href': href, 'anchor': anchor}
+			{'file': src, 'href': href, 'anchor': anchor, 'alt': alt}
 			# range for width and height are set in set_ranges()
 		)
 		self.form.widgets['file'].set_use_relative_paths(notebook, path)
@@ -483,6 +485,7 @@ class EditImageDialog(Dialog):
 
 		attrib = self._image_data
 		attrib['src'] = self.notebook.relative_filepath(file, self.path) or file.uri
+		attrib['alt'] = self.form['alt'] # TODO We should escape / protect from special chars
 
 		href = self.form['href']
 		if href:
@@ -546,7 +549,7 @@ class InsertLinkDialog(Dialog):
 		else:
 			title = _('Insert Link') # T: Dialog title
 
-		Dialog.__init__(self, parent, title, button=_('_Link'))  # T: Dialog button
+		Dialog.__init__(self, parent, title, button=_('_Link'), help='Help:Links')  # T: Dialog button
 
 		self.uistate.setdefault('short_links', pageview.notebook.config['Notebook']['short_links'])
 		self.add_form(
@@ -808,13 +811,13 @@ class MoveTextDialog(Dialog):
 			return False
 
 		if not newpage.exists():
-			template = self.notebook.get_template(newpage)
+			template = self.notebook.get_new_page_template(newpage)
 			newpage.set_parsetree(template)
 
 		parsetree = self.buffer.get_parsetree(self.bounds)
 		newtree = update_parsetree_and_copy_images(parsetree, self.notebook, self.page, newpage)
 
-		newpage.append_parsetree(newtree)
+		newpage.append_parsetree(newtree) # TODO - we would want to insert at the cursor position in case of a template
 		self.notebook.store_page(newpage)
 
 		# Delete text (after copy was successfull..)

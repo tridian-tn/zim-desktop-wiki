@@ -56,6 +56,31 @@ def split_escaped_string(string, char):
 	return parts
 
 
+def encode_xml_text(text: str|None) -> str:
+	'''Encode text such that it can be used in xml or html attributes
+	Encodes the following characters: `& < >`
+	'''
+	return text.replace('&', '&amp;').replace('>', '&gt;').replace('<', '&lt;') if text else ''
+
+
+def encode_xml_attrib(text: str|None) -> str:
+	'''Encode text such that it can be used in xml or html attributes
+	Encodes the following characters: `& < > " '`
+	'''
+	return text.replace('&', '&amp;').replace('>', '&gt;').replace('<', '&lt;').replace('"', '&quot;').replace("'", '&apos;') if text else ''
+
+
+_xml_chars = {'amp': '&', 'gt': '>', 'lt': '<', 'quot': '"', 'apos': "'"}
+_xml_decode_func = lambda m: _xml_chars[m.group(1)]
+_xml_decode_re = re.compile(r'&(\w+);')
+
+def decode_xml(xml: str) -> str:
+	'''Decode xml or html quoted text
+	NOTE: Does not a full decoding, only undoes the effect of C{encode_html_text()} or C{encode_html_attrib()}
+	'''
+	return _xml_decode_re.sub(_xml_decode_func, xml)
+
+
 # URL encoding / decoding is a bit more tricky than it seems:
 #
 # === From man 7 url ===

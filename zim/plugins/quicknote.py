@@ -14,7 +14,8 @@ from zim.config import ConfigManager
 from zim.notebook import Path, Notebook, NotebookInfo, \
 	resolve_notebook, build_notebook
 from zim.templates import get_template
-from zim.main import GtkCommand, ZIM_APPLICATION
+from zim.templates.expression import ExpressionFunction
+from zim.main import GtkCommand
 
 from zim.gui.mainwindow import MainWindowExtension
 from zim.gui.widgets import Dialog, ScrolledTextView, InputForm, QuestionDialog
@@ -27,16 +28,37 @@ import logging
 logger = logging.getLogger('zim.plugins.quicknote')
 
 
-usagehelp = '''\
+class QuickNotePluginCommand(GtkCommand):
+
+	options = (
+		('notebook=', '', 'Select the notebook in the dialog'),
+		('page=', '', 'Fill in full page name (e.g. "PageA:PageB")'),
+		('section=', '', 'Fill in the full page name under which the new page will be added.'),
+		('title=', '', 'Fill in the title of the new page'),
+		('namespace=', '', '(deprecated) Same as "--section"'),
+		('basename=', '', '(deprecated) Same as "--title"'),
+		('append=', '', 'Set whether to append or create new page ("true" or "false")'),
+		('open=', '', 'Open the page on which the note was placed.'),
+		('text=', '', 'Provide the text directly'),
+		('input=', '', 'Provide the text on stdin ("stdin") or take the text from the clipboard ("clipboard")'),
+		('encoding=', '', 'Text encoding ("base64" or "url")'),
+		('attachments=', '', 'Import all files in FOLDER as attachments, wiki input can refer these files relatively'),
+		('option=', '', 'Set template parameter, e.g. "url=URL"'),
+	)
+
+	cmdhelp = '''\
 usage: zim --plugin quicknote [OPTIONS]
 
 Options:
   --help, -h             Print this help text and exit
   --notebook URI         Select the notebook in the dialog
-  --page STRING          Fill in full page name
-  --section STRING       Fill in the page section in the dialog
-  --basename STRING      Fill in the page name in the dialog
+  --page STRING          Fill in full page name (e.g. "PageA:PageB") (--append=true)
+  --section STRING       Fill in the full page name under which the new page will be added (--append=false)
+  --title STRING         Fill in the page or section title (requires --append=false)
+  --namespace STRING     (deprecated) Same as "--section"
+  --basename STRING      (deprecated) Same as "--title"
   --append [true|false]  Set whether to append or create new page
+  --open [true|false]    Open the page on which the note was placed
   --text TEXT            Provide the text directly
   --input stdin          Provide the text on stdin
   --input clipboard      Take the text from the clipboard
@@ -48,41 +70,20 @@ Options:
   --option url=STRING    Set template parameter
 '''
 
-
-class QuickNotePluginCommand(GtkCommand):
-
-	options = (
-		('help', 'h', 'Print this help text and exit'),
-		('notebook=', '', 'Select the notebook in the dialog'),
-		('page=', '', 'Fill in full page name'),
-		('section=', '', 'Fill in the page section in the dialog'),
-		('namespace=', '', 'Fill in the page section in the dialog'), # backward compatibility
-		('basename=', '', 'Fill in the page name in the dialog'),
-		('append=', '', 'Set whether to append or create new page ("true" or "false")'),
-		('text=', '', 'Provide the text directly'),
-		('input=', '', 'Provide the text on stdin ("stdin") or take the text from the clipboard ("clipboard")'),
-		('encoding=', '', 'Text encoding ("base64" or "url")'),
-		('attachments=', '', 'Import all files in FOLDER as attachments, wiki input can refer these files relatively'),
-		('option=', '', 'Set template parameter, e.g. "url=URL"'),
-	)
+	def handle_local_commandline(self, args):
+		# This runs in local process before dispatching via GtkApplication
+		# calling get_text_local() here ensures we handle e.g. stdin in local process
+		# In main run() method only the "--text" option is looked at and other ignored.
+		# If "--text" is already in the arguments, the final one in the list will
+		# be used. So no need to "clean up" the arguments.
+		text = self.get_text_local()
+		args.extend(['--text', text])
+		return args
 
 	def parse_options(self, *args):
 		self.opts['option'] = [] # allow list
 
-		if all(not a.startswith('-') for a in args):
-			# Backward compartibility for options not prefixed by "--"
-			# used "=" as separator for values
-			# template options came as "option:KEY=VALUE"
-			for arg in args:
-				if arg.startswith('option:'):
-					self.opts['option'].append(arg[7:])
-				elif arg == 'help':
-					self.opts['help'] = True
-				else:
-					key, value = arg.split('=', 1)
-					self.opts[key] = value
-		else:
-			GtkCommand.parse_options(self, *args)
+		GtkCommand.parse_options(self, *args)
 
 		self.template_options = {}
 		for arg in self.opts['option']:
@@ -93,23 +94,33 @@ class QuickNotePluginCommand(GtkCommand):
 			self.opts['append'] = \
 				self.opts['append'].lower() == 'true'
 
+		if 'open' in self.opts:
+			self.opts['open'] = \
+				self.opts['open'].lower() == 'true'
+				
+		if 'section' in self.opts:
+			self.opts['namespace'] = self.opts['section']
+				
+		if 'title' in self.opts:
+			self.opts['basename'] = self.opts['title']
+
 		if self.opts.get('attachments', None):
 			folderpath = LocalFolder(self.pwd).get_abspath(self.opts['attachments'])
 			self.opts['attachments'] = LocalFolder(folderpath)
 
-	def get_text(self):
-		if 'input' in self.opts:
+	def get_text_local(self):
+		if 'text' in self.opts: 
+			text = self.opts['text']
+		elif 'input' in self.opts:
 			if self.opts['input'] == 'stdin':
 				import sys
 				text = sys.stdin.read()
 			elif self.opts['input'] == 'clipboard':
-				text = \
-					SelectionClipboard.get_text() \
-					or Clipboard.get_text()
+				text = SelectionClipboard.get_text() or Clipboard.get_text()
 			else:
 				raise AssertionError('Unknown input type: %s' % self.opts['input'])
 		else:
-			text = self.opts.get('text', '')
+			text = ''
 
 		if text and 'encoding' in self.opts:
 			if self.opts['encoding'] == 'base64':
@@ -123,23 +134,7 @@ class QuickNotePluginCommand(GtkCommand):
 		assert isinstance(text, str), '%r is not decoded' % text
 		return text
 
-	def run_local(self):
-		# Try to run dialog from local process
-		# - prevents issues where dialog pop behind other applications
-		#   (desktop preventing new window of existing process to hijack focus)
-		# - e.g. capturing stdin requires local process
-		if self.opts.get('help'):
-			print(usagehelp) # TODO handle this in the base class
-		else:
-			dialog = self.build_dialog()
-			dialog.run()
-		return True # Done - Don't call run() as well
-
 	def run(self):
-		# If called from primary process just run the dialog
-		return self.build_dialog()
-
-	def build_dialog(self):
 		if 'notebook' in self.opts:
 			notebook = resolve_notebook(self.opts['notebook'])
 		else:
@@ -148,9 +143,11 @@ class QuickNotePluginCommand(GtkCommand):
 		dialog = QuickNoteDialog(None,
 			notebook=notebook,
 			namespace=self.opts.get('namespace'),
+			page_to_append_to=self.opts.get('page'),
 			basename=self.opts.get('basename'),
 			append=self.opts.get('append'),
-			text=self.get_text(),
+			open_page=self.opts.get('open'),
+			text=self.opts.get('text', ''),
 			template_options=self.template_options,
 			attachments=self.opts.get('attachments')
 		)
@@ -186,14 +183,12 @@ class QuickNoteMainWindowExtension(MainWindowExtension):
 
 
 class QuickNoteDialog(Dialog):
-	'''Dialog bound to a specific notebook'''
 
 	def __init__(self, window, notebook=None,
-		page=None, namespace=None, basename=None,
-		append=None, text=None, template_options=None, attachments=None
+		page_to_append_to=None, namespace=None, basename=None,
+		append=None, text=None, template_options=None, attachments=None,
+		open_page=None
 	):
-		assert page is None, 'TODO'
-
 		self.config = ConfigManager.get_config_dict('quicknote.conf')
 		self.uistate = self.config['QuickNoteDialog']
 
@@ -223,68 +218,71 @@ class QuickNoteDialog(Dialog):
 		self.notebookcombobox.connect('changed', self.on_notebook_changed)
 		self.form.attach(self.notebookcombobox, 1, 2, 0, 1)
 
-		self._init_inputs(namespace, basename, append, text, template_options)
+		self._init_inputs(namespace, basename, append, text, open_page, page_to_append_to, template_options)
 
 		self.uistate['lastnotebook'] = notebook
 		self._set_autocomplete(notebook)
 
-	def _init_inputs(self, namespace, basename, append, text, template_options, custom=None):
+	def _init_inputs(self, namespace, basename, append, text, open_page, page_to_append_to, template_options):
 		if template_options is None:
 			template_options = {}
 		else:
 			template_options = template_options.copy()
 
-		if namespace is not None and basename is not None:
-			page = namespace + ':' + basename
+		if page_to_append_to is not None:
+			page = page_to_append_to
 		else:
-			page = namespace or basename
+			if namespace is not None and basename is not None:
+				page = namespace + ':' + basename
+			elif page_to_append_to is None:
+				page = namespace or basename
 
 		self.form.add_inputs((
-				('page', 'page', _('Page')),
-				('namespace', 'namespace', _('Page section')), # T: text entry field
-				('new_page', 'bool', _('Create a new page for each note')), # T: checkbox in Quick Note dialog
-				('basename', 'string', _('Title')) # T: text entry field
+				('page', 'page', _('Page')), # T: text entry field; used if new_page is false.
+				('new_page', 'bool', _('Create a new page for each note')), # T: checkbox; if a new page should be created or not.
+				('namespace', 'namespace', _('Page section')), # T: text entry field; section when creating a new page.
+				('basename', 'string', _('Title')), # T: text entry field; title when creating a new page.
+				('open_page', 'bool', _('Open _page')), # T: checkbox; open page.
 			))
 		self.form.update({
 				'page': page,
 				'namespace': namespace,
 				'new_page': True,
 				'basename': basename,
+				'open_page': True,
 			})
 
-		self.uistate.setdefault('open_page', True)
+		# New page.
 		self.uistate.setdefault('new_page', True)
 
 		if basename:
 			self.uistate['new_page'] = True # Be consistent with input
 
-		# Set up the inputs and set page/ namespace to switch on
-		# toggling the checkbox
-		self.form.widgets['page'].set_no_show_all(True)
-		self.form.widgets['namespace'].set_no_show_all(True)
 		if append is None:
 			self.form['new_page'] = bool(self.uistate['new_page'])
 		else:
 			self.form['new_page'] = not append
 
-		def switch_input(*a):
+		# Open page.
+		self.uistate.setdefault('open_page', True)
+
+		if open_page is None:
+			self.form['open_page'] = bool(self.uistate['open_page'])
+		else:
+			self.form['open_page'] = open_page
+
+		def switch_input(*_):
 			if self.form['new_page']:
-				self.form.widgets['page'].hide()
-				self.form.widgets['namespace'].show()
+				self.form.widgets['page'].set_sensitive(False)
+				self.form.widgets['namespace'].set_sensitive(True)
 				self.form.widgets['basename'].set_sensitive(True)
 			else:
-				self.form.widgets['page'].show()
-				self.form.widgets['namespace'].hide()
+				self.form.widgets['page'].set_sensitive(True)
+				self.form.widgets['namespace'].set_sensitive(False)
 				self.form.widgets['basename'].set_sensitive(False)
 
 		switch_input()
 		self.form.widgets['new_page'].connect('toggled', switch_input)
-
-		self.open_page_check = Gtk.CheckButton.new_with_mnemonic(_('Open _Page')) # T: Option in quicknote dialog
-			# Don't use "O" as accelerator here to avoid conflict with "Ok"
-		self.open_page_check.set_active(self.uistate['open_page'])
-		self.action_area.pack_start(self.open_page_check, False, True, 0)
-		self.action_area.set_child_secondary(self.open_page_check, True)
 
 		# Add the main textview and hook up the basename field to
 		# sync with first line of the textview
@@ -297,22 +295,32 @@ class QuickNoteDialog(Dialog):
 		self.textview.get_buffer().connect('changed', self.on_text_changed)
 
 		# Initialize text from template
+		CURSOR_CHAR = '\ufffe' # unicode "non-character"
 		template = get_template('plugins', 'quicknote.txt')
 		template_options['text'] = text or ''
 		template_options.setdefault('url', '')
+		template_options['place_cursor'] = ExpressionFunction(lambda: CURSOR_CHAR)
 
 		lines = []
 		template.process(lines, template_options)
+		text = ''.join(lines)
+
 		buffer = self.textview.get_buffer()
-		buffer.set_text(''.join(lines))
-		begin, end = buffer.get_bounds()
-		buffer.place_cursor(begin)
+		try:
+			i = text.index(CURSOR_CHAR)
+			text = text.replace(CURSOR_CHAR, '')
+			buffer.set_text(text)
+			iter = buffer.get_iter_at_offset(i)
+			buffer.place_cursor(iter)
+		except:
+			buffer.set_text(text)
+			buffer.place_cursor(buffer.get_end_iter())
 
 		buffer.set_modified(False)
 
 		self.connect('delete-event', self.do_delete_event)
 
-	def on_notebook_changed(self, o):
+	def on_notebook_changed(self, _):
 		notebook = self.notebookcombobox.get_notebook()
 		if not notebook or notebook == self.uistate['lastnotebook']:
 			return
@@ -330,7 +338,7 @@ class QuickNoteDialog(Dialog):
 			try:
 				if isinstance(notebook, str):
 					notebook = NotebookInfo(notebook)
-				obj, x = build_notebook(notebook)
+				obj, _ = build_notebook(notebook)
 				self.form.widgets['namespace'].notebook = obj
 				self.form.widgets['page'].notebook = obj
 				logger.debug('Notebook for autocomplete: %s (%s)', obj, notebook)
@@ -366,11 +374,15 @@ class QuickNoteDialog(Dialog):
 		self.textview.grab_focus()
 		Dialog.show(self)
 
+	def show_all(self):
+		self.textview.grab_focus()
+		Dialog.show_all(self)
+
 	def save_uistate(self):
 		notebook = self.notebookcombobox.get_notebook()
 		self.uistate['lastnotebook'] = notebook
 		self.uistate['new_page'] = self.form['new_page']
-		self.uistate['open_page'] = self.open_page_check.get_active()
+		self.uistate['open_page'] = self.form['open_page']
 		if notebook is not None:
 			if self.uistate['new_page']:
 				self.config['Namespaces'][notebook] = self.form['namespace']
@@ -388,13 +400,18 @@ class QuickNoteDialog(Dialog):
 			# Automatically generate a (valid) page name
 			self._updating_title = True
 			start, end = buffer.get_bounds()
-			title = start.get_text(end).strip()[:50]
-				# Cut off at 50 characters to prevent using a whole paragraph
-			title = title.replace(':', '')
-			if '\n' in title:
-				title, _ = title.split('\n', 1)
+			text = start.get_text(end).strip()
+			# Limit page name to contents of first line
+			title = text.split('\n')[0]
+			# Get heading 1 as the page name, if present
+			heading_pattern = r'={1,}\s*(.*?)\s*={1,}'
+			heading_match = re.search(heading_pattern, title)
+			if heading_match:
+				title = heading_match.group(1)
+			# Remove colons and limit to 50 characters
+			title = title.replace(':', '')[:50]
 			try:
-				title = Path.makeValidPageName(title.replace(':', ''))
+				title = Path.makeValidPageName(title)
 				self.form['basename'] = title
 			except ValueError:
 				pass
@@ -435,15 +452,15 @@ class QuickNoteDialog(Dialog):
 		if self.attachments:
 			self.import_attachments(notebook, path, self.attachments)
 
-		if self.open_page_check.get_active():
+		if self.form['open_page']:
 			self.hide()
-			ZIM_APPLICATION.present(notebook, path)
+			self.get_application().open_notebook(notebook, path)
 
 		return True
 
 	def _get_notebook(self):
 		uri = self.notebookcombobox.get_notebook()
-		notebook, x = build_notebook(LocalFolder(uri))
+		notebook, _ = build_notebook(LocalFolder(uri))
 		return notebook
 
 	def create_new_page(self, notebook, path, text):

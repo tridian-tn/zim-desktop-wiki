@@ -14,6 +14,7 @@ import logging
 
 from zim.newfs import File
 from zim.notebook.page import Path
+from zim.formats import get_format
 
 
 logger = logging.getLogger('zim')
@@ -39,7 +40,7 @@ def import_file_from_user_input(file, notebook, path=None, format='wiki'):
 	else:
 		path = notebook.pages.lookup_from_user_input(path.name)
 
-	return import_file(file, notebook, path)
+	return import_file(file, notebook, path, format)
 
 
 def import_files_from_user_input(files, notebook, path=None, format='wiki'):
@@ -82,8 +83,17 @@ def import_file(file, notebook, path, format='wiki'):
 	page = notebook.get_new_page(path)
 	assert not page.exists()
 
-	page.parse(format, file.readlines())
-	notebook.store_page(page)
+	if get_format(format) is notebook.layout.default_format \
+			and notebook.layout.is_source_file(file):
+		# File is already a valid native format file - copy directly without conversion
+		notebook.emit('store-page', page)
+		file.copyto(page.source_file)
+		notebook.index.update_file(page.source_file)
+		page.set_modified(False)
+		notebook.emit('stored-page', page)
+	else:
+		page.parse(format, file.readlines())
+		notebook.store_page(page)
 	return page
 
 

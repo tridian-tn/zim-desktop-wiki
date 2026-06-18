@@ -1,8 +1,6 @@
+# Copyright 2009-2026 Jaap Karssenberg <jaap.karssenberg@gmail.com>
 
-# Copyright 2009-2018 Jaap Karssenberg <jaap.karssenberg@gmail.com>
-
-
-
+from collections.abc import Iterable
 
 from zim.base.naturalsort import natural_sort_key
 from zim.signals import SIGNAL_NORMAL
@@ -64,6 +62,7 @@ class TagsIndexer(IndexerBase):
 			CREATE TABLE IF NOT EXISTS tags (
 				id INTEGER PRIMARY KEY,
 				name TEXT,
+				lowername TEXT,
 				sortkey TEXT,
 
 				CONSTRAINT uc_TagOnce UNIQUE (name)
@@ -102,8 +101,8 @@ class TagsIndexer(IndexerBase):
 				if not row:
 					# Create new tag
 					self.db.execute(
-						'INSERT INTO tags(name, sortkey) VALUES (?, ?)',
-						(name, sortkey)
+						'INSERT INTO tags(name, lowername, sortkey) VALUES (?, ?, ?)',
+						(name, name.lower(), sortkey)
 					)
 					row = self.db.execute(
 						'SELECT * FROM tags WHERE sortkey=?', (sortkey,)
@@ -172,10 +171,15 @@ class TagsView(IndexView):
 		self._pages = PagesViewInternal(db)
 
 	def lookup_by_tagname(self, tag):
-		if isinstance(tag, IndexTag):
-			tag = tag.name
+		'''Returns L{IndexTag} object for a given tag by case-insensitive lookup
+		@param tag: a string or L{IndexTag} object
+		@returns: a L{IndexTag} object
+		'''
+		name = tag.name if isinstance(tag, IndexTag) else tag.lstrip('@')
+		sortkey = natural_sort_key(name)
+
 		row = self.db.execute(
-			'SELECT name, id FROM tags WHERE name=?', (tag.lstrip('@'),)
+			'SELECT name, id FROM tags WHERE sortkey=?', (sortkey,)
 		).fetchone()
 		if not row:
 			raise IndexNotFoundError
@@ -187,6 +191,17 @@ class TagsView(IndexView):
 			'SELECT tags.name, tags.id '
 			'FROM tags '
 			'ORDER BY tags.sortkey, tags.name'
+		):
+			yield IndexTag(*row)
+
+	def match_tags(self, word: str) -> Iterable[IndexTag]:
+		'''Generator for tags that have C{word} in their name (case insensitive)'''
+		for row in self.db.execute(
+			'SELECT tags.name, tags.id '
+			'FROM tags '
+			'WHERE lowername LIKE ? '
+			'ORDER BY tags.sortkey, tags.name',
+			("%%%s%%" % word.lower(),)
 		):
 			yield IndexTag(*row)
 
@@ -275,7 +290,7 @@ class TagsView(IndexView):
 		@param tag: a tag name as string or an C{IndexTag} object
 		@returns: yields L{PageIndexRecord} objects
 		'''
-		tag = self.lookup_by_tagname(tag)
+		tag = tag if isinstance(tag, IndexTag) else self.lookup_by_tagname(tag)
 		return self._list_pages(tag)
 
 	def _list_pages(self, tag):
@@ -289,7 +304,7 @@ class TagsView(IndexView):
 			yield self._pages.get_pagename(row['source'])
 
 	def n_list_pages(self, tag):
-		tag = self.lookup_by_tagname(tag)
+		tag = tag if isinstance(tag, IndexTag) else self.lookup_by_tagname(tag)
 		r = self.db.execute(
 			'SELECT COUNT(*) '
 			'FROM tagsources JOIN pages ON tagsources.source=pages.id '

@@ -1,0 +1,52 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.6
+Creation-Date: 2026-04-06T14:33:00+02:00
+
+====== Markdown Syntax ======
+
+Zim support markdown syntax as well as it's own [[Wiki Syntax|wiki Syntax]].
+
+The goal for the implementation is to follow the https://commonmark.org/ specification of markdown, where extensions are based on either the GitHub version of the commonmark spec, and on pandoc.
+
+__**NOTE**: markdown syntax support is still experimental and may break for corner cases__
+
+When a new notebook is created, you can choose markdown as the default format. To convert an existing notebook, please check the [[Commandline Options]] for converting a notebook. __If you are converting a notebook - do make a backup.__
+
+===== Limitations =====
+
+The current parser implementation does not do a proper implementation for nested inlines, combinations of bold and italic do not always work properly.
+
+The specification allows for blockquotes to be nested in lists, and lists to be nested in blockquotes. However to keep the editor behavior simple, zim only supports lists in blockquotes, but no blockquotes in lists.
+
+Blockquotes are interpreted and visualized as indenting in the editor.
+
+===== Extensions =====
+
+==== Inlines ====
+Zim supports:
+* subscript using "''~''", like "''H~2~O''" for H_{2}O
+* superscript using "''^''" like "''x^2''" for x^{2}
+* strike through using "''~~''" like "''~~deleted~~''" for ~~deleted~~
+* Underline/mark using "''__''" like "''__marked__''" - this breaks the spec which determines "''_''" as an alternative to "''*''"
+
+==== Links ====
+Zim supports wiki links as "''[[Page]]''" or "''[[Page|Link text]]''". These are intended only for page links, as these can only be resolved using knowledge of the notebook and therefore do not translate 1-on-1 to file links. When exporting markdown, they will be converted to a regular link.
+
+
+==== Lists ====
+Zim supports letters instead of numbers for numbered lists like:
+
+	a. item 1
+	b. item 2
+	c. item 3
+
+
+==== Pandoc attributes ====
+Zim supports attibutes using "''{...}''" like pandoc does for:
+* Setting anchors in headings or elsewhere in the text using "''{#name}''"
+* Setting image properties like height and width like "''{width=100px}''"
+* As a special case setting the "type" attribute on images makes it behave as an inline object, e.g. for the [[Plugins:Equation Editor|equation editor plugin]]
+* Let a fenced code block become an inline object
+
+==== Tabels ====
+Zim supports tables using the [[Plugins:Table Editor|table editor plugin]]

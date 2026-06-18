@@ -45,7 +45,7 @@ def dump():
 
 '''	)
 		# test widget loaded
-		objects = list(pageview.textview._object_widgets) # XXX
+		objects = list(pageview.textview.get_inserted_object_widgets())
 		self.assertIsInstance(objects[0], SourceViewWidget)
 
 		# test modify

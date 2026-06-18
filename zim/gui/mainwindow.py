@@ -65,10 +65,9 @@ if sys.platform == "darwin":
 #: Preferences for the user interface
 ui_preferences = (
 	# key, type, category, label, default
-	('prefer-dark-theme', 'bool', 'Interface', _('Prefer dark theme')
-		+ '\n' + _('This option requires a Gtk theme supporting a dark variant')
-		+ '\n' + _('This option requires restart of the application'), False),
-		# T: option for preferences dialog
+	('prefer-dark-theme', 'bool', 'Interface', _('Prefer dark theme') # T: option for preferences dialog
+		+ '\n' + _('This option requires a Gtk theme supporting a dark variant') # T: info text for preferences dialog
+		+ '\n' + _('This option requires restart of the application'), False), # T: info text for preferences dialog
 	('show_headerbar', 'bool', 'Interface', _('Show controls in the window decoration') + '\n' + _('This option requires restart of the application'), os_default_headerbar),
 		# T: option for preferences dialog
 	('toggle_on_ctrlspace', 'bool', 'Interface', _('Use %s to switch to the side pane') % (PRIMARY_MODIFIER_STRING + '<Space>'), False),
@@ -470,7 +469,6 @@ class MainWindow(WindowBaseMixin, Window):
 
 		# setup uistate
 		self.uistate = notebook.state['MainWindow']
-		self.uistate.setdefault('windowpos', None, check=value_is_coord)
 		self.uistate.setdefault('windowsize', (600, 450), check=value_is_coord)
 		self.uistate.setdefault('windowmaximized', False)
 		self.uistate.setdefault('active_tabs', None, tuple)
@@ -722,10 +720,6 @@ class MainWindow(WindowBaseMixin, Window):
 
 		if not self._geometry_set:
 			# Ignore this if an explicit geometry was specified to the constructor
-			if self.uistate['windowpos'] is not None:
-				x, y = self.uistate['windowpos']
-				self.move(x, y)
-
 			w, h = self.uistate['windowsize']
 			self.set_default_size(w, h)
 
@@ -772,7 +766,6 @@ class MainWindow(WindowBaseMixin, Window):
 		self.history.set_state(self.page, cursor, scroll)
 
 		if self.is_visible() and not self.isfullscreen:
-			self.uistate['windowpos'] = tuple(self.get_position())
 			self.uistate['windowsize'] = tuple(self.get_size())
 			self.uistate['windowmaximized'] = self.maximized
 

@@ -76,20 +76,22 @@ to a title or subtitle in the document.
 import re
 import itertools
 import logging
-
 import collections
+
+from functools import reduce
+
+logger = logging.getLogger('zim.formats')
+
 
 from zim.parse.encode import url_decode, url_encode, URL_ENCODE_READABLE, URL_ENCODE_DATA
 from zim.parse.links import link_type, is_url_re, is_www_link_re
-from zim.parser import Builder
+from zim.parse.tokenlist import TokenParser, topLevelLists, collect_until_end_token
+from zim.parse.builder import Builder
+
 from zim.config import ConfigDict
+from zim.base.klasslookup import get_module, lookup_subclass
 from zim.plugins import PluginManager
 
-import zim.plugins
-from functools import reduce
-
-
-logger = logging.getLogger('zim.formats')
 
 # Needed to determine RTL, but may not be available
 # if gtk bindings are not installed
@@ -206,39 +208,39 @@ def convert_list_iter_letter_to_number(listiter):
 			return None
 
 
-def encode_xml(text):
-	'''Encode text such that it can be used in xml
-	@param text: label text as string
-	@returns: encoded text
-	'''
-	return text.replace('&', '&amp;').replace('>', '&gt;').replace('<', '&lt;').replace('"', '&quot;').replace("'", '&apos;')
-
-
 def list_formats(type):
-	if type == EXPORT_FORMAT:
-		return ['HTML', 'LaTeX', 'Markdown (pandoc)', 'RST (sphinx)']
+	'''Returns a list of 2-tuple of format name and a UI label
+	@param type: one of C{NATIVE_FORMAT}, C{EXPORT_FORMAT}, or C{TEXT_FORMAT}
+	'''
+	if type == NATIVE_FORMAT:
+		return [
+			('zim-wiki', 'Zim Wiki'),
+			('markdown', 'Markdown'),
+		]
+	elif type == EXPORT_FORMAT:
+		return [
+			('html', 'HTML'),
+			('latex', 'LaTeX'),
+			('markdown', 'Markdown (pandoc)'),
+			('rst', 'RST (sphinx)'),
+		]
 	elif type == TEXT_FORMAT:
-		return ['Text', 'Wiki', 'Markdown (pandoc)', 'RST (sphinx)']
+		return [
+				('plain', 'Text'),
+				('zim-wiki', 'Zim Wiki'),
+				('markdown', 'Markdown (pandoc)'),
+				('rst', 'RST (sphinx)'),
+			]
 	else:
 		assert False, 'TODO'
 
 
-def canonical_name(name):
-	# "HTML" -> html
-	# "Markdown (pandoc)" -> "markdown"
-	# "Text" -> "plain"
-	name = name.lower()
-	if ' ' in name:
-		name, _ = name.split(' ', 1)
-	if name == 'text':
-		return 'plain'
-	else:
-		return name
-
-
 _aliases = {
 	'zim-wiki': 'wiki',
+	'markdown-native': 'markdown',
+	'text': 'plain',
 }
+
 
 def get_format(name):
 	'''Returns the module object for a specific format.'''
@@ -254,7 +256,7 @@ def get_format_module(name):
 	@returns: a module object
 	'''
 	name = _aliases.get(name, name)
-	return zim.plugins.get_module('zim.formats.' + canonical_name(name))
+	return get_module('zim.formats.' + name)
 
 
 def get_parser(name, *arg, **kwarg):
@@ -267,7 +269,7 @@ def get_parser(name, *arg, **kwarg):
 	@returns: parser object instance (subclass of L{ParserClass})
 	'''
 	module = get_format_module(name)
-	klass = zim.plugins.lookup_subclass(module, ParserClass)
+	klass = lookup_subclass(module, ParserClass)
 	return klass(*arg, **kwarg)
 
 
@@ -281,7 +283,7 @@ def get_dumper(name, *arg, **kwarg):
 	@returns: dumper object instance (subclass of L{DumperClass})
 	'''
 	module = get_format_module(name)
-	klass = zim.plugins.lookup_subclass(module, DumperClass)
+	klass = lookup_subclass(module, DumperClass)
 	return klass(*arg, **kwarg)
 
 
@@ -297,19 +299,14 @@ TokenListElement = collections.namedtuple('TokenListElement', ('tag', 'attrib', 
 class ParseTree(object):
 	'''Wrapper for zim parse trees.'''
 
-	# No longer derives from ElementTree, internals are now private
-
-	# TODO, also remove etree args from init
-	# TODO, rename to FormattedText
-
 	def __init__(self, *arg, **kwarg):
 		self._etree = ElementTreeModule.ElementTree(*arg, **kwarg)
 		self._object_cache = {}
 		self.meta = LastDefinedOrderedDict()
+		assert not (self._etree.getroot() and self._etree.getroot().attrib.get('raw', False)), 'Deprecated "raw" attribute'
 
 	@classmethod
 	def new_from_tokens(klass, tokens):
-		from zim.tokenparser import TokenParser
 		tokens = list(tokens) # TODO: allow efficient use of generator here ?
 		assert tokens
 		if tokens[0][0] != FORMATTEDTEXT:
@@ -328,13 +325,6 @@ class ParseTree(object):
 		return root is not None and (
 			bool(list(root)) or (root.text and not root.text.isspace())
 		)
-
-	@property
-	def israw(self):
-		'''Returns True when this is a raw tree (which is representation
-		of TextBuffer, but not really valid).
-		'''
-		return self._etree.getroot().attrib.get('raw', False)
 
 	def _set_root_attrib(self, key, value):
 		self._etree.getroot().attrib[key] = value
@@ -394,8 +384,6 @@ class ParseTree(object):
 		return ParseTree().fromstring(self.tostring())
 
 	def iter_tokens(self):
-		from zim.tokenparser import topLevelLists
-
 		return iter(topLevelLists(self._get_tokens(self._etree.getroot())))
 
 	def _get_tokens(self, node):
@@ -607,8 +595,6 @@ class ParseTree(object):
 
 	def iter_elements(self, tag):
 		'''Helper function to find all occurences of C{tag}, yields L{TokenListElement}s'''
-		from zim.tokenparser import collect_until_end_token
-
 		token_iter = self.iter_tokens()
 		for t in token_iter:
 			if t[0] == tag:
@@ -625,8 +611,6 @@ class ParseTree(object):
 		C{tags}. The return value of C{func} can be C{None} to remove the element,
 		the same or a modified L{TokenListElement} or a list of tokens.
 		'''
-		from zim.tokenparser import collect_until_end_token
-
 		tokens = []
 		token_iter = self.iter_tokens()
 		for t in token_iter:
@@ -653,8 +637,6 @@ def split_heading_from_parsetree(parsetree, keep_head_token=True):
 	Returns two L{ParseTree} objects: one for the header and one for the main
 	body of the content - both can be C{None} if they are empty.
 	'''
-	from zim.tokenparser import collect_until_end_token
-
 	token_iter = parsetree.iter_tokens()
 	heading = []
 	body = []
@@ -711,7 +693,7 @@ class ParseTreeBuilder(Builder):
 		can not be re-used.
 		'''
 		root = self._b.close()
-		return zim.formats.ParseTree(root)
+		return ParseTree(root)
 
 	def start(self, tag, attrib=None):
 		attrib = attrib.copy() if attrib is not None else {}
@@ -1242,7 +1224,7 @@ class TableParser():
 		Each cell in a list of rows is split by "\n" and a 3-dimensional list is returned,
 		whereas each tuple represents a line and multiple lines represents a row and multiple rows represents the table
 		c11a = Cell in Row 1 in Column 1 in first = a line
-		:param strings: format like (('c11a \n c11b', 'c12a \n c12b'), ('c21', 'c22a \n 22b'))
+		:param rows: format like (('c11a \n c11b', 'c12a \n c12b'), ('c21', 'c22a \n 22b'))
 		:return: format like (((c11a, c12a), (c11b, c12b)), ((c21, c22a), ('', c22b)))
 		'''
 		multi_rows = [[cell.split("\n") for cell in row] for row in rows]
@@ -1307,6 +1289,7 @@ class TableParser():
 		:param row: tuple of cells
 		:param maxwidths: list of column length
 		:param aligns:  list of alignments
+		:param wraps: 0 for not wrapped, 1 for auto-wrapped line display
 		:param x:  point-separator
 		:param y: space-separator
 		:return: a textline

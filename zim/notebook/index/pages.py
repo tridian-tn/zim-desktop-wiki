@@ -585,7 +585,6 @@ class PagesView(IndexView):
 		):
 			yield PageIndexRecord(row)
 
-
 	def match_all_pages_by_words(self, words: list, limit: int = 10) -> Generator[PageIndexRecord, None, None]:
 		'''Like C{match_all_pages()}, except it performs a search based on multiple words'''
 

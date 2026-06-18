@@ -20,4 +20,3 @@ The "app-indicator" style trayicon can also be used in Gnome3 with the "AppIndic
 ==== Options ====
 For Ubuntu 10.4 and newer the new style "app-indicator" tray icon is supported. This tray icon is integrated with the Ubuntu system tray menu and always shows a menu on left mouse click. If you prefer the classic style instead you can select the "**Classic trayicon**" option in the plugin preferences.
 
-If the option "**Show a separate icon for each notebook**" is enabled each open notebook will have its own trayicon instead of one trayicon for all notebooks. This option overrules the "classic trayicon" option.

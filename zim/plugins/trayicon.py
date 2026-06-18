@@ -2,6 +2,7 @@
 # Copyright 2009-2014 Jaap Karssenberg <jaap.karssenberg@gmail.com>
 
 from gi.repository import GObject
+from gi.repository import Gio
 from gi.repository import Gtk
 
 import logging
@@ -26,8 +27,6 @@ except:
 logger = logging.getLogger('zim.plugins.trayicon')
 
 
-from zim.main import ZIM_APPLICATION
-
 
 GLOBAL_TRAYICON = None
 # The trayicon is global because you should only have one per process
@@ -44,13 +43,13 @@ def set_global_trayicon(classic=False):
 		cls = StatusIconTrayIcon
 
 	if GLOBAL_TRAYICON and isinstance(GLOBAL_TRAYICON, cls):
-		pass
-	else:
-		new = cls()
-		ZIM_APPLICATION.add_window(new)
-		if GLOBAL_TRAYICON:
-			GLOBAL_TRAYICON.destroy()
-		GLOBAL_TRAYICON = new
+		return None
+
+	if GLOBAL_TRAYICON:
+		GLOBAL_TRAYICON.destroy()
+
+	GLOBAL_TRAYICON = cls()
+	return GLOBAL_TRAYICON
 
 
 class TrayIconPluginCommand(GtkCommand):
@@ -61,8 +60,7 @@ class TrayIconPluginCommand(GtkCommand):
 	def run(self):
 		preferences = ConfigManager.preferences['TrayIconPlugin']
 		preferences.setdefault('classic', False)
-
-		set_global_trayicon(preferences['classic'])
+		return set_global_trayicon(preferences['classic'])
 
 
 class TrayIconPlugin(PluginClass):
@@ -83,7 +81,6 @@ This is a core plugin shipping with zim.
 	plugin_preferences = (
 		# key, type, label, default
 		('classic', 'bool', _('Classic trayicon,\ndo not use new style status icon on Ubuntu'), False), # T: preferences option
-		('standalone', 'bool', _('Show a separate icon for each notebook'), False), # T: preferences option
 	)
 
 	@classmethod
@@ -99,10 +96,10 @@ This is a core plugin shipping with zim.
 	def on_preferences_changed(self, preferences):
 		if GLOBAL_TRAYICON:
 			# Only refresh once someone else loaded it
-			self.load_trayicon()
-
-	def load_trayicon(self):
-		set_global_trayicon(self.preferences['classic'])
+			application = GLOBAL_TRAYICON.get_application() if hasattr(GLOBAL_TRAYICON, 'get_application') else None
+			trayicon = set_global_trayicon(self.preferences['classic'])
+			if trayicon and application:
+				application.add_window(trayicon)
 
 
 class TrayIconMainWindowExtension(MainWindowExtension):
@@ -110,7 +107,10 @@ class TrayIconMainWindowExtension(MainWindowExtension):
 	def __init__(self, plugin, window):
 		MainWindowExtension.__init__(self, plugin, window)
 		self.window.hideonclose = True
-		plugin.load_trayicon()
+		icon = set_global_trayicon(plugin.preferences['classic'])
+		application = window.get_application()
+		if application:
+			application.add_window(icon)
 
 	def teardown(self):
 		global GLOBAL_TRAYICON
@@ -124,6 +124,9 @@ class TrayIconBase(object):
 	'''Base class for the zim tray icon.
 	Contains code to create the tray icon menus.
 	'''
+
+	def get_application(self):
+		return Gio.Application.get_default()
 
 	def get_trayicon_menu(self):
 		'''Returns the main 'tray icon menu'''
@@ -218,14 +221,11 @@ class TrayIconBase(object):
 
 	def do_activate_notebook(self, uri):
 		'''Open a specific notebook.'''
-		if not isinstance(uri, str):
-			uri = uri.uri
-		ZIM_APPLICATION.run('--gui', uri)
+		self.get_application().open_notebook(uri)
 
 	def do_quit(self):
 		'''Quit zim.'''
-		if Gtk.main_level() > 0:
-			Gtk.main_quit()
+		self.get_application().quit()
 
 	def do_open_notebook(self):
 		'''Opens the notebook dialogs'''
@@ -234,7 +234,9 @@ class TrayIconBase(object):
 
 	def do_quick_note(self):
 		'''Show the dialog from the quicknote plugin'''
-		ZIM_APPLICATION.run('--plugin', 'quicknote')
+		from zim.plugins.quicknote import QuickNoteDialog
+		dialog = QuickNoteDialog(None)
+		dialog.show_all()
 
 
 class StatusIconTrayIcon(TrayIconBase, Gtk.StatusIcon):
@@ -245,7 +247,7 @@ class StatusIconTrayIcon(TrayIconBase, Gtk.StatusIcon):
 	}
 
 	def __init__(self):
-		GObject.GObject.__init__(self)
+		Gtk.StatusIcon.__init__(self)
 
 		icon_theme = Gtk.IconTheme.get_default()
 		if icon_theme.has_icon('zim-panel'):
@@ -277,13 +279,13 @@ class StatusIconTrayIcon(TrayIconBase, Gtk.StatusIcon):
 		menu = Gtk.Menu()
 		self.populate_menu_with_notebooks(menu, list)
 		menu.show_all()
-		menu.popup(None, None, Gtk.StatusIcon.position_menu, self, button, activate_time)
+		menu.popup(None, None, None, self, button, activate_time)
 
 	def do_popup_menu(self, button=3, activate_time=0):
 		#~ print('>>', button, activate_time)
 		menu = self.get_trayicon_menu()
 		menu.show_all()
-		menu.popup(None, None, Gtk.StatusIcon.position_menu, self, button, activate_time)
+		menu.popup(None, None, None, self, button, activate_time)
 
 	def destroy(self):
 		self.set_property('visible', False)
@@ -310,7 +312,7 @@ class AppIndicatorTrayIcon(TrayIconBase, SignalEmitter):
 
 		if not _GLOBAL_INDICATOR:
 			_GLOBAL_INDICATOR = AppIndicator.Indicator.new(
-				'zim-desktop-wiki', 'zim',
+				'zim-desktop-wiki', 'org.zim_wiki.Zim',
 				AppIndicator.IndicatorCategory.APPLICATION_STATUS
 			)
 

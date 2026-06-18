@@ -36,13 +36,16 @@ if __name__ == '__main__':
 	inputformat = sys.argv[1]
 	if len(sys.argv) == 4:
 		outputformat = sys.argv[2]
+		native = sys.argv[2].endswith('native') # HACK
 		source_dir = localFileOrFolder(sys.argv[3], pwd=os.getcwd())
 	elif len(sys.argv) == 3:
 		outputformat = sys.argv[2]
+		native = sys.argv[2].endswith('native') # HACK
 		source_dir = None
 	else:
 		outputformat = '__XML__'
 		source_dir = None
+		native = False
 
 	input = sys.stdin.read()
 
@@ -52,7 +55,7 @@ if __name__ == '__main__':
 	if outputformat == '__XML__':
 		sys.stdout.write(tree.tostring())
 	else:
-		linker = StubLinker(source_dir=source_dir)
+		linker = StubLinker(source_dir=source_dir) if not native else None # HACK markdown uses linker to detect output type
 		dumper = get_dumper(outputformat, linker=linker)
 		lines = dumper.dump(tree)
 		sys.stdout.write(''.join(lines))

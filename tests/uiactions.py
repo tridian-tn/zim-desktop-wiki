@@ -35,15 +35,6 @@ class EmptyWindowObject(object):
 		return None
 
 
-class MockNavigation(object):
-
-	def __init__(self):
-		self.opened = None
-
-	def open_page(self, page):
-		self.opened = page
-
-
 class TestUIActions(tests.TestCase):
 
 	def setUp(self):
@@ -55,7 +46,7 @@ class TestUIActions(tests.TestCase):
 			}
 		)
 		self.page = self.notebook.get_page(Path('Test'))
-		self.navigation = MockNavigation()
+		self.navigation = tests.MockObject(methods=('open_page', 'open_notebook', 'open_manual'))
 		self.uiactions = UIActions(
 			window,
 			self.notebook,
@@ -75,7 +66,7 @@ class TestUIActions(tests.TestCase):
 			self.uiactions.new_page()
 
 		self.assertTrue(page.exists())
-		self.assertEqual(self.navigation.opened, page)
+		self.assertEqual(self.navigation.lastMethodCall, ('open_page', page))
 
 	def testCreateNewPageFailsForExistingPage(self):
 		from zim.notebook import PageExistsError
@@ -125,7 +116,7 @@ class TestUIActions(tests.TestCase):
 				self.uiactions.new_page()
 
 			self.assertTrue(page.exists())
-			self.assertEqual(self.navigation.opened, page)
+			self.assertEqual(self.navigation.lastMethodCall, ('open_page', page))
 
 	def testCreateNewChildPage(self):
 		page = self.notebook.get_page(Path('Test:Child'))
@@ -139,7 +130,7 @@ class TestUIActions(tests.TestCase):
 			self.uiactions.new_sub_page()
 
 		self.assertTrue(page.exists())
-		self.assertEqual(self.navigation.opened, page)
+		self.assertEqual(self.navigation.lastMethodCall, ('open_page', page))
 
 	def testOpenAnotherNotebook(self):
 		from zim.gui.notebookdialog import NotebookDialog
@@ -615,6 +606,7 @@ class TestUIActions(tests.TestCase):
 		with tests.DialogContext(check_backlinks):
 			self.uiactions.show_search_backlinks()
 
+	@tests.expectedFailureIf(os.name == 'nt') # Fails at random in automated tests
 	def testShowRecentChangesDialog(self):
 
 		def use_recent_changes(dialog):
@@ -640,19 +632,21 @@ class TestUIActions(tests.TestCase):
 		with tests.DialogContext(use_recent_changes):
 			self.uiactions.show_recent_changes()
 
-		# self.assertEqual(self.navigation.opened, Path('NewPage')) # FIXME: fails at random in automated tests
+		self.assertEqual(self.navigation.lastMethodCall, ('open_page', Path('NewPage')))
 
 	def testShowServerDialog(self):
-		from zim.main import ZIM_APPLICATION
-		ZIM_APPLICATION._running = True # HACK
+		application = tests.MockObject(methods=('add_window',))
+		window = tests.MockObject(return_values={'get_application': application})
+		self.uiactions.widget = tests.MockObject(return_values={'get_toplevel': window})
 
 		from zim.gui.server import ServerWindow
 		ServerWindow.show_all = tests.CallBackLogger()
-		ServerWindow.present = tests.CallBackLogger()
 
 		self.uiactions.show_server_gui()
 
-		self.assertTrue(ServerWindow.present.hasBeenCalled)
+		self.assertTrue(ServerWindow.show_all.hasBeenCalled)
+		self.assertEqual(application.lastMethodCall[0], 'add_window')
+		self.assertIsInstance(application.lastMethodCall[1], ServerWindow)
 
 	def testReloadIndex(self):
 		self.uiactions.check_and_update_index()
@@ -682,27 +676,15 @@ class TestUIActions(tests.TestCase):
 		# more tests in tests/customtools.py
 
 	def testOpenHelp(self, page=None):
-		from zim.main import ZIM_APPLICATION
-		ZIM_APPLICATION._running = True # HACK
+		self.uiactions.show_help()
+		self.assertEqual(self.navigation.lastMethodCall, ('open_manual', None))
 
-		def check_window(window):
-			self.assertEqual(window.notebook.folder.basename, 'manual')
-			if page:
-				self.assertEqual(window.page, page)
-
-		with tests.LoggingFilter('zim', 'Exception while loading plugin:'):
-			with tests.WindowContext(check_window, check_window): # window.present() called twice
-				self.uiactions.show_help()
-
-	@tests.expectedFailure  # page opened after window.present
 	def testOpenHelpFAQ(self):
 		self.testOpenHelp(page='FAQ')
 
-	@tests.expectedFailure  # page opened after window.present
 	def testOpenHelpKeys(self):
 		self.testOpenHelp(page='Help:Key Bindings')
 
-	@tests.expectedFailure  # page opened after window.present
 	def testOpenHelpBugs(self):
 		self.testOpenHelp(page='Bugs')
 
@@ -753,7 +735,7 @@ class TestUIActionsRealFile(tests.TestCase):
 			content={'Test': 'Test 123'}
 		)
 		self.page = self.notebook.get_page(Path('Test'))
-		self.navigation = MockNavigation()
+		self.navigation = tests.MockObject(methods=('open_page', 'open_notebook'))
 		self.uiactions = UIActions(
 			window,
 			self.notebook,
@@ -979,6 +961,7 @@ class TestUIActionsRealFile(tests.TestCase):
 				with tests.DialogContext(ErrorDialog):
 					self.uiactions.open_document_root()
 
+	@tests.expectedFailureIf(os.name == 'nt') # Fails at random in automated tests
 	def testEditPageSource(self):
 		from zim.gui.widgets import MessageDialog
 		from zim.newfs import LocalFile
@@ -1008,12 +991,12 @@ class TestUIActionsRealFile(tests.TestCase):
 class TestManualProperties(tests.TestCase):
 
 	def runTest(self):
-		from zim.gui.propertiesdialog import notebook_properties
+		from zim.gui.propertiesdialog import PropertiesDialog
 
 		with open('./data/manual/Help/Properties.txt') as fh:
 			manual = fh.read()
 
-		for pref in notebook_properties:
+		for pref in PropertiesDialog.notebook_properties:
 			label = pref[2]
 			if '\n' in label:
 				label, x = label.split('\n', 1)

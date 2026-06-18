@@ -22,8 +22,8 @@ class TestIndexedFTS(tests.TestCase):
 		# after indexing some should be FTS-indexed.
 		self.assertNotEqual(
 			notebook.index._db.execute(
-				"SELECT count(*) FROM pages WHERE fts_id IS NOT NULL;"
+				"SELECT count(*) FROM keys_pages_fts WHERE page_id IS NOT NULL;"
 			).fetchone()[0], 0
 		)
 
-
+## More functional test cases part of tests/search.py ##

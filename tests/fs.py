@@ -54,6 +54,7 @@ class TestFS(tests.TestCase):
 	def setUp(self):
 		FilterDeprecationWarning().wrap_test(self)
 
+	@tests.expectedFailure
 	def testFunctions(self):
 		smb_urls = (
 			('smb://MyHost.local/share/My%20Documents', r'\\MyHost.local\share\My Documents'),

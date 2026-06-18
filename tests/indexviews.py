@@ -1,6 +1,4 @@
-
-# Copyright 2009-2017 Jaap Karssenberg <jaap.karssenberg@gmail.com>
-
+# Copyright 2009-2026 Jaap Karssenberg <jaap.karssenberg@gmail.com>
 
 
 import tests
@@ -350,6 +348,17 @@ class TestTagsView(tests.TestCase):
 
 		with self.assertRaises(IndexNotFoundError):
 			tags.list_pages('foooo')
+
+		# Test case sensitivity
+		indextag = tags.lookup_by_tagname('tag1')
+		for name in ('Tag1', 'TAG1'):
+			self.assertEqual(tags.lookup_by_tagname(name), indextag)
+
+		# Test tag search
+		for word in ('tag', 'TAG', 'ag'):
+			matches = [t.name for t in tags.match_tags(word)]
+			self.assertIn('tag1', matches)
+			self.assertIn('tag2', matches)
 
 	def walk_treepaths(self, model, start=()):
 		maxrange = 100

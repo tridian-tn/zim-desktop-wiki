@@ -16,7 +16,8 @@ from zim.notebook import Path
 
 from zim.plugins import PluginManager
 from zim.plugins.base.imagegenerator import \
-	ImageGeneratorClass, ImageGeneratorDialog, BackwardImageGeneratorObjectType
+	ImageGeneratorClass, ImageGeneratorDialog, BackwardImageGeneratorObjectType, \
+	ImageGeneratorModel, BackwardImageGeneratorModel
 
 from zim.plugins.equationeditor import InsertEquationPlugin
 from zim.plugins.diagrameditor import InsertDiagramPlugin
@@ -107,19 +108,59 @@ class TestBackwardImageGeneratorWithPlugin(TestBackwardImageGeneratorNoPlugins):
 
 		for name in (
 			'equation.png', 'equation.tex',
-			'equation001.png', 'equation001.tex',
-			'equation002.tex',
-			'equation003.png',
-			'equation004.png', 'equation004.tex',
+			'equation-001.png', 'equation-001.tex',
+			'equation-002.tex',
+			'equation-003.png',
+			'equation-004.png', 'equation-004.tex',
 		):
 			attachment_dir.file(name).touch()
 
 
 		otype = PluginManager.insertedobjects['image+equation']
 		model = otype.model_from_data(notebook, page, {}, '')
-		self.assertEqual(model.image_file.basename, 'equation005.png')
-		self.assertEqual(model.script_file.basename, 'equation005.tex')
+		self.assertEqual(model.image_file.basename, 'equation-005.png')
+		self.assertEqual(model.script_file.basename, 'equation-005.tex')
 
+
+class _StubImageGenerator(ImageGeneratorClass):
+	# Stub generator used to construct model instances without invoking
+	# external image-rendering commands.
+	imagefile_extension = '.png'
+
+	def generate_image(self, text):
+		return None, None
+
+
+class TestSetFromGeneratorAcceptsNoneImage(tests.TestCase):
+	# Regression test for #2960: when generate_image legitimately fails and
+	# returns None for the image file, set_from_generator must not crash with
+	# AttributeError. See ImageGeneratorClass.generate_image docstring, which
+	# documents that the image file may be None.
+
+	def testImageGeneratorModelSetFromGeneratorAcceptsNone(self):
+		notebook = self.setUpNotebook()
+		page = notebook.get_page(Path('Test'))
+		generator = _StubImageGenerator(tests.MockObject(), notebook, page)
+
+		model = ImageGeneratorModel(notebook, page, generator, {}, '')
+		# Must not raise AttributeError on None.moveto(...)
+		model.set_from_generator('some text', None)
+		self.assertEqual(model.get_text(), 'some text') # did store text
+
+	def testBackwardImageGeneratorModelSetFromGeneratorAcceptsNone(self):
+		attachment_dir = self.setUpFolder()
+		attachment_dir.touch()
+		notebook = self.setUpNotebook()
+		notebook.get_attachments_dir = lambda *a: attachment_dir
+		page = notebook.get_page(Path('Test'))
+		generator = _StubImageGenerator(tests.MockObject(), notebook, page)
+
+		model = BackwardImageGeneratorModel(
+			notebook, page, generator, {'src': '_new_'}, '', 'test.txt'
+		)
+		# Must not raise AttributeError on None._set_mtime(...)
+		model.set_from_generator('some text', None)
+		self.assertEqual(model.get_text(), 'some text') # did store text
 
 
 @tests.slowTest

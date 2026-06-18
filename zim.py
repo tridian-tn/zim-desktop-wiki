@@ -9,7 +9,7 @@ import os
 import re
 
 # Check if we run the correct python version
-REQUIRED_MINIMUM_PYTHON_VERSION = (3, 6)
+REQUIRED_MINIMUM_PYTHON_VERSION = (3, 10)
 USED_PYTHON_VERSION = sys.version_info
 if USED_PYTHON_VERSION < REQUIRED_MINIMUM_PYTHON_VERSION:
 	error_message = 'zim needs python >= {major}.{minor}'.format(
@@ -21,7 +21,7 @@ if USED_PYTHON_VERSION < REQUIRED_MINIMUM_PYTHON_VERSION:
 
 
 def init_environment(installdir):
-	# Automatically set data dir for a virtualenv install
+	# Automatically set data dir for a virtualenv install - add to the front
 	if sys.prefix != sys.base_prefix:
 		zim_data_dir = os.path.join(sys.prefix, 'share')
 		if os.path.isdir(zim_data_dir):
@@ -40,14 +40,17 @@ def init_environment(installdir):
 		for k, v in env_config['Environment'].items():
 			os.environ[k] = _parse_environment_param(v, installdir)
 
-	# Set data dir specific for windows installer
-	data_dir = os.path.normpath(os.path.join(installdir, "share"))
-	if os.path.exists(data_dir):
-		dirs = os.environ.get("XDG_DATA_DIRS")
-		if dirs:
-			os.environ["XDG_DATA_DIRS"] = dirs + os.pathsep + data_dir
-		else:
-			os.environ["XDG_DATA_DIRS"] = data_dir
+	# Set data dir specific for windows installer - add to the end
+	for data_dir in (
+		os.path.normpath(os.path.join(installdir, "share")),
+		os.path.normpath(os.path.join(installdir, "_internal", "share")), # sys._MEIPASS as of PyInstaller v6.0
+	):
+		if os.path.exists(data_dir):
+			dirs = os.environ.get("XDG_DATA_DIRS")
+			if dirs:
+				os.environ["XDG_DATA_DIRS"] = dirs + os.pathsep + data_dir
+			else:
+				os.environ["XDG_DATA_DIRS"] = data_dir
 
 
 def _parse_environment_param(value, installdir):
@@ -68,16 +71,14 @@ def init_logging():
 
 	# Win32: must setup log file or it tries to write to $PROGRAMFILES
 	# See http://www.py2exe.org/index.cgi/StderrLog
-	# If startup is OK, this will be overruled in zim/main with per user log file
-	if os.name == "nt" and (
-		sys.argv[0].endswith('.exe')
-		or sys.executable.endswith('pythonw.exe')
-	):
-		import tempfile
-		dir = tempfile.gettempdir()
-		if not os.path.isdir(dir):
-			os.makedirs(dir)
-		err_stream = open(dir + "\\zim.exe.log", "w")
+	# Do the same for other platforms if not running from a terminal
+	py2exe = os.name == "nt" and (sys.argv[0].endswith('.exe') or sys.executable.endswith('pythonw.exe'))
+	if py2exe or not (sys.stdout.isatty() and sys.stderr.isatty()):
+		import zim
+		import zim.newfs
+		dir = zim.newfs.get_tmpdir()
+		zim.debug_log_file = os.path.join(dir.path, "zim.log")
+		err_stream = open(zim.debug_log_file, "w")
 		sys.stdout = err_stream
 		sys.stderr = err_stream
 
@@ -93,7 +94,7 @@ def init_logging():
 
 
 def init_macOS():
-	# MacOS: Set the bundle name so that the application menu shows 'Zim'
+	# macOS: Set the bundle name so that the application menu shows 'Zim'
 	# instead of 'Python' (this requires the pyobjc package)
 	try:
 		from Foundation import NSBundle
@@ -105,13 +106,9 @@ def init_macOS():
 
 
 def main():
-	if getattr(sys, 'frozen', False):
-		# we are running in a bundle
-		installdir = sys._MEIPASS
-	else:
-		installdir = os.path.dirname(os.path.abspath(__file__))
-
 	# Run these functions before importing any application modules
+	installdir = os.path.dirname(os.path.abspath(__file__))
+		# Either the folder of the python script, or the frozen executable
 	init_environment(installdir)
 	init_logging()
 	init_macOS()
@@ -120,12 +117,20 @@ def main():
 	try:
 		import zim
 		import zim.main
+		import zim.config
 	except ImportError:
 		sys.excepthook(*sys.exc_info())
 		print('ERROR: Could not find python module files in path:', file=sys.stderr)
 		print(' '.join(map(str, sys.path)), file=sys.stderr)
 		print('\nTry setting PYTHONPATH', file=sys.stderr)
 		sys.exit(1)
+
+	# Check if we can find our own data files
+	_file = zim.config.data_file('zim.png')
+	if not (_file and _file.exists()): #pragma: no cover
+		print('ERROR: Could not find data files in path:', file=sys.stderr)
+		print(list(map(str, zim.config.data_dirs(include_non_existing=True))), file=sys.stderr)
+		print('\nTry setting XDG_DATA_DIRS', file=sys.stderr)
 
 	# Run the application and handle some exceptions
 	exit_code = 1

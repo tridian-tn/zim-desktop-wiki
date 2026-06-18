@@ -15,6 +15,8 @@ from gi.repository import GdkPixbuf
 import logging
 
 
+import zim.datetimetz as datetime
+
 from zim.fs import adapt_from_oldfs
 from zim.parse.encode import url_encode, URL_ENCODE_READABLE
 from zim.newfs import FilePath, LocalFile, LocalFolder
@@ -157,6 +159,13 @@ def deserialize_urilist(register_buf, content_buf, iter, data, length, create_ta
 	content_buf.insert_parsetree(iter, tree, interactive=True)
 	return True
 
+
+def _get_paste_image_file(dir, notebook, extension):
+	tmpl = notebook.config['Notebook'].get('paste_image_template', 'pasted_image')
+	name = datetime.strftime(tmpl, datetime.now()).rstrip('.') + '.' + extension
+	return dir.new_file(name)
+
+
 def deserialize_image(register_buf, content_buf, iter, data, length, create_tags, user_data):
 	# Implementation note: we follow gtk_selection_get_pixbuf() in usage of
 	# Gtk.PixbufLoader to capture clipboard data in a pixbuf object.
@@ -183,7 +192,7 @@ def deserialize_image(register_buf, content_buf, iter, data, length, create_tags
 		# but is quite large to store, so compress by using png
 		format, extension = 'png', 'png'
 
-	file = dir.new_file('pasted_image.%s' % extension)
+	file = _get_paste_image_file(dir, notebook, extension)
 	logger.debug("Saving image from clipboard to %s", file)
 	file.touch() # notify version control
 	pixbuf.savev(file.path, format, [], [])
@@ -271,7 +280,7 @@ def parsetree_from_selectiondata(selectiondata, notebook, path=None, text_format
 			# but is quite large to store, so compress by using png
 			format, extension = 'png', 'png'
 
-		file = dir.new_file('pasted_image.%s' % extension)
+		file = _get_paste_image_file(dir, notebook, extension)
 		logger.debug("Saving image from clipboard to %s", file)
 		file.touch() # notify version control
 		pixbuf.savev(file.path, format, [], [])
@@ -397,9 +406,10 @@ class ClipboardData(object):
 
 	targets = ()
 
-	def get_data_as(self, targetid):
+	def get_data_as(self, targetid, targetname=None):
 		'''Return data in the requested target format
 		@param targetid: the target id
+		@param targetname: optional target name
 		@implementation: must be implemented by sub-classes
 		'''
 		raise NotImplementedError
@@ -424,7 +434,7 @@ class UriData(ClipboardData):
 		self.uris = tuple(uris)
 		self.text = ' '.join(text)
 
-	def get_data_as(self, targetid):
+	def get_data_as(self, targetid, targetname=None):
 		if targetid == URI_TARGET_ID:
 			return self.uris
 		else:
@@ -443,7 +453,7 @@ class InterWikiLinkData(UriData):
 		else:
 			pass # interwiki may be undefined, resulting in url being None
 
-	def get_data_as(self, targetid):
+	def get_data_as(self, targetid, targetname=None):
 		if targetid == PARSETREE_TARGET_ID:
 			builder = ParseTreeBuilder()
 			builder.start(FORMATTEDTEXT)
@@ -454,7 +464,7 @@ class InterWikiLinkData(UriData):
 			parsetree._set_root_attrib('page', '-')
 			return parsetree.tostring()
 		elif self.interwiki_url is not None:
-			return UriData.get_data_as(self, targetid)
+			return UriData.get_data_as(self, targetid, targetname)
 		else:
 			return self.interwiki_href
 
@@ -469,7 +479,7 @@ class ParseTreeData(ClipboardData):
 		self.parsetree = parsetree
 		self.format = format
 
-	def get_data_as(self, targetid):
+	def get_data_as(self, targetid, targetname=None):
 		if targetid == PARSETREE_TARGET_ID:
 			newtree = set_parsetree_attributes_to_resolve_links(self.parsetree, self.notebook, self.path)
 			return newtree.tostring()
@@ -477,11 +487,12 @@ class ParseTreeData(ClipboardData):
 			dumper = get_format('html').Dumper(
 				linker=StaticExportLinker(self.notebook, source=self.path))
 			html = ''.join(dumper.dump(self.parsetree))
-			return wrap_html(html, self.format)
+			return wrap_html(html, targetname)
 		elif targetid == TEXT_TARGET_ID:
 			if self.format in ('wiki', 'plain'):
 				dumper = get_format(self.format).Dumper()
 			else:
+				# markdown included here - use export version
 				dumper = get_format(self.format).Dumper(
 					linker=StaticExportLinker(self.notebook, source=self.path))
 
@@ -501,7 +512,7 @@ class PageLinkData(ClipboardData):
 		self.anchor = anchor
 		self.text = text
 
-	def get_data_as(self, targetid):
+	def get_data_as(self, targetid, targetname=None):
 		if targetid == PAGELIST_TARGET_ID:
 			link = "%s?%s" % (self.notebook.interwiki, self.path.name)
 			if self.anchor:
@@ -571,12 +582,9 @@ class ClipboardManager(object):
 		###
 
 	def _get(self, clipboard, selectiondata, targetid):
-		logger.debug(
-			"Clipboard requests data as '%s', we have %r",
-			selectiondata.get_target().name(),
-			self.data
-		)
-		data = self.data.get_data_as(targetid)
+		targetname = selectiondata.get_target().name()
+		logger.debug("Clipboard requests data as '%s', we have %r", targetname, self.data)
+		data = self.data.get_data_as(targetid, targetname)
 		if targetid == TEXT_TARGET_ID:
 			selectiondata.set_text(data, -1)
 		elif targetid == URI_TARGET_ID:
@@ -611,7 +619,7 @@ class ClipboardManager(object):
 		@param notebook: the L{Notebook} object
 		@param path: the L{Path} object - used to resolve links etc.
 		@param parsetree: the actual L{ParseTree} to be set on the clipboard
-		@keyword format: the format to use for pasting text, e.g. 'wiki' or 'plain'
+		@keyword format: the format to use for pasting text, e.g. 'wiki', 'markdown' or 'plain'
 		'''
 		self.set_clipboard_data(
 			ParseTreeData(notebook, path, parsetree, format) )

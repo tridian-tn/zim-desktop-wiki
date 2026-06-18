@@ -64,6 +64,7 @@ from zim.notebook import Notebook, Path, HRef, PageNotFoundError
 from zim.parse.links import link_type
 from zim.signals import ConnectorMixin
 from zim.notebook.index import IndexNotFoundError
+from zim.notebook.layout import FILE_TYPE_PAGE_SOURCE
 from zim.actions import action
 
 logger = logging.getLogger('zim.gui')
@@ -721,10 +722,16 @@ class BrowserTreeView(SingleClickTreeView):
 			return Gtk.TreeView.do_key_press_event(self, event)
 
 
-def widget_set_css(widget, name, css):
-	text = '#%s {%s}' % (name, css)
+def widget_set_css(widget: Gtk.Widget, name: str, css: str) -> None:
+	'''Set the widget name and CSS style
+	@param widget: a C{Gtk.Widget}
+	@param name: the name for the widget, can be used in CSS as `#name`
+	@param css: the CSS for this widget, if it contains a `{` it is taken as "raw" CSS, 
+	else it is wrapped in a template like `#name {..}`
+	'''
+	css = css if '{' in css else '#%s {%s}' % (name, css)
 	css_provider = Gtk.CssProvider()
-	css_provider.load_from_data(text.encode('UTF-8'))
+	css_provider.load_from_data(css.encode('UTF-8'))
 	widget_style = widget.get_style_context()
 	widget_style.add_provider(css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 	widget.set_name(name)
@@ -732,11 +739,11 @@ def widget_set_css(widget, name, css):
 
 def button_set_statusbar_style(button):
 	# Set up a style for the statusbar variant to decrease spacing of the button
-	widget_set_css(button, 'zim-statusbar-button',	'''
-													border: none;
-													border-radius: 0px;
-													padding: 0px 8px 0px 8px;
-													''')
+	widget_set_css(button, 'zim-statusbar-button',
+		'border: none; '
+		'border-radius: 0px; '
+		'padding: 0px 8px 0px 8px; '
+	)
 	button.set_relief(Gtk.ReliefStyle.NONE)
 
 
@@ -1580,6 +1587,12 @@ class FSPathEntry(InputEntry):
 		'''Run a dialog to browse for a file or folder.
 		Used by the 'browse' button in input forms.
 		'''
+		dialog = self.create_popup_dialog()
+		file = dialog.run()
+		if file is not None:
+			FSPathEntry.set_path(self, file)
+
+	def create_popup_dialog(self):
 		window = self.get_toplevel()
 		if self.action == Gtk.FileChooserAction.SELECT_FOLDER:
 			title = _('Select Folder') # T: dialog title
@@ -1604,10 +1617,7 @@ class FSPathEntry(InputEntry):
 		elif self.notebook:
 			dialog.set_current_dir(self.notebook.folder)
 
-
-		file = dialog.run()
-		if not file is None:
-			FSPathEntry.set_path(self, file)
+		return dialog
 
 
 class FileEntry(FSPathEntry):
@@ -1973,6 +1983,31 @@ class LinkEntry(PageEntry, FileEntry):
 		self.action = Gtk.FileChooserAction.OPEN
 		self.file_type_hint = None
 
+	def popup_dialog(self):
+		'''Run a dialog to browse for a file or folder.
+		Used by the 'browse' button in input forms.
+		'''
+		dialog = self.create_popup_dialog()
+		file = dialog.run()
+		if file is not None:
+			self.set_file_path(file)
+
+	def set_file_path(self, file):
+		'''Set a file path in the entry but translate to page if it maps to source
+
+		This method is intended to help users who are (unintended) using file browser to
+		select a page.
+		'''
+		try:
+			page_path, file_type = self.notebook.layout.map_file(file)
+		except ValueError:
+			file_type = None
+
+		if file_type == FILE_TYPE_PAGE_SOURCE:
+			PageEntry.set_path(self, page_path)
+		else:
+			FSPathEntry.set_path(self, file)
+
 	def get_path(self):
 		# TODO: proper check link syntax, including achor part instead
 		#       of just using PageEntry.get_path()
@@ -2094,7 +2129,6 @@ class WindowSidePane(Gtk.VBox):
 		self.notebook.set_show_border(False)
 		button = self._close_button()
 		self.notebook.set_action_widget(button, Gtk.PackType.END)
-
 		self.add(self.notebook)
 
 		self._update_topbar()
@@ -2132,19 +2166,28 @@ class WindowSidePane(Gtk.VBox):
 		else:
 			self._show_multiple_tabs()
 
-	def _set_topbar_label(self, label):
-		assert isinstance(label, Gtk.Label)
-		label.set_alignment(0.03, 0.5)
+	def _set_topbar_label(self, widget):
+		if widget:
+			label = widget.get_title_label()
+			label.set_alignment(0.03, 0.5)
+			label.show()
+			ebox = Gtk.EventBox()
+			ebox.add(label)
+			ebox.connect('button-press-event', self.__class__.on_title_button_press_event, widget)
+		else:
+			label = Gtk.Label(label='')
+			ebox = None
+
 		for child in self.topbar.get_children():
-			if isinstance(child, Gtk.Label):
+			if isinstance(child, (Gtk.Label, Gtk.EventBox)):
 				child.destroy()
-		self.topbar.pack_start(label, True, True, 0)
+		self.topbar.pack_start(ebox or label, True, True, 0)
 
 	def _show_empty_topbar(self):
 		self.notebook.set_show_tabs(False)
 		_hide(self.notebook.get_action_widget(Gtk.PackType.END))
 
-		self._set_topbar_label(Gtk.Label(label=''))
+		self._set_topbar_label(None)
 		_show(self.topbar)
 
 	def _show_single_tab(self):
@@ -2152,7 +2195,7 @@ class WindowSidePane(Gtk.VBox):
 		_hide(self.notebook.get_action_widget(Gtk.PackType.END))
 
 		child = self.notebook.get_nth_page(0)
-		self._set_topbar_label(child.get_title_label())
+		self._set_topbar_label(child)
 		if isinstance(child, WindowSidePaneWidget) \
 			and child.set_embeded_closebutton(self._close_button()):
 				_hide(self.topbar)
@@ -2161,18 +2204,45 @@ class WindowSidePane(Gtk.VBox):
 
 	def _show_multiple_tabs(self):
 		self.notebook.set_show_tabs(True)
-		self._set_topbar_label(Gtk.Label(label=''))
+		self._set_topbar_label(None)
 		# Show close button next to notebook tabs
 		_show(self.notebook.get_action_widget(Gtk.PackType.END))
 		_hide(self.topbar)
 
-	def add_tab(self, key, widget):
+	def add_sidepane_widget(self, key: str, widget: 'WindowSidePaneWidget'):
+		'''Add a sidepane widget to this sidepane
+		@param key: string identifyer or the widget, typically the class name
+		@param widget: a C{WindowSidePaneWidget}
+		'''
 		assert isinstance(widget, WindowSidePaneWidget)
 		assert widget.title is not None
+		if self.key in (TOP_PANE, BOTTOM_PANE):
+			widget.set_orientation(Gtk.Orientation.HORIZONTAL)
+		else:
+			widget.set_orientation(Gtk.Orientation.VERTICAL)
 		widget.tab_key = key
-		self.notebook.append_page(widget, widget.get_title_label())
+		label = widget.get_title_label()
+		label.show()
+		ebox = Gtk.EventBox()
+		ebox.add(label)
+		ebox.connect('button-press-event', self.__class__.on_title_button_press_event, widget)
+		self.notebook.append_page(widget, ebox)
 		self.notebook.set_tab_reorderable(widget, True)
 		self._update_topbar()
+
+	def on_title_button_press_event(self, event, widget):
+		if event.type == Gdk.EventType.BUTTON_PRESS and event.button == 3:
+			# popover on secondairy mouse click
+			popover = widget.get_popover_menu()
+			if popover is not None:
+				popover.set_relative_to(self)
+				rect = Gdk.Rectangle()
+				rect.x, rect.y = self.get_pointer()
+				rect.width, rect.height = 1, 1
+				popover.set_pointing_to(rect)
+				popover.set_position(Gtk.PositionType.BOTTOM)
+				popover.show_all()
+				popover.popup()
 
 	def remove(self, widget):
 		if widget in self.notebook.get_children():
@@ -2293,8 +2363,24 @@ class WindowSidePaneWidget(ConnectorMixin):
 	L{WindowSidePane}
 	'''
 
+	title = 'NAME' #: title used for label above the widget
+	_info_text = None
+
+	def set_info(self, text):
+		'''Set info text for the widget, displayed instead of title
+		@param text: label text or C{None} to unset
+		'''
+		self._info_text = text
+		if hasattr(self, '_title_labels'):
+			for label in self._title_labels:
+				label.set_text_with_mnemonic(text)
+
 	def get_title_label(self):
-		label = Gtk.Label.new_with_mnemonic(self.title)
+		'''Create a C{Gtk.Label} containing the title or info text
+		This label will dynamically be updated
+		'''
+		text = self._info_text or self.title
+		label = Gtk.Label.new_with_mnemonic(text)
 		if not hasattr(self, '_title_labels'):
 			self._title_labels = set()
 		self._title_labels.add(label)
@@ -2305,11 +2391,58 @@ class WindowSidePaneWidget(ConnectorMixin):
 		if hasattr(self, '_title_labels'):
 			self._title_labels.remove(label)
 
-	def set_title(self, text):
-		self.title = text
-		if hasattr(self, '_title_labels'):
-			for label in self._title_labels:
-				label.set_text_with_mnemonic(text)
+	def get_popover_menu(self):
+		'''Returns a C{Gtk.Popover} for this side widget
+		Usually displayed on a "right-click" on the title of the widget.
+		Will by default contain an item to open the plugin preferences.
+		Sub-classes can implement L{populate_popover_menu()} to add more items.
+		'''
+		popover = Gtk.Popover()
+		vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+		popover.add(vbox)
+		self.populate_popover_menu(vbox)
+
+		if self.can_show_plugin_preferences():
+			button = Gtk.Button(_('Preferences...')) # T: label for menu item which opens preferences dialog
+			button.connect('clicked', lambda b: self.show_plugin_preferences())
+			vbox.add(button)
+
+		if len(vbox.get_children()) > 0:
+			for child in vbox.get_children():
+				if isinstance(child, Gtk.Button):
+					child.connect('clicked', lambda b: popover.popdown())
+			return popover
+		else:
+			return None
+
+	def populate_popover_menu(self, vbox):
+		'''Callback to populate the popover menu
+		Items can be added to C{vbox}
+		'''
+		pass
+
+	def get_plugin(self):
+		'''Returns the plugin object if this widget is defined in a plugin module, else C{None}
+		This method relies on the singleton nature of the C{PluginManager}
+		'''
+		from zim.plugins import get_plugin_key, PluginManager
+		try:
+			name = get_plugin_key(self)
+			return PluginManager.get(name)
+		except AssertionError:
+			return None
+
+	def can_show_plugin_preferences(self):
+		'''Returns C{True} if L{show_preferences()} is likely to succeed'''
+		plugin = self.get_plugin()
+		return plugin and plugin.plugin_preferences
+
+	def show_plugin_preferences(self):
+		'''Show the preferences dialog for the asociated plugin'''
+		plugin = self.get_plugin()
+		if not plugin:
+			raise AssertionError('No plugin found for %s' % self)
+		plugin.show_preferences(self)
 
 	def set_embeded_closebutton(self, button):
 		'''Embed a button in the widget to close the side pane
@@ -2317,6 +2450,16 @@ class WindowSidePaneWidget(ConnectorMixin):
 		@returns: C{True} if supported and successfull
 		'''
 		return False
+
+	def set_orientation(self, orientation):
+		'''Set orientation of the widget
+		This method will be called when the widget is added to the pane.
+        Widgets can use this to better align to the orientation of the
+        enclosing pane. If the widget is a C{Gtk.Box} or a different
+		C{Gtk.Orientable} this method is already implemented in the Gtk widget.
+		@param orientation: one of C{Gtk.Orientation.VERTICAL} or C{Gtk.Orientation.HORIZONTAL}
+		'''
+		pass
 
 
 from zim.config import ConfigDefinition, ConfigDefinitionByClass, StringAllowEmpty
@@ -2520,16 +2663,15 @@ class Window(Gtk.Window):
 		statusbar.pack_end(frame, False, True, 0)
 		frame.show_all()
 
-	def add_tab(self, key, widget, pane):
-		'''Add a tab in one of the panes.
-		@param key: string that is used to identify this tab in the window state
-		@param widget: the gtk widget to show in the tab
-		@param pane: can be one of: C{LEFT_PANE}, C{RIGHT_PANE},
-		C{TOP_PANE} or C{BOTTOM_PANE}.
+	def add_sidepane_widget(self, key: str, widget: 'WindowSidePaneWidget', pane):
+		'''Add a sidepane widget to this window
+		@param key: string identifyer or the widget, typically the class name
+		@param widget: a C{WindowSidePaneWidget}
+		@param pane: can be one of: C{LEFT_PANE}, C{RIGHT_PANE}, C{TOP_PANE} or C{BOTTOM_PANE}.
 		'''
 		pane_key = pane
 		paned, pane, mini = self._zim_window_sidepanes[pane_key]
-		pane.add_tab(key, widget)
+		pane.add_sidepane_widget(key, widget)
 		self.set_pane_state(pane_key, True)
 
 	def remove(self, widget):
@@ -2863,14 +3005,6 @@ class Dialog(Gtk.Dialog, ConnectorMixin):
 		else:
 			self.uistate = zim.config.ConfigDict()
 
-		# note: _windowpos is defined with a leading "_" so it is not
-		# persistent across instances, this is intentional to avoid
-		# e.g. messy placement for seldom used dialogs
-		self.uistate.setdefault('_windowpos', None, check=value_is_coord)
-		if self.uistate['_windowpos'] is not None:
-			x, y = self.uistate['_windowpos']
-			self.move(x, y)
-
 		self.uistate.setdefault('windowsize', defaultwindowsize, check=value_is_coord)
 		if self.uistate['windowsize'] is not None:
 			w, h = self.uistate['windowsize']
@@ -2909,6 +3043,16 @@ class Dialog(Gtk.Dialog, ConnectorMixin):
 		self.disconnect_all()
 		self.destroyed = True
 
+	def get_application(self):
+		app = Gtk.Dialog.get_application(self)
+		if app:
+			return app
+		else:
+			window = self.get_transient_for()
+			if not window:
+				raise AssertionError('No application set and no transient window for dialog: %s' % self)
+		return window.get_application()
+
 	#{ Layout methods
 
 	def add_extra_button(self, button, pack_start=True):
@@ -2939,8 +3083,8 @@ class Dialog(Gtk.Dialog, ConnectorMixin):
 		@param page: the manual page, if C{None} the page as set with
 		L{set_help()} is used
 		'''
-		from zim.main import ZIM_APPLICATION
-		ZIM_APPLICATION.run('--manual', page or self.help_page)
+		application = self.get_application()
+		application.open_manual(page or self.help_page)
 
 	def add_help_text(self, text):
 		'''Adds a label with an info icon in front of it. Intended for
@@ -3097,10 +3241,7 @@ class Dialog(Gtk.Dialog, ConnectorMixin):
 			destroy = True
 
 		try:
-			x, y = self.get_position()
-			self.uistate['_windowpos'] = (x, y)
-			w, h = self.get_size()
-			self.uistate['windowsize'] = (w, h)
+			self.uistate['windowsize'] = tuple(self.get_size())
 			self.save_uistate()
 		except:
 			logger.exception('Exception in do_response()')
@@ -4086,7 +4227,7 @@ class ImageView(Gtk.Layout):
 		a fixed factor.
 		@param factor: static scaling factor (in combination with C{SCALE_STATIC})
 		'''
-		assert scaling in (SCALE_FIT, SCALE_STATIC)
+		assert scaling in (self.SCALE_FIT, self.SCALE_STATIC)
 		self.scaling = scaling
 		self.factor = factor
 		self._render()

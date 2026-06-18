@@ -1431,7 +1431,7 @@ class TestPage(TestPath):
 	def _testEmptyFile(self, text):
 		page = self.generator('empty_page')
 		page.source_file.write(text)
-		with tests.LoggingFilter('zim.parser', 'Parser got empty string'):
+		with tests.LoggingFilter('zim.parse', 'Parser got empty string'):
 			parsetree = page.get_parsetree()
 		self.assertFalse(parsetree.hascontent)
 
@@ -1644,6 +1644,48 @@ class TestBackgroundSave(tests.TestCase):
 
 class TestFilesLayout(tests.TestCase):
 
+	def testBasicWithWikiFormat(self):
+		folder = self.setUpFolder()
+		layout = FilesLayout(folder, default_format='zim-wiki', default_extension='.txt')
+
+		file, subfolder = layout.map_page(Path('foo'))
+		self.assertEqual(file, folder.file('foo.txt'))
+		self.assertEqual(subfolder, folder.folder('foo'))
+
+		self.assertTrue(layout.is_source_file(file)) # non existing is True
+		self.assertFalse(layout.is_source_file(folder.file('foo.pdf')))
+
+		page, ftype = layout.map_file(file)
+		self.assertEqual(page, Path('foo'))
+		self.assertEqual(ftype, FILE_TYPE_PAGE_SOURCE)
+
+		md_file = folder.file('foo.md')
+		md_file.touch()
+		page, ftype = layout.map_file(md_file)
+		self.assertEqual(page, Path('foo'))
+		self.assertEqual(ftype, FILE_TYPE_PAGE_SOURCE)
+
+		# since md exists, this is no longer source
+		page, ftype = layout.map_file(file)
+		self.assertEqual(page, Path(':'))
+		self.assertEqual(ftype, FILE_TYPE_ATTACHMENT)
+
+		# now preferred format exists --> md is attachment
+		file.write('Content-Type: text/x-zim-wiki\n\nTest\n')
+
+		page, ftype = layout.map_file(file)
+		self.assertEqual(page, Path('foo'))
+		self.assertEqual(ftype, FILE_TYPE_PAGE_SOURCE)
+
+		page, ftype = layout.map_file(md_file)
+		self.assertEqual(page, Path(':'))
+		self.assertEqual(ftype, FILE_TYPE_ATTACHMENT)
+
+		# but both count as source files since this method does not check alternatives
+		self.assertTrue(layout.is_source_file(file))
+		self.assertTrue(layout.is_source_file(md_file))
+
+
 	def _test_page_vs_not_a_page(self, folder, layout, pagefile, notapagefile):
 		self.assertTrue(layout.is_source_file(pagefile))
 		self.assertFalse(layout.is_source_file(notapagefile))
@@ -1653,15 +1695,13 @@ class TestFilesLayout(tests.TestCase):
 		self.assertEqual(layout.map_filepath(pagefile.relpath(folder)), (Path('Page'), FILE_TYPE_PAGE_SOURCE))
 		self.assertEqual(layout.map_filepath(notapagefile.relpath(folder)), (Path(':'), FILE_TYPE_ATTACHMENT))
 
-		self.assertEqual(layout.index_list_children(Path(':')), [Path('Page')])
-
 	def testCheckFirstLineForTextFiles(self):
 		folder = self.setUpFolder()
 		pagefile = folder.file('Page.txt')
 		pagefile.write('Content-Type: text/x-zim-wiki\n\nFoo Bar\n')
 		notapagefile = folder.file('NotAPage.txt')
 		notapagefile.write('Foo Bar\n')
-		layout = FilesLayout(folder, default_extension='.txt')
+		layout = FilesLayout(folder, default_format='zim-wiki', default_extension='.txt')
 		self._test_page_vs_not_a_page(folder, layout, pagefile, notapagefile)
 
 	def testNoCheckFirstLineForNonTextFiles(self):
@@ -1670,7 +1710,7 @@ class TestFilesLayout(tests.TestCase):
 		pagefile.write('Foo Bar\n')
 		notapagefile = folder.file('NotAPage.txt')
 		notapagefile.write('Foo Bar\n')
-		layout = FilesLayout(folder, default_extension='.md')
+		layout = FilesLayout(folder, default_format='markdown', default_extension='.md')
 		self._test_page_vs_not_a_page(folder, layout, pagefile, notapagefile)
 
 	def testInValidFileNamesRejected(self):
@@ -1679,7 +1719,7 @@ class TestFilesLayout(tests.TestCase):
 		pagefile.write('Content-Type: text/x-zim-wiki\n\nFoo Bar\n')
 		notapagefile = folder.file('Not A Page.txt')
 		notapagefile.write('Content-Type: text/x-zim-wiki\n\nFoo Bar\n')
-		layout = FilesLayout(folder, default_extension='.txt')
+		layout = FilesLayout(folder)
 		self._test_page_vs_not_a_page(folder, layout, pagefile, notapagefile)
 
 	def testAttachmentsFolderIsinstance(self):

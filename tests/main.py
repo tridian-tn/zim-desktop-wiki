@@ -16,7 +16,6 @@ from zim.main import *
 
 import zim
 import zim.main
-import zim.main.ipc
 
 
 from zim.notebook.info import NotebookInfo
@@ -286,133 +285,24 @@ class TestServerGui(tests.TestCase):
 		self.assertEqual(window.__class__.__name__, 'ServerWindow')
 
 
+@tests.verySlowTest
+class TestConvertNotebookCommand(tests.TestCase):
+
+	def runTest(self):
+		notebook = self.setUpNotebook(mock=tests.MOCK_ALWAYS_REAL, content=tests.FULL_NOTEBOOK)
+
+		cmd = ConvertNotebookCommand('convert-notebook')
+		cmd.parse_options('--format=markdown', notebook.folder.path)
+		with tests.LoggingFilter('zim', '!!!'):
+			cmd.run()
+
+		self.assertTrue(notebook.folder.file('roundtrip.md').exists())
+		config = notebook.folder.file('notebook.zim').read()
+		self.assertIn('default_file_format=markdown', config)
+		self.assertIn('default_file_extension=.md', config)
 
 
 ## ExportCommand() is tested in tests/export.py
-
-
-class TestIPC(tests.TestCase):
-
-	def runTest(self):
-		if os.name == 'posix':
-			# There is an upper limit to lenght of a socket name for AF_UNIX
-			# (107 characters ?). On OS X the path to TMPDIR already consumes
-			# 50 chars, and we use "zim-$USER" -- so can still give errors for
-			# user names > 20 chars. But basename should be limitted.
-			from zim.main.ipc import SERVER_ADDRESS
-			self.assertLessEqual(
-				len(os.path.basename(SERVER_ADDRESS)), 25,
-				"name too long: %s" % os.path.basename(SERVER_ADDRESS)
-			)
-
-		inbox = [None]
-		def handler(*args):
-			inbox[0] = args
-
-		zim.main.ipc.start_listening(handler)
-		self.addCleanup(zim.main.ipc._close_listener)
-
-		self.assertRaises(AssertionError, zim.main.ipc.dispatch, 'test', '123')
-			# raises due to sanity check same process
-
-		zim.main.ipc.set_in_main_process(False) # overrule sanity check
-		t = threading.Thread(target=zim.main.ipc.dispatch, args=('test', '123'))
-		t.start()
-		while t.is_alive():
-			tests.gtk_process_events()
-		tests.gtk_process_events()
-		self.assertEqual(inbox[0], ('test', '123'))
-
-
-### TODO test various ways of calling ZimApplication ####
-
-# Start main
-# Handle incoming
-# Toplevel life cycle
-# Spawn new
-# Spawn standalone
-
-class TestZimApplication(tests.TestCase):
-
-	def testSimple(self):
-		app = ZimApplication()
-
-		class MockCmd(object):
-
-			def __init__(self):
-				self.opts = {}
-				self.commandline = ['mockcommand']
-				self.hasrun = False
-
-			def run(self):
-				self.hasrun = True
-
-		cmd = MockCmd()
-		self.assertFalse(cmd.hasrun)
-		app._run_cmd(cmd, ())
-		self.assertTrue(cmd.hasrun)
-
-
-	def testGtk(self):
-		app = ZimApplication()
-
-		class MockCmd(GtkCommand):
-
-			def __init__(self):
-				self.opts = {'standalone': True}
-				self.hasrun = False
-
-			def _quit(self, *a):
-				from gi.repository import GObject
-				from gi.repository import Gtk
-				Gtk.main_quit()
-				return False # stop timer
-
-			def run(self):
-				from gi.repository import GObject
-				from gi.repository import Gtk
-				self.hasrun = True
-				GObject.timeout_add(500, self._quit)
-				return Gtk.Window()
-
-		cmd = MockCmd()
-		self.assertFalse(cmd.hasrun)
-		app._run_cmd(cmd, ())
-		self.assertTrue(cmd.hasrun)
-
-	def testPluginAPI(self):
-		from zim.signals import SignalEmitter
-		class MockWindow(SignalEmitter):
-
-			__signals__ = {
-				'destroy': (None, None, ())
-			}
-
-			def __init__(self, notebook):
-				self.notebook = notebook
-
-			def destroy(self):
-				pass
-
-		class MockNotebook(object):
-
-			def __init__(self, uri):
-				self.uri = uri
-
-		n1 = MockNotebook('foo')
-		n2 = MockNotebook('bar')
-		w1 = MockWindow(n1)
-		w2 = MockWindow(n2)
-
-		app = ZimApplication()
-		app.add_window(w1)
-		app.add_window(w2)
-
-		self.assertEqual(set(app.toplevels), {w1, w2})
-		self.assertEqual(app.notebooks, {n1, n2})
-		self.assertEqual(app.get_mainwindow(n1, _class=MockWindow), w1)
-		self.assertEqual(app.get_mainwindow(MockNotebook('foo'), _class=MockWindow), w1)
-
 
 import os
 
@@ -448,6 +338,14 @@ class TestZimScript(tests.TestCase):
 		data_dir.touch()
 		init_environment(folder.path)
 		self.assertEqual(os.environ['XDG_DATA_DIRS'], 'TEST' + os.pathsep + os.path.normpath(data_dir.path))
+
+		# Test with packaged dir in "_internal"
+		os.environ['XDG_DATA_DIRS'] = 'TEST'
+		int_data_dir = folder.folder('_internal/share')
+		int_data_dir.touch()
+		init_environment(folder.path)
+		self.assertEqual(os.environ['XDG_DATA_DIRS'], 'TEST' + os.pathsep + os.path.normpath(data_dir.path)
+				+ os.pathsep + os.path.normpath(int_data_dir.path))
 
 		# Setup file
 		file = folder.file('environ.ini')

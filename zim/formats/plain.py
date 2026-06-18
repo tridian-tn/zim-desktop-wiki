@@ -5,8 +5,8 @@
 
 import re
 
-import zim.parser
-from zim.parser import fix_unicode_chars, Rule
+from zim.parse import fix_unicode_whitespace
+from zim.parse.regexparser import Rule, RegexParser
 
 from zim.formats import *
 from zim.parse.links import old_url_link_re
@@ -38,9 +38,9 @@ class Parser(ParserClass):
 		if not isinstance(input, str):
 			input = ''.join(input)
 
-		input = fix_unicode_chars(input)
+		input = fix_unicode_whitespace(input)
 
-		parser = zim.parser.Parser(
+		parser = RegexParser(
 			Rule(LINK, old_url_link_re.pattern, process=self.parse_url) # FIXME need .r attribute because url_re is a Re object
 		)
 
@@ -137,7 +137,7 @@ class Dumper(DumperClass):
 	dump_ul = dump_list
 	dump_ol = dump_list
 
-	def dump_li(self, tag, attrib, strings):
+	def dump_li(self, tag, attrib, strings, indent_string='\t'):
 		# Here is some logic to figure out the correct bullet character
 		# depends on parent list element
 
@@ -167,14 +167,13 @@ class Dumper(DumperClass):
 			# else assume it is numbered..
 
 			if 'indent' in attrib:
-				prefix = int(attrib['indent']) * '\t'
+				prefix = int(attrib['indent']) * indent_string
 				bullet = prefix + bullet
 
 		return (bullet, ' ') + tuple(strings)
 
 	def dump_anchor(self, tag, attrib, strings=None):
-		# TODO: what should be returned here?
-		return ("[id: ", attrib['name'], "]")
+		return () # anchor has no text representation
 
 	def dump_link(self, tag, attrib, strings=None):
 		# Just plain text, either text of link, or link href
@@ -194,7 +193,7 @@ class Dumper(DumperClass):
 		text = alt if alt else src
 		return [text]
 
-	def dump_object_fallback(self, tag, attrib, strings):
+	def dump_object_fallback(self, tag, attrib, strings=None):
 		return strings
 
 	def dump_table(self, tag, attrib, strings):

@@ -11,20 +11,28 @@ from gi.repository import Gtk
 from zim.plugins import PluginManager
 from zim.gui.widgets import Dialog, get_window, InputForm
 from zim.parse.links import is_interwiki_keyword_re
-
-notebook_properties = (
-	('name', 'string', _('Name')), # T: label for properties dialog
-	('interwiki', 'string', _('Interwiki Keyword'), lambda v: not v or is_interwiki_keyword_re.search(v)), # T: label for properties dialog
-	('home', 'page', _('Home Page')), # T: label for properties dialog
-	('icon', 'image', _('Icon')), # T: label for properties dialog
-	('document_root', 'dir', _('Document Root')), # T: label for properties dialog
-	('short_links', 'bool', _('Prefer short names for page links'), False), # T: label for properties dialog
-	('disable_trash', 'bool', _('Do not use system trash for this notebook'), False) # T: label for properties dialog
-	# 'shared' property is not shown in properties anymore
-)
+from zim.templates import list_templates
+from zim.formats import list_formats, NATIVE_FORMAT
 
 
 class PropertiesDialog(Dialog):
+
+	notebook_properties = (
+		('name', 'string', _('Name')), # T: label for properties dialog
+		('interwiki', 'string', _('Interwiki Keyword'), lambda v: not v or is_interwiki_keyword_re.search(v)), # T: label for properties dialog
+		('icon', 'image', _('Icon')), # T: label for properties dialog
+		#('default_file_format', 'choice', _('Default file format') + ' ('+ _('Experimantal') + ')', list_formats(NATIVE_FORMAT)), # T: label for properties dialog
+			## Only unhide option here once we can support multiple formats at once - else changing it makes notebook un-useable ##
+			## AND make sure to update the default_file_extension based on get_format().info['extension'] but IF and ONLY IF format is indeed changed ##
+			## AND make sure to flush the index, flush page cache and reload current page --> better do this as a tool with restart? ##
+		('default_page_template', 'choice', _('Page template'), []),  # T: label for properties dialog
+		('home', 'page', _('Home Page')), # T: label for properties dialog
+		('document_root', 'dir', _('Document Root')), # T: label for properties dialog
+		('short_links', 'bool', _('Prefer short names for page links'), False), # T: label for properties dialog
+		('disable_trash', 'bool', _('Do not use system trash for this notebook'), False), # T: label for properties dialog
+		('paste_image_template', 'string', _('Filename template for pasted images')),
+		# 'shared' property is not shown in properties anymore
+	)
 
 	def __init__(self, parent, notebook, chosen_plugin=None):
 		Dialog.__init__(self, parent, _('Properties'), help='Help:Properties') # T: Dialog title
@@ -49,8 +57,12 @@ class PropertiesDialog(Dialog):
 			box.pack_start(form, False, False, 0)
 			stack.add_titled(box, name, title)
 
+
+		templates = [t[0] for t in list_templates('wiki')] # TODO make new page template flexible
+		assert self.notebook_properties[3][0] == 'default_page_template'
+		self.notebook_properties[3][-1][:] = templates
 		self.form = InputForm(
-			inputs=notebook_properties,
+			inputs=self.notebook_properties,
 			values=notebook.config['Notebook']
 		)
 		self.form.widgets['icon'].set_use_relative_paths(self.notebook)

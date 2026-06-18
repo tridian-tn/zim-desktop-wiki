@@ -7,8 +7,12 @@ import sys
 sys.path.insert(0, '.')
 
 import zim.formats
-import zim.fs
+from zim.newfs.local import LocalFile
+
 import tests
+
+import os
+pwd = os.getcwd()
 
 def setup():
 	global parser, dumper
@@ -16,8 +20,8 @@ def setup():
 	dumper = zim.formats.get_dumper('wiki')
 
 	global wikitext, parsetree
-	wikitext = zim.fs.File('tests/data/formats/wiki.txt').read()
-	xml = zim.fs.File('tests/data/formats/parsetree.xml').read().rstrip('\n')
+	wikitext = LocalFile(pwd + '/tests/data/formats/wiki.txt').read()
+	xml = LocalFile(pwd + '/tests/data/formats/parsetree.xml').read().rstrip('\n')
 	parsetree = tests.new_parsetree_from_xml(xml)
 
 	global smalltext, smalltree

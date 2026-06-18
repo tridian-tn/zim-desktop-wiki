@@ -20,8 +20,7 @@ import zim.datetimetz as datetime
 
 from zim.templates.expression import ExpressionFunction
 
-from zim.parse.encode import url_encode, URL_ENCODE_DATA
-from zim.formats.html import html_encode
+from zim.parse.encode import url_encode, URL_ENCODE_DATA, encode_xml_text
 
 
 def build_template_functions():
@@ -32,7 +31,7 @@ def build_template_functions():
 		'range': ExpressionFunction(range),
 		'strftime': template_strftime,
 		'strfcal': template_strfcal,
-		'html_encode': ExpressionFunction(html_encode),
+		'html_encode': ExpressionFunction(encode_xml_text),
 		'url_encode': ExpressionFunction(partial(url_encode, mode=URL_ENCODE_DATA)),
 		'gettext': template_gettext,
 	}

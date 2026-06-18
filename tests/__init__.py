@@ -34,11 +34,19 @@ import unittest
 from unittest import skip, skipIf, skipUnless, expectedFailure
 
 
+def expectedFailureIf(condition):
+	'''Decorator to do a conditional expected failure'''
+	if condition:
+		return expectedFailure
+	else:
+		return lambda method: method # do nothing
+
+
 os.environ['LANGUAGE'] = 'C.UTF-8'
 gettext.install('zim', names=('_', 'gettext', 'ngettext'))
 
-FAST_TEST = False #: determines whether we skip slow tests or not
-FULL_TEST = False #: determine whether we mock filesystem tests or not
+TEST_SPEED = 'default' #: determines whether we skip slow tests or not
+TEST_FS_MOCK = 'default' #: determine whether we mock filesystem tests or not
 
 # This list also determines the order in which tests will executed
 __all__ = [
@@ -48,13 +56,13 @@ __all__ = [
 	'datetimetz', 'base', 'errors', 'signals', 'actions',
 	'fs', 'newfs',
 	'config', 'applications',
-	'parsing', 'tokenparser',
+	'parsing',
 	# Notebook components
 	'formats', 'templates',
 	'indexers', 'indexviews', 'operations', 'notebook', 'history',
 	'export', 'import_files', 'www', 'search',
 	# Core application
-	'widgets', 'pageview', 'save_page', 'clipboard', 'uiactions',
+	'widgets', 'pageview', 'save_page', 'find', 'clipboard', 'uiactions',
 	'mainwindow', 'notebookdialog',
 	'preferencesdialog', 'searchdialog', 'customtools', 'templateeditordialog',
 	'main', 'plugins',
@@ -215,16 +223,29 @@ def slowTest(obj):
 			def testBar(self):
 				...
 	'''
-	if FAST_TEST:
+	if TEST_SPEED == 'fast':
 		wrapper = skip('Slow test')
 		return wrapper(obj)
 	else:
+		# include for 'default' and 'slow'
+		return obj
+
+
+def verySlowTest(obj):
+	'''Decorator for *very* slow tests
+	Like C{slowTest()} but skips by default unless "--full" is used
+	'''
+	if TEST_SPEED != 'slow':
+		wrapper = skip('Very slow test - use "--full" to run')
+		return wrapper(obj)
+	else:
+		# only inlucde for 'slow'
 		return obj
 
 
 MOCK_ALWAYS_MOCK = 'mock' #: Always choose mock folder, alwasy fast
 MOCK_DEFAULT_MOCK = 'default_mock' #: By default use mock, but sometimes at random use real fs or at --full
-MOCK_DEFAULT_REAL = 'default_real' #: By default use real fs, mock oly for --fast
+MOCK_DEFAULT_REAL = 'default_real' #: By default use real fs, mock only for --fast
 MOCK_ALWAYS_REAL = 'real' #: always use real fs -- not recommended unless test fails for mock
 
 import random
@@ -271,19 +292,41 @@ class TestCase(unittest.TestCase):
 		@returns: a L{Folder} object (either L{LocalFolder} or L{MockFolder})
 		that is guarenteed non-existing
 		'''
-		path = self._get_tmp_name(name)
+		test_name = self.__class__.__name__
+		if self._testMethodName != 'runTest':
+			test_name += '_' + self._testMethodName
 
+		if name:
+			assert '/' not in name and '\\' not in name, 'Don\'t use this method to get sub folders or files'
+			test_name += '_' + name
+
+		path = os.path.join(TMPDIR, test_name)
+		return self._setUpFolder(path, mock)
+
+	@classmethod
+	def setUpClassFolder(cls, name=None, mock=MOCK_DEFAULT_MOCK):
+		'''Like L{setUpFolder()} but as class method'''
+		test_name = cls.__name__
+		if name:
+			assert '/' not in name and '\\' not in name, 'Don\'t use this method to get sub folders or files'
+			test_name += '_' + name
+
+		path = os.path.join(TMPDIR, test_name)
+		return cls._setUpFolder(path, mock)
+
+	@staticmethod
+	def _setUpFolder(path, mock):
 		if mock == MOCK_ALWAYS_MOCK:
 			use_mock = True
 		elif mock == MOCK_ALWAYS_REAL:
+			if TEST_FS_MOCK == 'yes': # this is e.g. set together with TEST_SPEED = 'fast'
+				raise unittest.SkipTest('always uses real filesystem')
 			use_mock = False
 		else:
-			if FULL_TEST:
-				use_mock = False
-			elif FAST_TEST:
-				use_mock = True
+			if TEST_FS_MOCK == 'default':
+				use_mock = (mock == MOCK_DEFAULT_MOCK) # False for MOCK_DEFAULT_REAL
 			else:
-				use_mock = (mock == MOCK_DEFAULT_MOCK)
+				use_mock = (TEST_FS_MOCK == 'yes') # Default overruled by explicit request
 
 		if use_mock:
 			from zim.newfs.mock import MockFolder
@@ -310,6 +353,17 @@ class TestCase(unittest.TestCase):
 		cases where the folder must be outside of the project folder, like
 		when testing version control logic
 		'''
+		folder = folder or self.setUpFolder(name, mock)
+		return self._setUpNotebook(folder, content, name)
+
+	@classmethod
+	def setUpClassNotebook(cls, name='testnotebook', mock=MOCK_ALWAYS_MOCK, content={}, folder=None):
+		'''Like C{setUpNotebook()} but as class method'''
+		folder = folder or cls.setUpClassFolder(name, mock)
+		return cls._setUpNotebook(folder, content, name)
+
+	@staticmethod
+	def _setUpNotebook(folder, content, name):
 		import datetime
 		from zim.newfs.mock import MockFolder
 		from zim.notebook.notebook import NotebookConfig, Notebook
@@ -318,8 +372,6 @@ class TestCase(unittest.TestCase):
 		from zim.notebook.index import Index
 		from zim.formats.wiki import WIKI_FORMAT_VERSION
 
-		if folder is None:
-			folder = self.setUpFolder(name, mock)
 		folder.touch() # Must exist for sane notebook
 		cache_dir = folder.folder('.zim')
 		layout = FilesLayout(folder, endofline='unix')
@@ -354,17 +406,6 @@ class TestCase(unittest.TestCase):
 		assert notebook.index.is_uptodate
 		return notebook
 
-	def _get_tmp_name(self, postfix):
-		name = self.__class__.__name__
-		if self._testMethodName != 'runTest':
-			name += '_' + self._testMethodName
-
-		if postfix:
-			assert '/' not in postfix and '\\' not in postfix, 'Don\'t use this method to get sub folders or files'
-			name += '_' + postfix
-
-		return os.path.join(TMPDIR, name)
-
 
 class LoggingFilter(logging.Filter):
 	'''Convenience class to surpress zim errors and warnings in the
@@ -390,11 +431,13 @@ class LoggingFilter(logging.Filter):
 		'''
 		self.logger = logger
 		self.message = message
+		self.captured = []
 
 	def __enter__(self):
 		logging.getLogger(self.logger).addFilter(self)
 		for handler in logging.getLogger().handlers:
 			handler.addFilter(self)
+		return self
 
 	def __exit__(self, *a):
 		logging.getLogger(self.logger).removeFilter(self)
@@ -403,16 +446,20 @@ class LoggingFilter(logging.Filter):
 
 	def filter(self, record):
 		if record.name.startswith(self.logger):
+			capture = False
 			msg = record.getMessage()
 			if self.message is None:
-				return False
+				capture = True
 			elif isinstance(self.message, tuple):
-				return not any(msg.startswith(m) for m in self.message)
+				capture = any(msg.startswith(m) for m in self.message)
 			else:
-				return not msg.startswith(self.message)
+				capture = msg.startswith(self.message)
+
+			if capture:
+				self.captured.append(msg)
+			return not capture
 		else:
 			return True
-
 
 	def wrap_test(self, test):
 		self.__enter__()
@@ -496,7 +543,7 @@ class WindowContext(DialogContext):
 
 	def _default_handler(self, cls, window):
 		if not isinstance(window, cls):
-			raise AssertionError('Expected window of class %s, but got %s instead' % (cls, dialog.__class__))
+			raise AssertionError('Expected window of class %s, but got %s instead' % (cls, window.__class__))
 
 
 class ApplicationContext(object):
@@ -522,33 +569,6 @@ class ApplicationContext(object):
 		import zim.gui.widgets
 		zim.applications.TEST_MODE = self.old_test_mode
 		zim.applications.TEST_MODE_RUN_CB = self.old_callback
-
-		if self.stack and not any(error):
-			raise AssertionError('%i expected command(s) not run' % len(self.stack))
-
-		return False # Raise any errors again outside context
-
-
-class ZimApplicationContext(object):
-
-	def __init__(self, *callbacks):
-		self.stack = list(callbacks)
-
-	def __enter__(self):
-		from zim.main import ZIM_APPLICATION
-		self.apps_obj = ZIM_APPLICATION
-		self.old_run = ZIM_APPLICATION._run_cmd
-		ZIM_APPLICATION._run_cmd = self._callback
-
-	def _callback(self, cmd, args):
-		if not self.stack:
-			raise AssertionError('Unexpected command run: %s %r' % (cmd, args))
-
-		handler = self.stack.pop(0)
-		handler(cmd, args)
-
-	def __exit__(self, *error):
-		self.apps_obj._run_cmd = self.old_run
 
 		if self.stack and not any(error):
 			raise AssertionError('%i expected command(s) not run' % len(self.stack))
@@ -614,16 +634,25 @@ def _expand_manifest(names):
 
 _cache = {}
 
+
+def new_page_as_wiki_text():
+	'''Returns data from C{tests/data/formats/wiki.txt}'''
+	if 'new_page_as_wiki_text' not in _cache:
+		root = os.environ['ZIM_TEST_ROOT']
+		with open(root + '/tests/data/formats/wiki.txt', encoding='UTF-8') as file:
+			_cache['new_page_as_wiki_text'] = file.read()
+
+	return _cache['new_page_as_wiki_text']
+
+
 def new_parsetree():
 	'''Returns a new ParseTree object for testing
 	Uses data from C{tests/data/formats/wiki.txt}
 	'''
 	if 'new_parsetree' not in _cache:
-		root = os.environ['ZIM_TEST_ROOT']
-		with open(root + '/tests/data/formats/wiki.txt', encoding='UTF-8') as file:
-			text = file.read()
-
 		import zim.formats.wiki
+
+		text = new_page_as_wiki_text()
 		parser = zim.formats.wiki.Parser()
 		tree = parser.parse(text)
 
@@ -706,7 +735,7 @@ class MockObject(object):
 	def __getattr__(self, name):
 		'''Automatically mock methods'''
 		if not name in self.__return_values:
-			raise AttributeError('No such method defined for MockObject: %s' % name)
+			raise AttributeError('No such method defined for MockObject: %s (we do know %r)' % (name, self.__return_values.keys()))
 
 		return_value = self.__return_values[name]
 		def my_mock_method(*arg, **kwarg):

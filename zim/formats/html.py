@@ -10,6 +10,7 @@ import re
 import string
 
 from zim.formats import *
+from zim.parse.encode import encode_xml_text, encode_xml_attrib, decode_xml
 from zim.parse.links import link_type
 from zim.config.dicts import Choice
 
@@ -26,29 +27,9 @@ info = {
 }
 
 
-def html_encode(text):
-	if not text is None:
-		text = text.replace('&', '&amp;')
-		text = text.replace('<', '&lt;')
-		text = text.replace('>', '&gt;')
-		return text
-	else:
-		return ''
-
-
-def html_decode(text):
-	if not text is None:
-		text = text.replace('&amp;', '&')
-		text = text.replace('&lt;',  '<')
-		text = text.replace('&gt;',  '>')
-		return text
-	else:
-		return ''
-
-
 def html_to_text(html):
 	text = re.sub('<.*?>', '', html) # remove html tags
-	return html_decode(text)
+	return decode_xml(text)
 
 
 class Dumper(DumperClass):
@@ -87,7 +68,7 @@ class Dumper(DumperClass):
 			if self._isrtl is None and not text.isspace():
 				self._isrtl = self.isrtl(text)
 
-			text = html_encode(text)
+			text = encode_xml_text(text)
 			if tag not in (VERBATIM_BLOCK, VERBATIM, OBJECT) \
 			and not self.template_options['line_breaks'] == 'remove':
 				text = text.replace('\n', '<br>\n')
@@ -215,8 +196,7 @@ class Dumper(DumperClass):
 			text = ''.join(strings)
 		else:
 			text = attrib['href']
-		title = text.replace('"', '&quot;')
-		title = re.sub('<.*?>', '', title)
+		title = encode_xml_attrib(re.sub('<.*?>', '', text))
 		return [
 			'<a href="%s" title="%s" class="%s">%s</a>'
 				% (href, title, type, text)]
@@ -225,7 +205,7 @@ class Dumper(DumperClass):
 		src = self.linker.img(attrib['src'])
 		opt = ''
 		if 'alt' in attrib:
-			opt += ' alt="%s"' % html_encode(attrib['alt']).replace('"', '&quot;')
+			opt += ' alt="%s"' % encode_xml_attrib(attrib['alt'])
 		for o in ('width', 'height'):
 			if o in attrib and int(float(attrib[o])) > 0:
 				opt += ' %s="%s"' % (o, attrib[o])
@@ -244,7 +224,7 @@ class Dumper(DumperClass):
 
 	def dump_object_fallback(self, tag, attrib, strings=None):
 		# Fallback to verbatim paragraph
-		return ['<pre>\n'] + list(map(html_encode, strings)) + ['</pre>\n']
+		return ['<pre>\n'] + list(map(encode_xml_text, strings)) + ['</pre>\n']
 
 	def dump_table(self, tag, attrib, strings):
 		aligns = attrib['aligns'].split(',')

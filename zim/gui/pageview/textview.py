@@ -33,6 +33,7 @@ CURSOR_WIDGET = Gdk.Cursor.new_from_name(Gdk.Display.get_default(), 'default')
 
 # Regexes used for autoformatting
 heading_re = re.compile(r'^(={2,7})\s*(.*?)(\s=+)?$')
+md_heading_re = re.compile(r'^(\#{1,6})[ \t]+(\S.*?)[ \t]*\#*[ \t]*$')
 
 link_to_page_re = re.compile(r'''(
 	  [\w\.\-\(\)]*(?: :[\w\.\-\(\)]{2,} )+ (?: : | \#\w[\w_-]+)?
@@ -156,7 +157,6 @@ class TextView(Gtk.TextView):
 		self.set_size_request(24, 24)
 		self._cursor = CURSOR_TEXT
 		self._cursor_link = None
-		self._object_widgets = weakref.WeakSet()
 		self.set_left_margin(10)
 		self.set_right_margin(5)
 		self.set_wrap_mode(Gtk.WrapMode.WORD)
@@ -172,19 +172,20 @@ class TextView(Gtk.TextView):
 
 	def set_buffer(self, buffer):
 		# Clear old widgets
-		for child in self.get_children():
-			if isinstance(child, InsertedObjectWidget):
-				self._object_widgets.remove(child)
-				self.remove(child)
+		for widget in self.get_inserted_object_widgets():
+			self.remove(widget)
 
 		# Set new buffer
 		Gtk.TextView.set_buffer(self, buffer)
 
 		# Connect new widgets
-		for anchor in buffer.list_objectanchors():
+		for iter, anchor in buffer.list_objectanchors():
 			self.on_insert_object(buffer, anchor)
 
 		buffer.connect('insert-objectanchor', self.on_insert_object)
+
+	def get_inserted_object_widgets(self):
+		return [child for child in self.get_children() if isinstance(child, InsertedObjectWidget)]
 
 	def on_insert_object(self, buffer, anchor):
 		# Connect widget for this view to object
@@ -210,14 +211,13 @@ class TextView(Gtk.TextView):
 			# TODO - compute indenting
 
 		self.add_child_at_anchor(widget, anchor)
-		self._object_widgets.add(widget)
 		widget.show_all()
 
 	def on_size_allocate(self, *a):
 		# Update size request for widgets
 		wrap_width = self._get_object_wrap_width()
 		if wrap_width != self._object_wrap_width:
-			for widget in self._object_widgets:
+			for widget in self.get_inserted_object_widgets():
 				widget.set_textview_wrap_width(wrap_width)
 					# TODO - compute indenting
 			self._object_wrap_width = wrap_width
@@ -236,7 +236,6 @@ class TextView(Gtk.TextView):
 		# Overriden to force usage of our Textbuffer.copy_clipboard
 		# over Gtk.TextBuffer.copy_clipboard
 		format = format or self.preferences['copy_format']
-		format = zim.formats.canonical_name(format)
 		self.get_buffer().copy_clipboard(Clipboard, format)
 
 	def do_cut_clipboard(self):
@@ -285,12 +284,10 @@ class TextView(Gtk.TextView):
 
 			anchor = iter.get_child_anchor()
 			if iter.get_child_anchor():
-				widgets = anchor.get_widgets()
-				assert len(widgets) == 1, 'TODO: support multiple views of same buffer'
-				widget = widgets[0]
-				if widget.has_cursor():
-					widget.grab_cursor(position)
-					return None
+				for widget in anchor.get_widgets():
+					if widget.is_ancestor(self) and widget.has_cursor():
+						widget.grab_cursor(position)
+						return None
 
 		return Gtk.TextView.do_move_cursor(self, step_size, count, extend_selection)
 
@@ -439,6 +436,7 @@ class TextView(Gtk.TextView):
 			home, ourhome = self.get_visual_home_positions(iter)
 			if home.starts_line() and iter.compare(ourhome) < 1 \
 			and not buffer.get_iter_in_verbatim_block(iter):
+				buffer.emit('undo-save-cursor', iter)
 				row, mylist = TextBufferList.new_from_line(buffer, iter.get_line())
 				if mylist and self.preferences['recursive_indentlist']:
 					mylist.indent(row)
@@ -458,7 +456,8 @@ class TextView(Gtk.TextView):
 			iter = buffer.get_iter_at_mark(buffer.get_insert())
 			home, ourhome = self.get_visual_home_positions(iter)
 			if home.starts_line() and iter.compare(ourhome) < 1 \
-			and not buffer.get_iter_in_verbatim(iter):
+			and not buffer.get_iter_in_verbatim_block(iter):
+				buffer.emit('undo-save-cursor', iter)
 				bullet = buffer.get_bullet_at_iter(home)
 				indent = buffer.get_indent(home.get_line())
 				if keyval in KEYVALS_BACKSPACE \
@@ -1014,6 +1013,10 @@ class TextView(Gtk.TextView):
 		is_hr = (l >= 3) and (line == '-' * l)
 
 		m_head = heading_re.match(line)
+		if not m_head and buffer.notebook and buffer.notebook.config['Notebook']['default_file_format'] == 'markdown':
+			m_md_head = md_heading_re.match(line)
+		else:
+			m_md_head = None
 
 		if is_hr:
 			with buffer.user_action:
@@ -1024,6 +1027,15 @@ class TextView(Gtk.TextView):
 		elif m_head:
 			level = len(m_head.group(1)) - 1
 			heading = m_head.group(2) + '\n'
+			end.forward_line()
+			mark = buffer.create_mark(None, end)
+			buffer.delete(start, end)
+			buffer.insert_with_tags_by_name(
+				buffer.get_iter_at_mark(mark), heading, 'style-h' + str(level))
+			buffer.delete_mark(mark)
+		elif m_md_head:
+			level = len(m_md_head.group(1))
+			heading = m_md_head.group(2).rstrip() + '\n'
 			end.forward_line()
 			mark = buffer.create_mark(None, end)
 			buffer.delete(start, end)

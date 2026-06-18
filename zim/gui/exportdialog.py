@@ -91,9 +91,6 @@ class ExportDialog(Assistant):
 			if self.uistate[k] and not self.uistate[k].isspace():
 				options[k] = self.uistate[k]
 
-		options['format'] = \
-			zim.formats.canonical_name(options['format'])
-
 		if options['template'] == '__file__':
 			options['template'] = self.uistate['template_file']
 
@@ -218,11 +215,10 @@ class FormatPage(AssistantPage):
 
 	def __init__(self, assistant):
 		AssistantPage.__init__(self, assistant)
-		self.export_formats = zim.formats.list_formats(zim.formats.EXPORT_FORMAT)
-		self.export_formats.insert(1, 'MHTML (Web Page Archive)') # TODO translatable
-
+		export_formats = zim.formats.list_formats(zim.formats.EXPORT_FORMAT)
+		export_formats.insert(1, ('mhtml', 'MHTML (Web Page Archive)'))
 		self.add_form((
-			('format', 'choice', _('Format'), self.export_formats), # T: Input label in the export dialog
+			('format', 'choice', _('Format'), export_formats), # T: Input label in the export dialog
 			('template', 'choice', _('Template'), ()), # T: Input label in the export dialog
 			('template_file', 'file', None),
 			None,
@@ -244,7 +240,6 @@ class FormatPage(AssistantPage):
 		# Set template list based on selected format
 		def set_templates(self):
 			format = self.form['format']
-			format = zim.formats.canonical_name(format)
 			if format == 'mhtml':
 				format = 'html'
 			combobox = self.form.widgets['template']

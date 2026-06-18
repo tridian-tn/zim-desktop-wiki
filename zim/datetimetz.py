@@ -90,7 +90,11 @@ def init_first_day_of_week():
 			FIRST_DAY_OF_WEEK = SUNDAY
 		logger.debug('According to babel first day of week is %i', FIRST_DAY_OF_WEEK)
 	except Exception as e:
-		if not isinstance(e, ImportError):
+		if isinstance(e, ImportError):
+			pass
+		elif isinstance(e, babel.core.UnknownLocaleError):
+			logger.info('babel: %s' % e)
+		else:
 			logger.exception('Exception while loading \'babel\' library for first day of week')
 
 		# Fallback gleaned from gtkcalendar.c - hence the inconsistency
@@ -235,7 +239,7 @@ def strftime(format, date):
 	# to strftime under Windows we get a UnicodeEncodeError exception.
 	# To avoid this, we convert all non-ASCII characters to their \uXXXXXX representations,
 	# then pass to the strftime function and convert back to a Unicode string.
-	return date.strftime(format.encode('unicode-escape').decode()).encode().decode('unicode-escape')
+	return date.strftime(format.encode('unicode-escape').decode('utf-8')).encode('raw-unicode-escape').decode('unicode-escape')
 
 
 if __name__ == '__main__': #pragma: no cover

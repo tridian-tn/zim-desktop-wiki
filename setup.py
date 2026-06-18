@@ -4,6 +4,8 @@ import os
 import sys
 import shutil
 import subprocess
+import glob
+
 
 # Check if we run the correct python version
 REQUIRED_MINIMUM_PYTHON_VERSION = (3, 6)
@@ -21,13 +23,10 @@ try:
 except ImportError:
 	py2exe = None
 
-from distutils.core import setup
-from distutils.command.sdist import sdist as sdist_class
-from distutils.command.build import build as build_class
-from distutils.command.build_scripts import build_scripts as build_scripts_class
-from distutils.command.install import install as install_class
-from distutils import cmd
-from distutils import dep_util
+from setuptools import setup, Command
+from setuptools.command.sdist import sdist as sdist_class
+from setuptools.command.build import build as build_class
+from setuptools.command.install import install as install_class
 
 
 from zim import __version__, __url__
@@ -40,9 +39,36 @@ import makeman # helper script
 
 PO_FOLDER = 'translations'
 LOCALE_FOLDER = 'locale'
+ICON_SIZES = ('16', '22', '24', '32', '48')
 
 
 # Helper routines
+
+# Function copied from `distutils.dep_util` to avoid complicated import when switching to setuptools
+def newer(source, target):
+    """Return true if 'source' exists and is more recently modified than
+    'target', or if 'source' exists and 'target' doesn't.  Return false if
+    both exist and 'target' is the same age or younger than 'source'.
+    Raise DistutilsFileError if 'source' does not exist.
+    """
+    if not os.path.exists(source):
+        raise DistutilsFileError("file '%s' does not exist" % os.path.abspath(source))
+    if not os.path.exists(target):
+        return 1
+
+    from stat import ST_MTIME
+
+    mtime1 = os.stat(source)[ST_MTIME]
+    mtime2 = os.stat(target)[ST_MTIME]
+
+    return mtime1 > mtime2
+
+
+def find_scripts_in_build_dir():
+	scripts = glob.glob('./build/scripts-*/*.py')
+	assert len(scripts) > 0
+	return scripts
+	
 
 def collect_packages():
 	# Search for python packages below zim/
@@ -84,10 +110,14 @@ def collect_data_files():
 	]
 
 	# xdg/hicolor -> PREFIX/share/icons/hicolor
-	for dir, dirs, files in os.walk('xdg/hicolor'):
-		if files:
-			target = os.path.join('share', 'icons', dir[4:])
-			files = [os.path.join(dir, f) for f in files]
+	sizes = [s + 'x' + s for s in ICON_SIZES] + ['scalable']
+	for size in sizes:
+		for kind, basename in (('apps', 'org.zim_wiki.Zim'),
+		                       ('mimetypes', 'application-x-zim-notebook')):
+			extension = '.svg' if size == 'scalable' else '.png'
+			filename = basename + extension
+			target = os.path.join('share', 'icons', 'hicolor', size, kind)
+			files = [os.path.join('xdg', 'hicolor', size, kind, filename)]
 			data_files.append((target, files))
 
 	# mono icons -> PREFIX/share/icons/ubuntu-mono-light | -dark
@@ -142,7 +172,7 @@ def fix_dist():
 		'mimetypes/application-x-zim-notebook.svg'
 	):
 		shutil.copy('icons/zim48.svg', 'xdg/hicolor/scalable/' + name)
-	for size in ('16', '22', '24', '32', '48'):
+	for size in ICON_SIZES:
 		dir = size + 'x' + size
 		os.makedirs('xdg/hicolor/%s/apps' % dir)
 		os.makedirs('xdg/hicolor/%s/mimetypes' % dir)
@@ -168,7 +198,7 @@ class zim_sdist_class(sdist_class):
 		sdist_class.run(self)
 
 
-class zim_build_trans_class(cmd.Command):
+class zim_build_trans_class(Command):
 	# Compile mo files
 
 	description = 'Build translation files'
@@ -188,26 +218,13 @@ class zim_build_trans_class(cmd.Command):
 			if not os.path.isdir(modir):
 				os.makedirs(modir)
 
-			if not os.path.isfile(mofile) or dep_util.newer(pofile, mofile):
+			if not os.path.isfile(mofile) or newer(pofile, mofile):
 				print('compiling %s' % mofile)
 				msgfmt.MESSAGES.clear() # prevent "spill over" between translations - see github #664
 				msgfmt.make(pofile, mofile)
 			else:
 				#~ print('skipping %s - up to date' % mofile)
 				pass
-
-
-class zim_build_scripts_class(build_scripts_class):
-	# Adjust bin/zim.py -> bin/zim
-
-	def run(self):
-		build_scripts_class.run(self)
-		if os.name == 'posix' and not self.dry_run:
-			for script in self.scripts:
-				if script.endswith('.py'):
-					file = os.path.join(self.build_dir, script)
-					print('renaming %s to %s' % (file, file[:-3]))
-					os.rename(file, file[:-3]) # len('.py') == 3
 
 
 class zim_build_class(build_class):
@@ -219,6 +236,13 @@ class zim_build_class(build_class):
 	def run(self):
 		fix_dist()
 		build_class.run(self)
+
+		# Adjust bin/zim.py -> bin/zim
+		if os.name == 'posix' and not self.dry_run:
+			for script in find_scripts_in_build_dir():
+				if script.endswith('.py'):
+					print('renaming %s to %s' % (script, script[:-3]))
+					os.rename(script, script[:-3]) # len('.py') == 3
 
 		## Set default plugins
 		plugins = []
@@ -305,7 +329,6 @@ if __name__ == '__main__':
 			'sdist': zim_sdist_class,
 			'build': zim_build_class,
 			'build_trans': zim_build_trans_class,
-			'build_scripts': zim_build_scripts_class,
 			'install': zim_install_class,
 		},
 
@@ -320,7 +343,7 @@ if __name__ == '__main__':
 		scripts = scripts,
 		packages = collect_packages(),
 		data_files = collect_data_files(),
-		requires = ['gi', 'xdg'],
+		requires = ['gi', 'pyxdg'],
 
 		**py2exeoptions
 	)
