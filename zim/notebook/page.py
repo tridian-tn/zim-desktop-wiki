@@ -350,7 +350,7 @@ class HRef():
 		return klass.new_from_wiki_link(href).to_wiki_link()
 
 	@classmethod
-	def new_from_wiki_link(klass, href: str) -> 'Href':
+	def new_from_wiki_link(klass, href: str) -> 'HRef':
 		'''Constructor that constructs a L{HRef} object for a link as
 		written in zim's wiki syntax.
 		@param href: a string for the link
@@ -466,6 +466,7 @@ class Page(Path, SignalEmitter):
 		self._change_counter = 0
 		self._parsetree = None
 		self._textbuffer = None
+		self._peeked_source = None
 		self._meta = None
 
 		self._readonly = None
@@ -624,16 +625,39 @@ class Page(Path, SignalEmitter):
 		elif self._parsetree:
 			return self._parsetree
 		else:
-			try:
-				text, self._last_etag = self.source_file.read_with_etag()
-			except zim.newfs.FileNotFoundError:
-				return None
+			if self._peeked_source and self._peeked_source is not None:
+				text, self._last_etag = self._peeked_source
 			else:
-				parser = self.format.Parser()
-				self._parsetree = parser.parse(text, file_input=True)
-				self._meta = self._parsetree.meta
-				assert self._meta is not None
-				return self._parsetree
+				try:
+					text, self._last_etag = self.source_file.read_with_etag()
+				except zim.newfs.FileNotFoundError:
+					return None
+
+			parser = self.format.Parser()
+			self._parsetree = parser.parse(text, file_input=True)
+			self._meta = self._parsetree.meta
+			assert self._meta is not None
+			return self._parsetree
+
+	def peek_has_parsetree(self) -> bool:
+		'''True if this page has parsetree loaded in memory already
+		This does not mean the parsetree has content or not
+		'''
+		return bool(self._textbuffer or self._parsetree)
+	
+	def peek_get_source(self) -> Optional[str]:
+		'''Returns the source text or C{None}
+		By using this the source will be cached such that subsequent 
+		calls to C{get_parsetree()} will not read the source again
+		'''
+		assert not self._textbuffer or self._parsetree, 'Use peek_has_parsetree() first'
+		if not self._peeked_source:
+			try:
+				self._peeked_source = self.source_file.read_with_etag()
+			except zim.newfs.FileNotFoundError:
+				self._peeked_source = (None, None)
+
+		return self._peeked_source[0]
 
 	def set_parsetree(self, tree):
 		'''Set the parsetree with content for this page

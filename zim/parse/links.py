@@ -99,6 +99,17 @@ def link_type(link):
 	return type
 
 
+def is_wiki_link(link: str) -> bool:
+	'''Check whether this is an wiki link or not
+	usefull to distinguish between internal and external links
+	key is whether other applications will be able to resolve the link or not
+	'''
+	# NOTE: attachments are not considered wiki links even though resolving
+	#       them depends on the notebook layout - could be fixed by making
+	#       them more explicit internal - e.g. "page:/file.pdf"
+	return link_type(link) in ('page', 'interwiki')
+
+
 # ## URL link Parsing ##
 #
 # NOTE: we follow rules of GFM spec, except:

@@ -19,12 +19,13 @@ from gi.repository import GdkPixbuf
 import os
 import logging
 
-import zim.main
 from zim.newfs import FilePath, LocalFile, LocalFolder
+from zim.formats import list_formats, NATIVE_FORMAT
 from zim.notebook import get_notebook_list, get_notebook_info, init_notebook, NotebookInfo
 from zim.config import data_file
-from zim.gui.widgets import Dialog, IconButton, encode_markup_text, ScrolledWindow, \
-	strip_boolean_result
+from zim.config.manager import ConfigManager
+from zim.gui.widgets import Dialog, IconButton, encode_markup_text, ScrolledWindow, strip_boolean_result
+from zim.templates import list_templates
 
 logger = logging.getLogger('zim.gui.notebookdialog')
 
@@ -48,6 +49,7 @@ def _run_dialog_with_mainloop(dialog):
 		Gtk.main()
 	return dialog.result
 
+
 def prompt_notebook():
 	'''Prompts the NotebookDialog and returns the result or None.
 	As a special case for first time usage it immediately prompts for
@@ -60,7 +62,7 @@ def prompt_notebook():
 		fields = _run_dialog_with_mainloop(AddNotebookDialog(None))
 		if fields:
 			dir = LocalFolder(fields['folder'])
-			init_notebook(dir, name=fields['name'])
+			init_notebook(dir, name=fields['name'], page_template=fields['default_page_template'])
 			list.append(NotebookInfo(dir.uri, name=fields['name']))
 			list.write()
 			return NotebookInfo(dir.uri, name=fields['name'])
@@ -98,6 +100,12 @@ class NotebookTreeModel(Gtk.ListStore):
 		else:
 			self.notebooklist = notebooklist
 
+		# Fix path foreground on dark themes
+		# Dark theme : light 5 (#9A9996)
+		# Light theme : dark 2 (#5E5C64)
+		dark_theme = ConfigManager.preferences['GtkInterface'].get('prefer-dark-theme')
+		self._path_color = '#9A9996' if dark_theme else '#5E5C64'
+
 		self._loading = True
 		for info in self.notebooklist:
 			self._append(info)
@@ -126,8 +134,8 @@ class NotebookTreeModel(Gtk.ListStore):
 
 	def _append(self, info):
 		path = FilePath(info.uri).path
-		text = '<b>%s</b>\n<span foreground="#5a5a5a" size="small">%s</span>' % \
-				(encode_markup_text(info.name), encode_markup_text(path))
+		text = '<b>%s</b>\n<span foreground="%s" size="small">%s</span>' % \
+				(encode_markup_text(info.name), self._path_color, encode_markup_text(path))
 				# T: Path label in 'open notebook' dialog
 
 		if info.icon and LocalFile(info.icon).exists():
@@ -372,7 +380,11 @@ class NotebookDialog(Dialog):
 		fields = AddNotebookDialog(self).run()
 		if fields:
 			dir = LocalFolder(fields['folder'])
-			init_notebook(dir, name=fields['name'])
+			init_notebook(
+				dir, name=fields['name'],
+				page_template=fields['default_page_template'],
+				file_format=fields['file_format'],
+			)
 			model = self.treeview.get_model()
 			model.append_notebook(dir.uri, name=fields['name'])
 
@@ -396,7 +408,8 @@ class NotebookDialog(Dialog):
 		# explicitly _no_ model.write()
 
 	def show_help(self, page=None):
-		zim.main.ZIM_APPLICATION.run('--manual', page or self.help_page)
+		application = self.get_application()
+		application.open_manual(page or self.help_page)
 
 
 class AddNotebookDialog(Dialog):
@@ -418,12 +431,18 @@ class AddNotebookDialog(Dialog):
 			folder = nb_folder + name
 		# else set below by _changed methods
 
+		templates = [t[0] for t in list_templates('wiki')] # TODO make new page template flexible
+		format_options = list_formats(NATIVE_FORMAT)
 		self.add_form((
 			('name', 'string', _('Name')), # T: input field in 'Add Notebook' dialog
 			('folder', 'dir', _('Folder')), # T: input field in 'Add Notebook' dialog
+			('file_format', 'choice', _('Default file format') + ' ('+_('Experimental')+')', format_options), # T: choice field in 'Add Notebook' dialog
+			('default_page_template', 'choice', _('Page template'), templates),  # T: choice field in 'Add Notebook' dialog
 		), {
 			'name': name,
 			'folder': folder,
+			'file_format': format_options[0][0],
+			'default_page_template': 'Default',
 		})
 
 		self.add_help_text(_('''\
@@ -485,7 +504,12 @@ Of course you can also select an existing zim notebook folder.
 		name = self.form['name']
 		folder = self.form['folder']
 		if name and folder:
-			self.result = {'name': name, 'folder': folder}
+			self.result = {
+				'name': name,
+				'folder': folder,
+				'default_page_template': self.form['default_page_template'],
+				'file_format': self.form['file_format'],
+			}
 			return True
 		else:
 			return False

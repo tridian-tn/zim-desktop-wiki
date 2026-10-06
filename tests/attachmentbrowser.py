@@ -8,6 +8,7 @@
 import tests
 
 import time
+import hashlib
 
 from zim.newfs import LocalFile, LocalFolder
 
@@ -29,6 +30,8 @@ class TestThumbnailCreators(tests.TestCase):
 			for i, basename in enumerate(dir.list_names()):
 				if basename.endswith('.svg'):
 					continue # fails on windows in some cases
+				if basename.endswith('.ico'):
+					continue # Support removed in gdk-pixbuf 2.42.11
 				file = dir.file(basename)
 				thumbfile = thumbdir.file('thumb--' + basename)
 
@@ -62,8 +65,11 @@ class TestThumbnailManager(tests.TestCase):
 		folder = self.setUpFolder(mock=tests.MOCK_ALWAYS_REAL)
 		file = folder.file('./foo-\u00e8\u00e1\u00f1.png') # non-existing path with unicode name
 		self.assertTrue('%C3%A8%C3%A1%C3%B1' in file.uri) # utf encoded!
-		basename = hashlib.md5(file.uri.encode('ascii')).hexdigest() + '.png'
-
+		try:
+			basename = hashlib.md5(file.uri.encode('ascii'), usedforsecurity=False).hexdigest() + '.png'
+		except:
+			basename = hashlib.md5(file.uri.encode('ascii')).hexdigest() + '.png'
+			
 		for file, size, wanted in (
 			(file, 28, LOCAL_THUMB_STORAGE_NORMAL.file(basename)),
 			(file, 64, LOCAL_THUMB_STORAGE_NORMAL.file(basename)),
@@ -150,10 +156,14 @@ class TestThumbnailQueue(tests.TestCase):
 		dir = tests.ZIM_DATA_FOLDER.folder('pixmaps')
 		pixmaps = set()
 		for basename in dir.list_names():
-			if not basename.endswith('.svg'):
-				file = dir.file(basename)
-				pixmaps.add(file.path)
-				queue.queue_thumbnail_request(file, 64)
+			if basename.endswith('.svg'):
+				continue # fails on windows in some cases
+			if basename.endswith('.ico'):
+				continue # Support removed in gdk-pixbuf 2.42.11
+
+			file = dir.file(basename)
+			pixmaps.add(file.path)
+			queue.queue_thumbnail_request(file, 64)
 
 		self.assertFalse(queue.queue_empty())
 

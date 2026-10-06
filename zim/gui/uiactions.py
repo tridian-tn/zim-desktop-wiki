@@ -13,8 +13,6 @@ logger = logging.getLogger('zim.gui')
 import zim
 from zim.actions import action
 
-from zim.main import ZIM_APPLICATION
-
 from zim.parse.encode import url_encode, URL_ENCODE_DATA
 from zim.templates import list_templates, get_template
 
@@ -123,21 +121,7 @@ class UIActions(object):
 	def show_open_notebook(self):
 		'''Show the L{NotebookDialog} dialog'''
 		from zim.gui.notebookdialog import NotebookDialog
-		NotebookDialog.unique(self, self.widget, callback=self.open_notebook).present()
-
-	def open_notebook(self, location, pagelink=None):
-		'''Open another notebook.
-		@param location: notebook location as uri or object with "uri" attribute
-		@param pagelink: optional page name (including optional anchor ID) as string
-		'''
-		assert isinstance(location, str) or hasattr(location, 'uri')
-		assert pagelink is None or isinstance(pagelink, str)
-
-		uri = location.uri if hasattr(location, 'uri') else location
-		if pagelink:
-			ZIM_APPLICATION.run('--gui', uri, pagelink)
-		else:
-			ZIM_APPLICATION.run('--gui', uri)
+		NotebookDialog.unique(self, self.widget, callback=self.navigation.open_notebook).present()
 
 	@action(_('_Import Page...'), menuhints='notebook:edit') # T: Menu item
 	def import_page(self):
@@ -243,13 +227,9 @@ class UIActions(object):
 
 	@action(_('_Quit'), '<Primary>Q') # T: Menu item
 	def quit(self):
-		'''Menu action for quit.
-		@emits: quit
-		'''
-		if Gtk.main_level() > 0:
-			Gtk.main_quit()
-		# We expect the application to call "destroy" on all windows once
-		# it is bumped out of the main loop
+		'''Menu action for quitting the application'''
+		application = self.widget.get_toplevel().get_application()
+		application.quit()
 
 	@action(_('Copy _Location'), accelerator='<shift><Primary>L') # T: Menu item
 	def copy_location(self):
@@ -264,10 +244,10 @@ class UIActions(object):
 		TemplateEditorDialog(self.widget).run()
 
 	@action(_('Pr_eferences'), '<Primary>comma') # T: Menu item
-	def show_preferences(self):
+	def show_preferences(self, show_tab=None, select_plugin=None):
 		'''Menu action to show the L{PreferencesDialog}'''
 		from zim.gui.preferencesdialog import PreferencesDialog
-		PreferencesDialog(self.widget).run()
+		PreferencesDialog(self.widget, show_tab=show_tab, select_plugin=select_plugin).run()
 
 		# Loading plugins can modify the index state
 		if not self.notebook.index.is_uptodate:
@@ -363,7 +343,11 @@ class UIActions(object):
 		'''Menu action to show the server interface from
 		L{zim.gui.server}. Spawns a new zim instance for the server.
 		'''
-		ZIM_APPLICATION.run('--server', '--gui', self.notebook.uri)
+		from zim.gui.server import ServerWindow
+		window = ServerWindow(self.notebook.uri)
+		window.show_all()
+		application = self.widget.get_toplevel().get_application()
+		application.add_window(window)
 
 	@action(_('View Debug Log'), menuhints='tools') # T: menu item
 	def show_debug_log(self):
@@ -430,10 +414,7 @@ class UIActions(object):
 		instance showing the notebook with the manual.
 		@param page: manual page to show (string)
 		'''
-		if page:
-			ZIM_APPLICATION.run('--manual', page)
-		else:
-			ZIM_APPLICATION.run('--manual')
+		self.navigation.open_manual(page)
 
 	@action(_('_FAQ')) # T: Menu item
 	def show_help_faq(self):
@@ -480,8 +461,8 @@ class NewPageDialog(Dialog):
 		self.notebook = notebook
 		self.navigation = navigation
 
-		default = notebook.get_page_template_name(path)
-		templates = [t[0] for t in list_templates('wiki')]
+		default = notebook.get_new_page_template_name(path)
+		templates = [t[0] for t in list_templates('wiki')] # TODO make page template format flexible
 		if not default in templates:
 			templates.insert(0, default)
 
@@ -522,7 +503,7 @@ class NewPageDialog(Dialog):
 			if page.exists():
 				raise PageExistsError(path)
 
-			template = get_template('wiki', self.form['template'])
+			template = get_template('wiki', self.form['template']) # TODO make page template format flexible
 			tree = self.notebook.eval_new_page_template(page, template)
 			page.set_parsetree(tree)
 			self.notebook.store_page(page)
@@ -542,7 +523,19 @@ class ImportPageDialog(FileDialog):
 		self.navigation = navigation
 		self.notebook = notebook
 
-		self.add_filter(_('Text Files'), '*.txt') # T: File filter for '*.txt'
+		# Add "All Supported Formats" filter with both .txt and .md
+		filter_supported = Gtk.FileFilter()
+		filter_supported.set_name(_('All Supported Formats') + ' (.txt, .md)')
+			# T: File filter for all supported import formats (.txt, .md)
+		filter_supported.add_pattern('*.txt')
+		filter_supported.add_pattern('*.md')
+		self.filechooser.add_filter(filter_supported)
+		self.filechooser.set_filter(filter_supported)
+
+		self.add_filter(_('Text Files') + ' (.txt)', '*.txt') # T: File filter for '*.txt'
+		self.add_filter(_('Markdown Files' + ' (.md)'), '*.md') # T: File filter for '*.md'
+		self._add_filter_all()
+		self.filechooser.set_filter(filter_supported)
 
 		if page is not None:
 			self.add_shortcut(notebook, page)
@@ -554,7 +547,8 @@ class ImportPageDialog(FileDialog):
 		if file is None:
 			return False
 
-		page = import_file_from_user_input(file, self.notebook)
+		format = 'markdown' if file.basename.endswith('.md') else 'wiki' # TODO interface to support all source formats
+		page = import_file_from_user_input(file, self.notebook, format=format)
 		self.navigation.open_page(page)
 		return True
 
@@ -565,7 +559,8 @@ class SaveCopyDialog(FileDialog):
 		FileDialog.__init__(self, widget, _('Save Copy'), Gtk.FileChooserAction.SAVE)
 			# T: Dialog title of file save dialog
 		self.page = page
-		self.filechooser.set_current_name(page.name + '.txt')
+		file, folder = notebook.layout.map_page(page)
+		self.filechooser.set_current_name(file.basename)
 		self.add_shortcut(notebook, page)
 
 		# TODO also include headers
@@ -575,7 +570,7 @@ class SaveCopyDialog(FileDialog):
 		file = self.get_file()
 		if file is None:
 			return False
-		format = 'wiki'
+		format = 'markdown' if file.basename.endswith('.md') else 'wiki' # TODO interface to support all source formats
 		logger.info("Saving a copy of %s using format '%s'", self.page, format)
 		lines = self.page.dump(format)
 		file.writelines(lines)

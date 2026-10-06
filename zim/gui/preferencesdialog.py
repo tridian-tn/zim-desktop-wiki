@@ -18,7 +18,6 @@ from zim.gui.applications import CustomizeOpenWithDialog, open_folder_prompt_cre
 from zim.plugins import PLUGIN_FOLDER
 from zim.config import String, ConfigManager
 from zim.plugins import PluginManager
-from zim.main import ZIM_APPLICATION
 
 from zim.gui.applications import ui_preferences as application_preferences
 from zim.gui.mainwindow import ui_preferences as interface_preferences
@@ -48,7 +47,11 @@ def localeWarningBar(enc):
 
 class PreferencesDialog(Dialog):
 
-	def __init__(self, widget, default_tab=None, select_plugin=None):
+	def __init__(self, widget, show_tab=None, select_plugin=None):
+		'''Constructor
+		@param show_tab: tab to present in the dialog
+		@select_plugin: plugin to present in the dialog
+		'''
 		Dialog.__init__(self, widget, _('Preferences')) # T: Dialog title
 		self.preferences = ConfigManager.preferences
 		self.main_window = widget
@@ -74,7 +77,7 @@ class PreferencesDialog(Dialog):
 			# From GTK Doc: Note that due to historical reasons, GtkNotebook refuses
 			# to switch to a page unless the child widget is visible.
 			vbox.show()
-			if category == default_tab:
+			if category == show_tab:
 				gtknotebook.set_current_page(index)
 
 			fields = []
@@ -120,8 +123,7 @@ class PreferencesDialog(Dialog):
 		plugins_tab_index = gtknotebook.append_page(self.plugins_tab, Gtk.Label(label=_('Plugins')))
 				# T: Heading in preferences dialog
 		self.plugins_tab.show()
-		#~ print default_tab, index
-		if default_tab == "Plugins":
+		if show_tab == "Plugins" or select_plugin is not None:
 			gtknotebook.set_current_page(plugins_tab_index)
 			if not select_plugin is None:
 					self.plugins_tab.select_plugin(select_plugin)
@@ -129,7 +131,6 @@ class PreferencesDialog(Dialog):
 		# Applications tab
 		gtknotebook.append_page(ApplicationsTab(self), Gtk.Label(label=_('Applications')))
 			# T: Heading in preferences dialog
-
 
 	def _add_font_selection(self, table):
 		# need to hardcode this, cannot register it as a preference
@@ -376,7 +377,8 @@ class PluginsTab(Gtk.VBox):
 		klass = self.plugins.get_plugin_class(self._current_plugin)
 		page = klass.plugin_info['help']
 		if page:
-			ZIM_APPLICATION.run('--manual', page)
+			application = self.get_toplevel().get_application()
+			application.open_manual(page)
 
 	def on_configure_button_clicked(self, button):
 		plugin = self.plugins[self._current_plugin]

@@ -18,7 +18,7 @@ import zim.templates
 import zim.formats
 
 from zim.fs import adapt_from_oldfs
-from zim.newfs import SEP, Folder, LocalFile, LocalFolder
+from zim.newfs import SEP, Folder, LocalFile, LocalFolder, FileNotFoundError, FileExistsError
 from zim.config import INIConfigFile, String, ConfigDefinitionByClass, Boolean, Choice
 from zim.errors import Error
 from zim.base.naturalsort import natural_sort_key
@@ -57,10 +57,12 @@ class NotebookConfig(INIConfigFile):
 			('document_root', String(None)), # XXX should be dir, but resolves relative
 			('short_links', Boolean(False)),
 			('shared', Boolean(True)),
+			('paste_image_template', String('pasted_image_%y%m%d')),
 			('endofline', Choice(endofline, {'dos', 'unix'})),
 			('disable_trash', Boolean(False)),
-			('default_file_format', String('zim-wiki')),
-			('default_file_extension', String('.txt')),
+			('default_file_format', Choice('zim-wiki', {'zim-wiki', 'markdown'})),
+			('default_file_extension', String('.txt')), # should match default_file_format
+			('default_page_template', String('Default')),
 			('notebook_layout', String('files')),
 		))
 
@@ -211,7 +213,7 @@ class Notebook(ConnectorMixin, SignalEmitter):
 		'page-info-changed': (SIGNAL_NORMAL, None, (object,)),
 		'get-page-template': (SIGNAL_NORMAL, str, (object,)),
 		'init-page-template': (SIGNAL_NORMAL, None, (object, object)),
-
+ 
 		# Hooks
 		'suggest-link': (SIGNAL_NORMAL, object, (object, object)),
 	}
@@ -251,11 +253,12 @@ class Notebook(ConnectorMixin, SignalEmitter):
 		if config['Notebook']['notebook_layout'] == 'files':
 			layout = FilesLayout(
 				folder,
-				config['Notebook']['endofline'],
-				config['Notebook']['default_file_format'],
-				config['Notebook']['default_file_extension']
+				default_format=config['Notebook']['default_file_format'],
+				default_extension=config['Notebook']['default_file_extension'],
+				endofline=config['Notebook']['endofline']
 			)
 		else:
+			# FUTURE extend here to support more classes
 			raise ValueError('Unkonwn notebook layout: %s' % config['Notebook']['notebook_layout'])
 
 		cache_dir.touch() # must exist for index to work
@@ -360,6 +363,7 @@ class Notebook(ConnectorMixin, SignalEmitter):
 			self.icon = None
 		self.document_root = document_root
 
+		self.layout.set_format(properties['default_file_format'], properties['default_file_extension'])
 		self.interwiki = create_valid_interwiki_key(properties['interwiki'] or self.name)
 
 	def suggest_link(self, source, word):
@@ -436,7 +440,7 @@ class Notebook(ConnectorMixin, SignalEmitter):
 		'''
 		i = 0
 		base = path.name
-		while True:
+		while i < 100000: # arbitrary high limit
 			try:
 				page = self.get_page(path)
 			except PageNotAvailableError:
@@ -447,6 +451,8 @@ class Notebook(ConnectorMixin, SignalEmitter):
 			finally:
 				i += 1
 				path = Path(base + ' %i' % i)
+		else:
+			raise PageNotAvailableError(path)
 
 	def get_home_page(self):
 		'''Returns a L{Page} object for the home page'''
@@ -550,7 +556,22 @@ class Notebook(ConnectorMixin, SignalEmitter):
 
 		file, folder = self.layout.map_page(path)
 		if (file.exists() or folder.exists()):
-			self._move_file_and_folder(path, newpath)
+			try:
+				changes = self.layout.move_page_resources(path, newpath)
+			except FileNotFoundError:
+				logger.exception('Error in file or folder move')
+				raise PageNotFoundError(path)
+			except FileExistsError as err:
+				logger.exception('Error in file or folder move')
+				if self.layout.is_source_file(err.file):
+					raise PageExistsError(newpath)
+				else:
+					raise PageNotAvailableError(newpath, err.file)
+
+			# Process index changes after all fs changes
+			for old, new in changes:
+				self.index.file_moved(old, new)
+
 			self._reload_pages_in_cache(path)
 			self._reload_pages_in_cache(newpath)
 			self.emit('moved-page', path, newpath)
@@ -576,65 +597,6 @@ class Notebook(ConnectorMixin, SignalEmitter):
 				tree.set_heading_text(newpath.basename)
 				page.set_parsetree(tree)
 				self.store_page(page)
-
-	def _move_file_and_folder(self, path, newpath):
-		file, folder = self.layout.map_page(path)
-		if not (file.exists() or folder.exists()):
-			raise PageNotFoundError(path)
-
-		newfile, newfolder = self.layout.map_page(newpath)
-		if file.path.lower() == newfile.path.lower():
-			if newfile.isequal(file) or newfolder.isequal(folder):
-				pass # renaming on case-insensitive filesystem
-			elif newfile.exists() or newfolder.exists():
-				raise PageExistsError(newpath)
-		elif newfile.exists():
-			if self.layout.is_source_file(newfile):
-				raise PageExistsError(newpath)
-			else:
-				raise PageNotAvailableError(newpath, newfile)
-		elif newfolder.exists():
-			raise PageExistsError(newpath)
-
-		# First move the dir - if it fails due to some file being locked
-		# the whole move is cancelled. Chance is bigger than the other
-		# way around, e.g. attachment open in external program.
-
-		changes = []
-
-		if folder.exists():
-			if newfolder.ischild(folder):
-				# special case where we want to move a page down
-				# into it's own namespace
-				parent = folder.parent()
-				tmp = parent.new_folder(folder.basename)
-				folder.moveto(tmp)
-				tmp.moveto(newfolder)
-			else:
-				folder.moveto(newfolder)
-
-			changes.append((folder, newfolder))
-
-			# check if we also moved the file inadvertently
-			if file.ischild(folder):
-				rel = file.relpath(folder)
-				movedfile = newfolder.file(rel)
-				if movedfile.exists() and movedfile.path != newfile.path:
-						movedfile.moveto(newfile)
-						changes.append((movedfile, newfile))
-			elif file.exists():
-				file.moveto(newfile)
-				changes.append((file, newfile))
-
-		elif file.exists():
-			file.moveto(newfile)
-			changes.append((file, newfile))
-
-		# Process index changes after all fs changes
-		# more robust if anything goes wrong in index update
-		for old, new in changes:
-			self.index.file_moved(old, new)
-
 
 	def _update_links_in_moved_page(self, oldroot, newroot):
 		# Find (floating) links that originate from the moved page
@@ -999,7 +961,12 @@ class Notebook(ConnectorMixin, SignalEmitter):
 		@returns: a L{File} or L{Folder} object.
 		'''
 		assert isinstance(filename, str) and filename
-		file = self._resolve_abs_file(filename)
+		try:
+			file = self._resolve_abs_file(filename)
+		except:
+			logger.exception('Could not resolve filename as absolute path: %s', filename)
+			file = None
+
 		if file is None:
 			if path:
 				folder = self.get_attachments_dir(path)
@@ -1124,36 +1091,50 @@ class Notebook(ConnectorMixin, SignalEmitter):
 		'''
 		return self.layout.get_attachments_folder(path)
 
-	def get_template(self, path):
-		'''Get a template for the intial text on new pages
+	def get_new_page_template(self, path, support_cursor=False) -> 'ParseTree':
+		'''Get and evaluate template for the intial text on new pages
 		@param path: a L{Path} object
+		@param support_cursor: bool whether "place_cursor" is supported in the template, if so, it
+		will be evaluated with unicode character "\\ufffe"
 		@returns: a L{ParseTree} object
 		'''
 		# FIXME hardcoded that template must be wiki format
 
-		template = self.get_page_template_name(path)
+		template = self.get_new_page_template_name(path)
 		logger.debug('Got page template \'%s\' for %s', template, path)
-		template = zim.templates.get_template('wiki', template)
-		return self.eval_new_page_template(path, template)
+		template = zim.templates.get_template('wiki', template) # TODO: make template format flexible
+		return self.eval_new_page_template(path, template, support_cursor)
 
-	def get_page_template_name(self, path=None):
+	def get_new_page_template_name(self, path=None):
 		'''Returns the name of the template to use for a new page.
 		(To get the contents of the template directly, see L{get_template()})
 		'''
-		return self.emit_return_first('get-page-template', path or Path(':')) or 'Default'
+		default_page_template = self.config['Notebook'].get('default_page_template', 'Default')
+		return self.emit_return_first('get-page-template', path or Path(':')) or default_page_template
 
-	def eval_new_page_template(self, path, template):
+	def eval_new_page_template(self, path, template, support_cursor=False) -> 'ParseTree':
+		'''Evaluate a template for the intial text on new pages
+		@param path: a L{Path} object
+		@param template: a template onkect
+		@param support_cursor: bool whether "place_cursor" is supported in the template, if so, it
+		will be evaluated with unicode character "\\ufffe"
+		'''
+		from zim.templates.expression import ExpressionFunction
+		CURSOR_CHAR = '\ufffe' # unicode "non-character"
+
 		lines = []
-		context = {
+		cursor_replace = CURSOR_CHAR if support_cursor else ''
+		mycontext = {
 			'page': {
 				'name': path.name,
 				'basename': path.basename,
 				'section': path.namespace,
 				'namespace': path.namespace, # backward compat
-			}
+			},
+			'place_cursor': ExpressionFunction(lambda: cursor_replace),
 		}
 		self.emit('init-page-template', path, template) # plugin hook
-		template.process(lines, context)
+		template.process(lines, mycontext)
 
-		parser = zim.formats.get_parser('wiki')
+		parser = zim.formats.get_parser('wiki') # TODO: make template format flexible
 		return parser.parse(lines)

@@ -1,0 +1,43 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - release
+      - test_ci
+
+jobs:
+  build_windows:
+    runs-on: windows-latest
+    name: MSYS2 Python 3.x on windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install MSYS2
+        uses: msys2/setup-msys2@v2
+
+      - name: Install system dependencies
+        shell: msys2 {0}
+        run: |
+          ./windows/install-msys2-requirements.sh
+
+      - name: Configure git
+        shell: msys2 {0}
+        run: |
+          git config --global user.email "you@example.com"
+          git config --global user.name "Your Name"
+
+      - name: Build Windows
+        shell: msys2 {0}
+        run: |
+          ./windows/build.sh
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v7
+        with:
+            path: ./**/*-setup-w64_x86.exe
+            archive: false
+            overwrite: true
+            if-no-files-found: error
+

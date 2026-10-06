@@ -298,11 +298,10 @@ mount=%s %s
 
 class TestNotebook(tests.TestCase):
 
-	def setUp(self):
-		self.notebook = self.setUpNotebook(content=tests.FULL_NOTEBOOK)
+	def setUp(self, config=None):
+		self.notebook = self.setUpNotebook(content=tests.FULL_NOTEBOOK, config=config)
 
-	def testAPI(self):
-		'''Test various notebook methods'''
+	def testGetPageStorPage(self):
 		self.assertTrue(
 			isinstance(self.notebook.get_home_page(), Page))
 
@@ -335,9 +334,10 @@ class TestNotebook(tests.TestCase):
 		page.set_parsetree(emptytree)
 		self.notebook.store_page(page)
 
-	def testManipulate(self):
-		'''Test renaming, moving and deleting pages in the notebook'''
+	def testRenamePage(self):
+		self._testRenameMove(Path('Test:wiki'), Path('Test:MyWiki'))
 
+	def testMovePage(self):
 		# check test setup OK
 		for path in (Path('Test:BAR'), Path('NewPage')):
 			page = self.notebook.get_page(path)
@@ -350,38 +350,74 @@ class TestNotebook(tests.TestCase):
 			self.assertTrue(page.haschildren or page.hascontent)
 			self.assertTrue(page.exists())
 
-		# check errors
-		self.assertRaises(PageExistsError,
-			self.notebook.move_page, Path('Test:foo'), Path('TaskList'))
-
-		self.notebook.index.flush()
-		self.assertFalse(self.notebook.index.is_uptodate)
-		self.assertRaises(IndexNotUptodateError,
-			self.notebook.move_page, Path('Test:foo'), Path('Test:BAR'))
-		self.notebook.index.check_and_update()
 
 		# Test actual moving
 		for oldpath, newpath in (
 			(Path('Test:foo'), Path('Test:BAR')),
 			(Path('TaskList'), Path('NewPage:Foo:Bar:Baz')),
 		):
-			page = self.notebook.get_page(oldpath)
-			text = page.dump('wiki')
-			self.assertTrue(page.haschildren)
-			self.notebook.move_page(oldpath, newpath)
+			self._testRenameMove(oldpath, newpath)
 
-			# newpath should exist and look like the old one
-			page = self.notebook.get_page(newpath)
-			self.assertTrue(page.haschildren)
-			text = [l.replace('[[foo:bar]]', '[[+bar]]') for l in text] # fix one updated link
-			self.assertEqual(page.dump('wiki'), text)
+	def _testRenameMove(self, old, new):
+		page = self.notebook.get_page(old)
+		self.assertTrue(page.hascontent)
+		copy = page
+			# we now have a copy of the page object - this is an important
+			# part of the test - see if caching of page objects doesn't bite
 
-			# oldpath should be deleted
-			page = self.notebook.get_page(oldpath)
-			self.assertFalse(page.hascontent, msg="%s still has content" % page)
-			#self.assertFalse(page.haschildren, msg="%s still has children" % page)
-				# Can still have remaining placeholders
+		with tests.LoggingFilter('zim.notebook', message='Number of links'):
+			self.notebook.move_page(old, new)
+		page = self.notebook.get_page(old)
+		self.assertFalse(page.hascontent)
+		page = self.notebook.get_page(new)
+			# If we get an error here because notebook resolves Test:Foo
+			# probably the index did not clean up placeholders correctly
+		self.assertTrue(page.hascontent)
 
+		self.assertFalse(copy.hascontent)
+		self.assertEqual(copy.source_file.extension, page.source_file.extension)
+			# ensure file format preserved in move
+
+	def testErrorsOnMove(self):
+		with tests.LoggingFilter('zim.notebook'):
+			self.assertRaises(PageExistsError,
+				self.notebook.move_page, Path('Test:foo'), Path('TaskList'))
+
+		self.notebook.index.flush()
+		self.assertFalse(self.notebook.index.is_uptodate)
+		self.assertRaises(IndexNotUptodateError,
+			self.notebook.move_page, Path('Test:foo'), Path('Test:BAR'))
+
+	def testRenamePageCaseSensitive(self):
+		self.notebook.move_page(Path('Test:foo'), Path('Test:Foo'))
+
+		pages = list(self.notebook.pages.list_pages(Path('Test')))
+		self.assertNotIn(Path('Test:foo'), pages)
+		self.assertIn(Path('Test:Foo'), pages)
+
+	def testRenameMixedFormatPage(self):
+		myext = '.md' if self.notebook.config['Notebook']['default_file_extension'] == '.txt' else '.txt'
+		file = self.notebook.folder.file('MixedFormat' + myext)
+		if myext == '.txt':
+			file.write('Content-Type: text/x-zim-wiki\n\ntest 123\n')
+		else:
+			file.write('Test 123')
+		self.notebook.index.update_file(file)
+		self.assertIsNotNone(self.notebook.pages.lookup_by_pagename(Path('MixedFormat')))
+			# ensure indexing worked for mixed file
+
+		page = self.notebook.get_page(Path('MixedFormat'))
+		self.assertTrue(page.hascontent)
+		self.assertEqual(page.source_file.extension, myext)
+
+		self.notebook.move_page(page, Path('NewMixedFormat'))
+		self.assertFalse(page.hascontent)
+
+		page = self.notebook.get_page(Path('NewMixedFormat'))
+		self.assertTrue(page.hascontent)
+		self.assertEqual(page.source_file.extension, myext)
+
+	def testMovePageDownward(self):
 		# Test moving a page below it's own namespace
 		oldpath = Path('Test:Section')
 		newpath = Path('Test:Section:newsubpage')
@@ -398,8 +434,7 @@ class TestNotebook(tests.TestCase):
 		self.assertTrue(page.haschildren)
 		self.assertFalse(page.hascontent)
 
-
-		# Check delete and cleanup
+	def testDeletePage(self):
 		path = Path('AnotherNewPage:Foo:bar')
 		page = self.notebook.get_page(path)
 		page.parse('plain', 'foo bar\n')
@@ -454,41 +489,6 @@ class TestNotebook(tests.TestCase):
 		self.assertEqual(''.join(content),
 			':AnotherNewPage:Foo:bar\n'
 			'**bold** :AnotherNewPage\n')
-
-
-		#~ print('\n==== DB ====')
-		#~ self.notebook.index.update()
-		#~ cursor = self.notebook.index.db.cursor()
-		#~ cursor.execute('select * from pages')
-		#~ for row in cursor:
-			#~ print row
-		#~ cursor.execute('select * from links')
-		#~ for row in cursor:
-			#~ print row
-
-		# Try rename
-		page = self.notebook.get_page(Path('Test:wiki'))
-		self.assertTrue(page.hascontent)
-		copy = page
-			# we now have a copy of the page object - this is an important
-			# part of the test - see if caching of page objects doesn't bite
-
-		with tests.LoggingFilter('zim.notebook', message='Number of links'):
-			self.notebook.move_page(Path('Test:wiki'), Path('Test:foo'))
-		page = self.notebook.get_page(Path('Test:wiki'))
-		self.assertFalse(page.hascontent)
-		page = self.notebook.get_page(Path('Test:foo'))
-			# If we get an error here because notebook resolves Test:Foo
-			# probably the index did not clean up placeholders correctly
-		self.assertTrue(page.hascontent)
-
-	def testCaseSensitiveMove(self):
-		from zim.notebook.index import LINK_DIR_BACKWARD
-		self.notebook.move_page(Path('Test:foo'), Path('Test:Foo'))
-
-		pages = list(self.notebook.pages.list_pages(Path('Test')))
-		self.assertNotIn(Path('Test:foo'), pages)
-		self.assertIn(Path('Test:Foo'), pages)
 
 	def testResolveFile(self):
 		'''Test notebook.resolve_file()'''
@@ -563,6 +563,18 @@ class TestNotebookCaseInsensitiveFileSystem(TestNotebook):
 
 		file1.write('TEST 123')
 		self.assertEqual(file2.read(), 'TEST 123')
+
+
+class TestNotebookMarkdown(TestNotebook):
+
+	def setUp(self):
+		config = {
+			'Notebook': {
+				'default_file_format': 'markdown',
+				'default_file_extension': '.md',
+			}
+		}
+		TestNotebook.setUp(self, config=config)
 
 
 @tests.slowTest
@@ -1431,7 +1443,7 @@ class TestPage(TestPath):
 	def _testEmptyFile(self, text):
 		page = self.generator('empty_page')
 		page.source_file.write(text)
-		with tests.LoggingFilter('zim.parser', 'Parser got empty string'):
+		with tests.LoggingFilter('zim.parse', 'Parser got empty string'):
 			parsetree = page.get_parsetree()
 		self.assertFalse(parsetree.hascontent)
 
@@ -1644,6 +1656,48 @@ class TestBackgroundSave(tests.TestCase):
 
 class TestFilesLayout(tests.TestCase):
 
+	def testBasicWithWikiFormat(self):
+		folder = self.setUpFolder()
+		layout = FilesLayout(folder, default_format='zim-wiki', default_extension='.txt')
+
+		file, subfolder = layout.map_page(Path('foo'))
+		self.assertEqual(file, folder.file('foo.txt'))
+		self.assertEqual(subfolder, folder.folder('foo'))
+
+		self.assertTrue(layout.is_source_file(file)) # non existing is True
+		self.assertFalse(layout.is_source_file(folder.file('foo.pdf')))
+
+		page, ftype = layout.map_file(file)
+		self.assertEqual(page, Path('foo'))
+		self.assertEqual(ftype, FILE_TYPE_PAGE_SOURCE)
+
+		md_file = folder.file('foo.md')
+		md_file.touch()
+		page, ftype = layout.map_file(md_file)
+		self.assertEqual(page, Path('foo'))
+		self.assertEqual(ftype, FILE_TYPE_PAGE_SOURCE)
+
+		# since md exists, this is no longer source
+		page, ftype = layout.map_file(file)
+		self.assertEqual(page, Path(':'))
+		self.assertEqual(ftype, FILE_TYPE_ATTACHMENT)
+
+		# now preferred format exists --> md is attachment
+		file.write('Content-Type: text/x-zim-wiki\n\nTest\n')
+
+		page, ftype = layout.map_file(file)
+		self.assertEqual(page, Path('foo'))
+		self.assertEqual(ftype, FILE_TYPE_PAGE_SOURCE)
+
+		page, ftype = layout.map_file(md_file)
+		self.assertEqual(page, Path(':'))
+		self.assertEqual(ftype, FILE_TYPE_ATTACHMENT)
+
+		# but both count as source files since this method does not check alternatives
+		self.assertTrue(layout.is_source_file(file))
+		self.assertTrue(layout.is_source_file(md_file))
+
+
 	def _test_page_vs_not_a_page(self, folder, layout, pagefile, notapagefile):
 		self.assertTrue(layout.is_source_file(pagefile))
 		self.assertFalse(layout.is_source_file(notapagefile))
@@ -1653,15 +1707,13 @@ class TestFilesLayout(tests.TestCase):
 		self.assertEqual(layout.map_filepath(pagefile.relpath(folder)), (Path('Page'), FILE_TYPE_PAGE_SOURCE))
 		self.assertEqual(layout.map_filepath(notapagefile.relpath(folder)), (Path(':'), FILE_TYPE_ATTACHMENT))
 
-		self.assertEqual(layout.index_list_children(Path(':')), [Path('Page')])
-
 	def testCheckFirstLineForTextFiles(self):
 		folder = self.setUpFolder()
 		pagefile = folder.file('Page.txt')
 		pagefile.write('Content-Type: text/x-zim-wiki\n\nFoo Bar\n')
 		notapagefile = folder.file('NotAPage.txt')
 		notapagefile.write('Foo Bar\n')
-		layout = FilesLayout(folder, default_extension='.txt')
+		layout = FilesLayout(folder, default_format='zim-wiki', default_extension='.txt')
 		self._test_page_vs_not_a_page(folder, layout, pagefile, notapagefile)
 
 	def testNoCheckFirstLineForNonTextFiles(self):
@@ -1670,7 +1722,7 @@ class TestFilesLayout(tests.TestCase):
 		pagefile.write('Foo Bar\n')
 		notapagefile = folder.file('NotAPage.txt')
 		notapagefile.write('Foo Bar\n')
-		layout = FilesLayout(folder, default_extension='.md')
+		layout = FilesLayout(folder, default_format='markdown', default_extension='.md')
 		self._test_page_vs_not_a_page(folder, layout, pagefile, notapagefile)
 
 	def testInValidFileNamesRejected(self):
@@ -1679,7 +1731,7 @@ class TestFilesLayout(tests.TestCase):
 		pagefile.write('Content-Type: text/x-zim-wiki\n\nFoo Bar\n')
 		notapagefile = folder.file('Not A Page.txt')
 		notapagefile.write('Content-Type: text/x-zim-wiki\n\nFoo Bar\n')
-		layout = FilesLayout(folder, default_extension='.txt')
+		layout = FilesLayout(folder)
 		self._test_page_vs_not_a_page(folder, layout, pagefile, notapagefile)
 
 	def testAttachmentsFolderIsinstance(self):

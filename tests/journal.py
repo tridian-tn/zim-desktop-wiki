@@ -193,7 +193,7 @@ class TestJournalPlugin(tests.TestCase):
 			Path('Journal:2012:Week 17'),
 			Path('Journal:2012:04'),
 		):
-			tree = notebook.get_template(path)
+			tree = notebook.get_new_page_template(path)
 			lines = dumper.dump(tree)
 			#~ print lines
 			self.assertTrue(not 'Created' in ''.join(lines)) # No fall back

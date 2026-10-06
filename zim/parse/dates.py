@@ -39,7 +39,7 @@ import datetime
 from zim.datetimetz import dates_for_week, weekcalendar
 
 
-__all__ = ('date_re', 'parse_date', 'Month', 'Week', 'Day')
+__all__ = ('date_re', 'parse_date', 'Month', 'Week', 'Day', 'TODAY_TOMORROW', 'date_re_incl_today_tomorrow', 'parse_date_incl_today_tomorrow')
 
 
 date_re = re.compile(
@@ -50,28 +50,6 @@ date_re = re.compile(
 	r'|[Ww][Kk]?(?:\d{2}|\d{4})\d{2}(?:[.-]\d)?'
 	')(?![\\w-])'
 )
-
-
-def parse_date(date):
-	string = date.upper().replace('-', '').strip()
-	if 'W' in string:
-		string = string.replace('WK', '').replace('W', '').replace('.', '')
-		if len(string) == 4: # yyww
-			return Week(int(string[:2]) + 2000, int(string[2:4]))
-		elif len(string) == 5: # yywwD
-			return Day.new_from_weeknumber(int(string[:2]) + 2000, int(string[2:4]), int(string[4]))
-		elif len(string) == 6: # yyyyww
-			return Week(int(string[:4]), int(string[4:]))
-		elif len(string) == 7: # yyyywwD
-			return Day.new_from_weeknumber(int(string[:4]), int(string[4:6]), int(string[6]))
-		else:
-			raise ValueError('Could not parse: %s' % date)
-	elif len(string) == 6: # yyyymm
-		return Month(int(string[:4]), int(string[4:]))
-	elif len(string) == 8: # yyyymmdd
-		return Day(int(string[:4]), int(string[4:6]), int(string[6:]))
-	else:
-		raise ValueError('Could not parse: %s' % date)
 
 
 class DateRange(object):
@@ -96,6 +74,21 @@ class Day(DateRange, datetime.date):
 		if offset != 0:
 			start = start + datetime.timedelta(days=offset)
 		return cls(start.year, start.month, start.day)
+
+	@classmethod
+	def today(cls, offset=0):
+		day = datetime.date.today()
+		if offset:
+			day = day + datetime.timedelta(days=offset)
+		return cls(day.year, day.month, day.day)
+
+	@classmethod
+	def tomorrow(cls, offset=0):
+		return cls.today(offset=offset+1)
+
+	@classmethod
+	def yesterday(cls, offset=0):
+		return cls.today(offset=offset-1)
 
 	@property
 	def first_day(self):
@@ -129,6 +122,14 @@ class Week(DateRange):
 	def __str__(self):
 		return '%s-W%s' % (self.year, self.week)
 
+	@classmethod
+	def thisweek(cls, offset=0):
+		day = datetime.date.today()
+		if offset:
+			day = day + datetime. timedelta(weeks=offset)
+		year, week, weekday = weekcalendar(day)
+		return cls(year, week)
+
 
 class Month(DateRange):
 
@@ -148,6 +149,77 @@ class Month(DateRange):
 	def __str__(self):
 		return '%s-%s' % (self.year, self.month)
 
+	@classmethod
+	def thismonth(cls, offset=0):
+		day = datetime.date.today()
+		year, month = day.year, day.month
+		if offset:
+			month += offset
+			if month > 12:
+				while month > 12:
+					year += 1
+					month -= 12
+			elif month < 1:
+				while month < 1:
+					year -= 1
+					month += 12
+
+		return cls(year, month)
+
+
+TODAY_TOMORROW = {
+	'today': Day.today,
+	'tomorrow': Day.tomorrow,
+	'yesterday': Day.yesterday,
+	'thisweek': Week.thisweek,
+	'thismonth': Month.thismonth,
+}
+
+
+date_re_incl_today_tomorrow = re.compile('(:?(?:' + '|'.join(TODAY_TOMORROW.keys()) + ')(?:[+-]\\d+)?|' + date_re.pattern[3:]) # snip initial "(:?" from date_re
+
+
+def parse_date_incl_today_tomorrow(date: str) -> DateRange:
+	'''Like L{parse_date()} but also supports special strings "today", "tomorrow", etc.
+	See the dic TODAY_TOMORROW for allowed values. Also supports a integer offset e.g. "+1" or "-1" as postfix
+	'''
+	date = date.strip()
+	m = re.match('^(\\w+)', date)
+	if m and m.group(1) in TODAY_TOMORROW:
+		key = m.group(1)
+		try:
+			offset = int(date[len(key):]) if len(key) != len(date) else 0
+		except:
+			raise ValueError('Invalid offset in date formate: %s' % date)
+		return TODAY_TOMORROW[key](offset)
+	else:
+		return parse_date(date)
+
+
+def parse_date(date: str) -> DateRange:
+	'''Parse date strings to a DateRange object, support forms documented above
+	Raises C{ValueError} if parsing failed
+	'''
+	string = date.upper().replace('-', '').strip()
+	if 'W' in string:
+		string = string.replace('WK', '').replace('W', '').replace('.', '')
+		if len(string) == 4: # yyww
+			return Week(int(string[:2]) + 2000, int(string[2:4]))
+		elif len(string) == 5: # yywwD
+			return Day.new_from_weeknumber(int(string[:2]) + 2000, int(string[2:4]), int(string[4]))
+		elif len(string) == 6: # yyyyww
+			return Week(int(string[:4]), int(string[4:]))
+		elif len(string) == 7: # yyyywwD
+			return Day.new_from_weeknumber(int(string[:4]), int(string[4:6]), int(string[6]))
+		else:
+			raise ValueError('Could not parse: %s' % date)
+	elif len(string) == 6: # yyyymm
+		return Month(int(string[:4]), int(string[4:]))
+	elif len(string) == 8: # yyyymmdd
+		return Day(int(string[:4]), int(string[4:6]), int(string[6:]))
+	else:
+		raise ValueError('Could not parse: %s' % date)
+
 
 def old_parse_date(string):
 	'''Returns a tuple of (year, month, day) for a date string or None
@@ -164,9 +236,6 @@ def old_parse_date(string):
 	Where '-' can be replaced by any separator. Any preceding or
 	trailing text will be ignored (so we can parse journal page names
 	correctly).
-
-	TODO: Some setting to prefer US dates with mm-dd instead of dd-mm
-	TODO: More date formats ?
 	'''
 	m = re.search(r'(\d{1,4})\D(\d{1,2})(?:\D(\d{1,4}))?', string)
 	if m:

@@ -39,7 +39,7 @@ First, you should verify you have the dependencies zim needs. To list all depend
 You will at least need the following:
 
 * Gtk+ >= 3.18
-* python3 >= 3.6
+* python3 >= 3.10
 * python3-gi (also known as pygobject, but make sure to have the "gi" based version)
 * python3-xdg (optional, but recommended)
 * xdg-utils (optional, but recommended on linux)
@@ -74,7 +74,7 @@ Download, install and update [MSYS2](https://www.msys2.org/) 64-bit by following
 
 Open "MSYS2 MSYS" terminal from the Start Menu and install GTK3, Python3 and Python bindings for GTK:
 
-`pacman -S mingw-w64-x86_64-gtk3 mingw-w64-x86_64-python3 mingw-w64-x86_64-python3-gobject`
+`pacman -S mingw-w64-x86_64-gtk3 mingw-w64-x86_64-python mingw-w64-x86_64-python-gobject`
 
 The Windows drive is mounted on `/c`, browse your Windows user folder using:
 

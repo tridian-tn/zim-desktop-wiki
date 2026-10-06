@@ -27,12 +27,12 @@ def main(argv=None):
 
 	# parse options
 	covreport = False
-	fasttest = False
-	fulltest = False
+	speed = 'default'
+	mock = 'default'
 	failfast = False
 	loglevel = logging.WARNING
 	opts, args = getopt.gnu_getopt(argv[1:],
-		'hVD', ['help', 'coverage', 'fast', 'failfast', 'ff', 'full', 'debug', 'verbose'])
+		'hVD', ['help', 'coverage', 'fast', 'failfast', 'ff', 'slow', 'no-mock', 'debug', 'verbose'])
 	for o, a in opts:
 		if o in ('-h', '--help'):
 			print('''\
@@ -46,7 +46,8 @@ Options:
   --fast         skip a number of slower tests and mock filesystem
   --failfast     stop after the first test that fails
   --ff           alias for "--fast --failfast"
-  --full         full test for using filesystem without mock
+  --slow         also include very slow tests
+  --no-mock      do not mock filesystem
   --coverage     report test coverage statistics
   -V, --verbose  run with verbose output from logging
   -D, --debug    run with debug output from logging
@@ -62,15 +63,17 @@ On Ubuntu or Debian install package 'python3-coverage'.
 ''', file=sys.stderr)
 				sys.exit(1)
 		elif o == '--fast':
-			fasttest = True
-				# set before any test classes are loaded !
+			speed = 'fast'
+			mock = 'yes'
 		elif o == '--failfast':
 			failfast = True
 		elif o == '--ff': # --fast --failfast
-			fasttest = True
+			speed = 'fast'
 			failfast = True
-		elif o == '--full':
-			fulltest = True
+		elif o == '--slow':
+			speed = 'slow'
+		elif o == '--no-mock':
+			mock = 'no'
 		elif o in ('-V', '--verbose'):
 			loglevel = logging.INFO
 		elif o in ('-D', '--debug'):
@@ -95,9 +98,10 @@ On Ubuntu or Debian install package 'python3-coverage'.
 		cov.start()
 
 	# Build the test suite
+	# Set speed before any test classes are loaded !
 	import tests
-	tests.FAST_TEST = fasttest
-	tests.FULL_TEST = fulltest
+	tests.TEST_SPEED = speed
+	tests.TEST_FS_MOCK = mock
 
 	loader = unittest.TestLoader()
 	try:

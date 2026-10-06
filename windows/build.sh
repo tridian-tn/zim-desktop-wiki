@@ -100,7 +100,7 @@ trap '__b3bp_err_report "${FUNCNAME:-.}" ${LINENO}' ERR
 ### Build procedure
 ##############################################################################
 
-__skip_msys_deps=false
+__skip_msys_deps=false # pacman skips anyway if package already available
 
 while getopts ":hs" opt; do
     case "$opt" in
@@ -118,26 +118,7 @@ done
 if [[ ! "${__skip_msys_deps}" = true ]] && [[ "${MSYSTEM_CARCH:-}" ]]; then
 
   info "Installing MSys dependencies ..."
-
-  # Skip font cache update
-  export MSYS2_FC_CACHE_SKIP=1
-
-  # Install build dependencies
-  pacman --noconfirm -S --needed \
-      make \
-      mingw-w64-"${MSYSTEM_CARCH}"-gcc \
-      mingw-w64-"${MSYSTEM_CARCH}"-gtk3 \
-      mingw-w64-"${MSYSTEM_CARCH}"-pkg-config \
-      mingw-w64-"${MSYSTEM_CARCH}"-cairo \
-      mingw-w64-"${MSYSTEM_CARCH}"-gobject-introspection \
-      mingw-w64-"${MSYSTEM_CARCH}"-python \
-      mingw-w64-"${MSYSTEM_CARCH}"-python-gobject \
-      mingw-w64-"${MSYSTEM_CARCH}"-python-cairo \
-      mingw-w64-"${MSYSTEM_CARCH}"-python-xdg \
-      mingw-w64-"${MSYSTEM_CARCH}"-gtksourceview3 \
-      mingw-w64-"${MSYSTEM_CARCH}"-python-pip \
-      mingw-w64-"${MSYSTEM_CARCH}"-python-wheel \
-      mingw-w64-"${MSYSTEM_CARCH}"-nsis
+  ${__dir}/install-msys2-requirements.sh
 
 fi
 
@@ -182,9 +163,7 @@ check_module \
 
 info "Installing python modules for plugins ..."
 
-# for linkmap, see https://github.com/zim-desktop-wiki/zim-desktop-wiki/issues/2012
-pacman -R --noconfirm mingw-w64-x86_64-python-numpy || echo 'skipped due to mingw-w64-x86_64-python-numpy not exist.'
-pip install xdot numpy
+pip install xdot
 
 info "Determining Zim version ..."
 

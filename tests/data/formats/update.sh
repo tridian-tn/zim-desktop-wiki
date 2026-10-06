@@ -8,3 +8,4 @@ cat $P/wiki.txt | python3 -m zim.formats wiki html $P > $P/export.html
 cat $P/wiki.txt | python3 -m zim.formats wiki latex $P > $P/export.tex
 cat $P/wiki.txt | python3 -m zim.formats wiki markdown $P > $P/export.markdown
 cat $P/wiki.txt | python3 -m zim.formats wiki rst $P > $P/export.rst
+cat $P/wiki.txt | python3 -m zim.formats wiki markdown-native $P > $P/markdown.md

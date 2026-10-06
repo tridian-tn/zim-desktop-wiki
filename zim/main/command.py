@@ -47,7 +47,10 @@ class Command(object):
 	default_options = (
 		('verbose', 'V', 'Verbose output'),
 		('debug', 'D', 'Debug output'),
-	)
+		('help', 'h', 'Print help text and exit'),
+	) #: Default options for all commands
+
+	cmdhelp = '' #: If defined, this text is printed on --help for this command
 
 	def __init__(self, command, pwd=None):
 		'''Constructor
@@ -69,8 +72,12 @@ class Command(object):
 		options = ''
 		long_options = []
 		options_map = {}
+		requires_arg = set()
 		for l, s, desc in self.default_options + self.options:
 			long_options.append(l)
+			if l.endswith('='):
+				requires_arg.add(l.strip('='))
+
 			if s and l.endswith('='):
 				options += s + ':'
 				options_map[s] = l.strip('=')
@@ -84,7 +91,7 @@ class Command(object):
 		for o, a in optlist:
 			key = o.strip('-')
 			key = options_map.get(key, key)
-			if a == '':
+			if a == '' and key not in requires_arg: # implies boolean flag
 				self.opts[key] = True
 			elif key in self.opts and isinstance(self.opts[key], list):
 				self.opts[key].append(a)
@@ -134,25 +141,26 @@ class GtkCommand(Command):
 	all windows are destroyed.
 
 	Commands derived from this class can be dispatched to the main application
-	process. This is controlled by the C{standalone_process} property.
+	process.
 
 	NOTE: Do _not_ call C{Gtk.main} from the command, this will be
 	done by the application object.
 	'''
 
 	default_options = Command.default_options + (
-		('standalone', '', 'start a single instance, no background process'),
+		('non-unique', '', 'start a new process, do not connect to an existing process'),
+		('standalone', '', 'start a new process per notebook, implies --non-unique'),
 	)
 
-	@property
-	def standalone_process(self):
-		return self.opts.get('standalone')
-
-	def run_local(self):
+	def handle_local_commandline(self, args):
 		'''Method called in local process before we (try to) dispatch the
-		command to the primary process. If it returns C{True} we assume the
-		command is done and C{run()} is not called.
+		command to the primary process
 		If the command is called from the primary process directly, this method
 		gets never called.
+		Since the only communication from the local to the primary process is
+		by passing on the commandline arguments, the main function of this method
+		is to modify the commandline arguments.
+		@param args: all remaining options
+		@returns: modified command line
 		'''
-		return False
+		return args

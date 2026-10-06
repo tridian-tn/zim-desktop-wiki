@@ -4,21 +4,22 @@
 # Tests: search gui.TestDialogs.testSearchDialog
 
 from gi.repository import Gtk
-from gi.repository import GObject
 import logging
 
 from zim.notebook import Path
 from zim.gui.widgets import Dialog, BrowserTreeView, InputEntry, ErrorDialog, ScrolledWindow, StatusPage
-from zim.gui.pageview.find import FIND_REGEX
 
 from zim.search import *
 
+
 logger = logging.getLogger('zim.gui.searchdialog')
+
 
 HELP_TEXT = _(
 	'For advanced search you can use operators like\n'
 	'AND, OR and NOT. See the help page for more details.'
 ) # T: help text for the search dialog
+
 
 class SearchDialog(Dialog):
 
@@ -53,12 +54,17 @@ class SearchDialog(Dialog):
 
 		self.namespacecheckbox = Gtk.CheckButton.new_with_mnemonic(_('_Limit search to the current page and sub-pages'))
 			# T: checkbox option in search dialog
-		if page is not None:
-			self.vbox.pack_start(self.namespacecheckbox, False, True, 0)
+		if page is None:
+			self.namespacecheckbox.set_sensitive(False)
 
-		# TODO advanced query editor
-		# TODO checkbox _('Match c_ase')
-		# TODO checkbox _('Whole _word')
+		self.matchcasecheckbox = Gtk.CheckButton.new_with_mnemonic(_('Match c_ase')) # T: checkbox option in search dialog
+		self.wholewordcheckbox = Gtk.CheckButton.new_with_mnemonic(_('Whole _word')) # T: checkbox option in search dialog
+
+		self.uistate.setdefault('search_flags', '')
+		self._set_flags(SearchFlag.from_letters(self.uistate['search_flags'] or ''))
+
+		for widget in (self.namespacecheckbox, self.matchcasecheckbox, self.wholewordcheckbox):
+			self.vbox.pack_start(widget, False, True, 0)
 
 		self.results_treeview = SearchResultsTreeView(notebook, navigation)
 		self._stack = Gtk.Stack()
@@ -78,6 +84,9 @@ class SearchDialog(Dialog):
 
 		self._set_state(self.READY)
 
+	def save_uistate(self):
+		self.uistate['search_flags'] = self._get_flags().to_letters()
+
 	def search(self, query):
 		'''Trigger a search to be performed.
 		Because search can take a long time to execute it is best to
@@ -88,17 +97,29 @@ class SearchDialog(Dialog):
 		self.query_entry.set_text(query)
 		self._search()
 
+	def _set_flags(self, flags):
+		self.matchcasecheckbox.set_active(SEARCH_CASE_SENSITIVE in flags)
+		self.wholewordcheckbox.set_active(SEARCH_WHOLE_WORD in flags)
+
+	def _get_flags(self):
+		flags = SearchFlag(0)
+		if self.matchcasecheckbox.get_active():
+			flags |= SEARCH_CASE_SENSITIVE
+		if self.wholewordcheckbox.get_active():
+			flags |= SEARCH_WHOLE_WORD
+		return flags
+
 	def _search(self):
 		string = self.query_entry.get_text()
 		if self.namespacecheckbox.get_active():
 			assert self.page is not None
-			string = 'Section: "%s" ' % self.page.name + string
-		#~ print('!! QUERY: ' + string)
+			string = 'Section: "%s" and (%s)' % (self.page.name, string)
 
-		self.results_treeview.hasresults = False # XXX reset state before starting new search
+		flags = self._get_flags()
+
 		self._set_state(self.SEARCHING)
 		try:
-			self.results_treeview.search(string)
+			self.results_treeview.search(string, flags, self._set_show_results)
 		except Exception as error:
 			ErrorDialog(self, error).run()
 
@@ -128,7 +149,7 @@ class SearchDialog(Dialog):
 			show(self.search_button)
 			if state == self.READY:
 				self._stack.set_visible_child_name('ready')
-			elif self.results_treeview.hasresults:
+			elif len(self.results_treeview.get_model()):
 				self._stack.set_visible_child_name('results')
 			else:
 				self._stack.set_visible_child_name('no-results')
@@ -139,12 +160,12 @@ class SearchDialog(Dialog):
 				show(self.spinner)
 				self.spinner.start()
 			show(self.cancel_button)
-			if self.results_treeview.hasresults:
-				self._stack.set_visible_child_name('results')
-			else:
-				self._stack.set_visible_child_name('searching')
+			self._stack.set_visible_child_name('searching')
 		else:
 			assert False, 'BUG: invalid state'
+
+	def _set_show_results(self):
+		self._stack.set_visible_child_name('results')
 
 
 
@@ -160,9 +181,8 @@ class SearchResultsTreeView(BrowserTreeView):
 		BrowserTreeView.__init__(self, model)
 		self.navigation = navigation
 		self.query = None
-		self.selection = SearchSelection(notebook)
+		self._page_search = PageSearch(notebook, self._search_callback)
 		self.cancelled = False
-		self.hasresults = False
 
 		cell_renderer = Gtk.CellRendererText()
 		for name, i in (
@@ -175,8 +195,7 @@ class SearchResultsTreeView(BrowserTreeView):
 				column.set_expand(True)
 			self.append_column(column)
 
-		# Don't sort here because we'll do more elaborate sorting later manually#
-		#model.set_sort_column_id(1, Gtk.SortType.DESCENDING)
+		model.set_sort_column_id(self.SCORE_COL, Gtk.SortType.DESCENDING)
 
 		self.connect('row-activated', self._do_open_page)
 		self.connect('destroy', self.__class__._cancel)
@@ -184,63 +203,44 @@ class SearchResultsTreeView(BrowserTreeView):
 	def _cancel(self):
 		self.cancelled = True
 
-	def search(self, query):
+	def _search_callback(self):
+		if Gtk.events_pending():
+			Gtk.main_iteration_do(False)
+
+		if self.cancelled:
+			raise SearchCancelledException
+
+	def search(self, query, flags, set_show_results_cb=None):
 		query = query.strip()
 		if not query:
 			return
 		logger.info('Searching for: %s', query)
 
-		self.get_model().clear()
 		self.cancelled = False
-		self.hasresults = False
-		self.query = Query(query)
-		self.selection.search(self.query, callback=self._search_callback)
-		self._update_results(self.selection)
+		self.query = self._page_search.parse_page_search_query(query, flags)
+		logger.debug('Parsed query: %s', self.query)
 
-	def _search_callback(self, results, path):
-		# Returning False will cancel the search
-		#~ print('!! CB', path)
-		if results is not None:
-			self._update_results(results)
-
-		while Gtk.events_pending():
-			Gtk.main_iteration_do(False)
-
-		return not self.cancelled
-
-	def _update_results(self, results):
 		model = self.get_model()
 		if not model:
 			return
 
-		# Update score for paths that are already present
-		order = []
-		seen = set()
-		i = -1
-		for i, row in enumerate(model):
-			path = row[self.PATH_COL]
-			if path in results:
-				score = results.scores.get(path, row[self.SCORE_COL])
-			else:
-				score = -1 # went missing !??? - technically a bug
-			row[self.SCORE_COL] = score
-			order.append((path, i, score))
-			seen.add(path)
+		model.clear()
+		it = self._page_search.search_pages(self.query)
+		try:
+			result = next(it)
+		except StopIteration:
+			return
+		else:
+			# Handle first with cb
+			model.append((result.path.name, result.search_score, result.path))
+					# FUTURE - use result.search_snippets
+			if set_show_results_cb:
+				set_show_results_cb()
 
-		# Add new paths
-		new = results - seen
-		for path in new:
-			score = results.scores.get(path, 0)
-			model.append((path.name, score, path))
-			i += 1
-			order.append((path, i, score))
-
-		# sort by score, then by name. This doesn't seem to work by setting a sort column.
-		order.sort(key=lambda i: i[0].name)
-		order.sort(key=lambda i: i[2], reverse=True)
-		model.reorder([x[1] for x in order])
-
-		self.hasresults = len(model) > 0
+			# Iter through rest without cb
+			for result in it:
+				model.append((result.path.name, result.search_score, result.path))
+					# FUTURE - use result.search_snippets
 
 	def _do_open_page(self, view, path, col):
 		page = Path(self.get_model()[path][0])
@@ -248,7 +248,6 @@ class SearchResultsTreeView(BrowserTreeView):
 
 		# Popup find dialog with same query
 		if pageview and self.query:
-			find_string, find_needs_regex = self.query.find_input
-			if find_string:
-				flag = FIND_REGEX if find_needs_regex else 0
-				pageview.show_find(find_string, flags=flag, highlight=True)
+			fquery = self._page_search.find_query_from_search_query(self.query)
+			if fquery:
+				pageview.show_find(fquery, highlight=True)

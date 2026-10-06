@@ -12,11 +12,11 @@ import zim.datetimetz as datetime
 from zim.notebook import Path
 from zim.notebook.index.base import IndexerBase, IndexView
 from zim.notebook.index.pages import PagesViewInternal
+from zim.parse.tokenlist import TEXT, END, collect_until_end_token, skip_to_end_token, tokens_by_line
 from zim.formats import \
 	UNCHECKED_BOX, CHECKED_BOX, XCHECKED_BOX, MIGRATED_BOX, TRANSMIGRATED_BOX, TAG, ANCHOR, \
 	HEADING, PARAGRAPH, NUMBEREDLIST, BULLETLIST, LISTITEM, STRIKE
-from zim.tokenparser import TEXT, END, \
-	skip_to_end_token, tokens_by_line, collect_until_end_token
+
 
 from zim.plugins.journal import daterange_from_path
 	# TODO instead of just importing this function we should define
@@ -400,7 +400,7 @@ class ActiveTasks(AllTasks):
 		@returns: a list of tasks at this level as sqlite Row objects
 		'''
 		if parent:
-			return AllTasks.list_tasks(parent)
+			return AllTasks.list_tasks(self, parent)
 
 		# Sort:
 		#  started tasks by prio, due date, page + id to keep order in page

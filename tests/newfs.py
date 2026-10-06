@@ -97,7 +97,6 @@ class TestFilePath(tests.TestCase):
 			P('/'.join((homedirname, 'non-existing-user', 'foo')))
 		))
 
-
 	def testShareDrivePath(self):
 		# Test pathnames for windows share drive
 		for p in (
@@ -110,6 +109,22 @@ class TestFilePath(tests.TestCase):
 			self.assertFalse(mypath.islocal)
 			self.assertEqual(mypath.path, r'\\host\share\foo')
 			self.assertEqual(mypath.pathnames, (r'\\host', 'share', 'foo'))
+			self.assertEqual(mypath.uri, 'file://host/share/foo')
+
+	def testWindowsUNCHostWithSpecialCharacters(self):
+		# Regression test for the Windows-specific `_joinuri()` helper in
+		# zim.newfs.base for UNC hosts containing characters outside \w,
+		# such as the "\\wsl$\..." and "\\wsl.localhost\..." paths Windows
+		# uses to expose WSL mounts.
+		for path, expected_uri in (
+			(r'\\wsl$\Ubuntu-20.04\home\user\notebook',
+				'file://wsl%24/Ubuntu-20.04/home/user/notebook'),
+			(r'\\wsl.localhost\Ubuntu\home\user\notebook',
+				'file://wsl.localhost/Ubuntu/home/user/notebook'),
+			(r'\\myserver\share\notebook', # plain UNC host - no regression
+				'file://myserver/share/notebook'),
+		):
+			self.assertEqual(base.FilePath(path).uri, expected_uri)
 
 	def testRelativePath(self):
 		r = FilePath(P('/foo/bar/baz')).relpath(FilePath(P('/foo')))
@@ -400,19 +415,19 @@ class TestFS(object):
 		# Test new_file()
 		newfile1 = folder.new_file('foo.txt')
 		self.assertEqual(newfile1.dirname, folder.path)
-		self.assertEqual(newfile1.basename, 'foo001.txt')
+		self.assertEqual(newfile1.basename, 'foo-001.txt')
 
 		newfile1.touch()
 		newfile2 = folder.new_file('foo.txt')
-		self.assertEqual(newfile2.basename, 'foo002.txt')
+		self.assertEqual(newfile2.basename, 'foo-002.txt')
 
 		# Test new_folder()
 		newfolder = folder.new_folder('foo')
 		self.assertEqual(newfolder.dirname, folder.path)
-		self.assertEqual(newfolder.basename, 'foo001')
+		self.assertEqual(newfolder.basename, 'foo-001')
 
 		# Remove one by one
-		self.assertEqual(folder.list_names(), ['bar', 'bar.txt', 'foo', 'foo.txt', 'foo001.txt'])
+		self.assertEqual(folder.list_names(), ['bar', 'bar.txt', 'foo', 'foo-001.txt', 'foo.txt'])
 		self.assertRaises(FolderNotEmptyError, folder.remove)
 		self.assertTrue(folder.exists())
 

@@ -25,6 +25,7 @@ The following plugins are standard included with zim:
 * [[+Line Sorter|Line Sorter]]
 * [[+Log events with Zeitgeist|Log events with Zeitgeist]]
 * [[+macOS Menubar|macOS Menubar]]
+* [[+Mermaid Diagram Editor|Mermaid Diagram Editor]]
 * [[+PageIndex|PageIndex]]
 * [[+PathBar|PathBar]]
 * [[+Print to Browser|Print to Browser]]
