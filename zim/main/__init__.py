@@ -96,7 +96,10 @@ Import Options:
   --assubpage       import files as sub-pages of PATH, this is implicit true
                     when PATH ends with a ":" or when multiple files are given
 Search Options:
-  -s, --with-scores print score for each page, sort by score
+  -s, --scores      print score for each page
+  -w, --whole-word  match whole words only
+  -c, --match-case  match case sensitive
+  --sorted          sort results either by name or by score
 
 Index Options:
   -f, --flush       flush the index first and force re-building
@@ -302,12 +305,14 @@ class GuiCommand(NotebookCommand, GtkCommand):
 		if pagelink:
 			window.open_page(Path(pagelink.names), anchor=pagelink.anchor)
 
-		geometry = self.opts.get('geometry', None)
-		if geometry is not None:
-			window.parse_geometry(geometry)
+		fullscreen = self.opts.get('fullscreen')
+		if fullscreen is not None:
+			window.toggle_fullscreen(fullscreen)
+			# window might already be fullscreen, so only toggle if explicit given
 
-		if self.opts.get('fullscreen', False):
-			window.toggle_fullscreen(True)
+		# NOTE: would like to set geometry the same way here as fullscreen
+		# but this doesn't work once we have called "set_default_size"
+		# so only supported first time we create the window
 
 	def _run_new_window(self, notebook, pagelink):
 		from gi.repository import GObject
@@ -339,12 +344,9 @@ class GuiCommand(NotebookCommand, GtkCommand):
 			preferences['plugins_list_version'] = '0.70'
 
 		page = Path(pagelink.names) if pagelink else None
-		window = MainWindow(
-			notebook,
-			page=page,
-			**self.get_options('geometry', 'fullscreen')
-		)
-		window.present()
+		window = MainWindow(notebook, page=page, geometry=self.opts.get('geometry'))
+		self._present_window(window, pagelink)
+
 		if pagelink and pagelink.anchor:
 			window.open_page(Path(pagelink.names), anchor=pagelink.anchor)
 
@@ -589,34 +591,42 @@ class SearchCommand(NotebookCommand):
 
 	arguments = ('NOTEBOOK', 'QUERY')
 	options = (
-		("with-scores", "s", "also print scores of search results"),
+		("scores", "s", "also print scores of search results"),
+		("whole-word", "w", "match whole words only"),
+		("match-case", "c", "match case sensitive"),
+		("sorted", "", "sort results"),
 	)
 
 	def run(self):
-		from zim.search import SearchSelection, Query
+		from zim.search import PageSearch, SearchFlag
 
 		notebook, x = self.build_notebook()
-		n, query = self.get_arguments()
+		n, string = self.get_arguments()
+		page_search = PageSearch(notebook)
 
-		if query and not query.isspace():
-			logger.info('Searching for: %s', query)
-			query = Query(query)
+		flags = SearchFlag(0)
+		if self.opts.get("whole-word"):
+			flags |= SearchFlag.WHOLE_WORD
+		if self.opts.get("match-case"):
+			flags |= SearchFlag.CASE_SENSITIVE
+
+		if string and not string.isspace():
+			logger.info('Searching for: %s', string)
+			query = page_search.parse_page_search_query(string, flags)
 		else:
 			raise ValueError('Empty query')
 
-		selection = SearchSelection(notebook)
-		selection.search(query)
-
-		if self.opts.get("with-scores", False):
-			sorted_sel = sorted(selection.scores.items(),
-				key=lambda i:i[0].name, reverse=False)
-			sorted_sel.sort(key=lambda i:i[1], reverse=True)
-
-			for result in sorted_sel:
-				print(str(result[1]) + "\t" + result[0].name)
+		results = page_search.search_pages(query)
+		if self.opts.get("scores"):
+			if self.opts.get("sorted"):
+				results = sorted(results, key=lambda r: r.search_score, reverse=True)
+			for r in results:
+				print("%s\t%s" % (r.search_score, r.path.name))
 		else:
-			for path in sorted(selection, key=lambda p: p.name):
-				print(path.name)
+			if self.opts.get("sorted"):
+				results = sorted(results, key=lambda r: r.path.name)
+			for r in results:
+				print(r.path.name)
 
 
 class IndexCommand(NotebookCommand):

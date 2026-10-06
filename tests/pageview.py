@@ -1482,6 +1482,7 @@ class TestUndoStackManager(tests.TestCase, TextBufferTestCaseMixin):
 		buffer.undostack.undo()
 		self.assertBufferEqual(buffer, 'test 123')
 
+
 class TestLists(tests.TestCase, TextBufferTestCaseMixin):
 
 	def testBulletLists(self):
@@ -1499,7 +1500,8 @@ Dusss
 		buffer = self.get_buffer(input)
 
 		# check list initializes properly
-		row, list = TextBufferList.new_from_line(buffer, 3) # Bar 1
+		list = TextBufferList(buffer, 3) # Bar 1
+		row = list.get_row_at_line(3)
 		self.assertEqual(list.firstline, 1)
 		self.assertEqual(list.lastline, 7)
 		self.assertEqual(row, 2)
@@ -1514,11 +1516,13 @@ Dusss
 		])
 
 		# Exercise indenting
-		row, list = TextBufferList.new_from_line(buffer, 3) # Bar 1
+		list = TextBufferList(buffer, 3) # Bar 1
+		row = list.get_row_at_line(3)
 		self.assertFalse(list.can_indent(row))
 		self.assertFalse(list.indent(row))
 
-		row, list = TextBufferList.new_from_line(buffer, 2) # Bar
+		list = TextBufferList(buffer, 2) # Bar
+		row = list.get_row_at_line(2)
 		self.assertTrue(list.can_indent(row))
 		self.assertTrue(list.indent(row))
 		self.assertFalse(list.can_indent(row))
@@ -1536,11 +1540,13 @@ Dusss
 '''
 		self.assertBufferEqual(buffer, wanted)
 
-		row, list = TextBufferList.new_from_line(buffer, 7) # Baz
+		list = TextBufferList(buffer, 7) # Baz
+		row = list.get_row_at_line(7)
 		self.assertFalse(list.can_unindent(row))
 		self.assertFalse(list.unindent(row))
 
-		row, list = TextBufferList.new_from_line(buffer, 3) # Bar 1
+		list = TextBufferList(buffer, 3) # Bar 1
+		row = list.get_row_at_line(3)
 		self.assertTrue(list.can_unindent(row))
 		self.assertTrue(list.unindent(row))
 
@@ -1558,7 +1564,8 @@ Dusss
 		self.assertBufferEqual(buffer, wanted)
 
 		for line in (2, 5, 6): # Bar, Bar 2 & Bar 3
-			row, list = TextBufferList.new_from_line(buffer, line)
+			list = TextBufferList(buffer, line)
+			row = list.get_row_at_line(line)
 			self.assertTrue(list.can_unindent(row))
 			self.assertTrue(list.unindent(row))
 
@@ -1596,7 +1603,8 @@ Dusss
 '''
 		buffer = self.get_buffer(input)
 
-		row, list = TextBufferList.new_from_line(buffer, 2) # Bar
+		list = TextBufferList(buffer, 2) # Bar
+		row = list.get_row_at_line(2)
 		list.set_bullet(row, CHECKED_BOX)
 		wanted = '''\
 Dusss
@@ -1711,6 +1719,53 @@ Dusss
 		while buffer.undostack.redo():
 			pass
 		self.assertBufferEqual(buffer, wantedpre)
+
+	def testNotAList(self):
+		input = '''\
+Dusss
+<li indent="0" style="bullet-list">\u2022 Foo
+\u2022 Bar
+</li><li indent="1" style="bullet-list">\u2022 Bar 1
+</li>
+sdfsfdsdf
+
+<li indent="1" style="bullet-list">\u2022 Bar 2
+\u2022 Bar 3
+</li><li indent="0" style="bullet-list">\u2022 Baz
+</li>Tja
+'''
+		buffer = self.get_buffer(input)
+		list = TextBufferList(buffer, 4)
+		self.assertIsNone(list.firstline)
+		self.assertIsNone(list.lastline)
+
+	def testRangeFromSelection(self):
+		input = '''\
+Dusss
+<li indent="0" style="bullet-list">\u2022 Foo
+\u2022 Bar
+</li><li indent="1" style="bullet-list">\u2022 Bar 1
+</li>
+sdfsfdsdf
+
+<li indent="1" style="bullet-list">\u2022 Bar 2
+\u2022 Bar 3
+</li><li indent="0" style="bullet-list">\u2022 Baz
+</li>Tja
+'''
+		buffer = self.get_buffer(input)
+
+		list = TextBufferList(buffer, 2, 6)
+		self.assertEqual(list.firstline, 1)
+		self.assertEqual(list.lastline, 3)
+
+		list = TextBufferList(buffer, 2, 7)
+		self.assertEqual(list.firstline, 1)
+		self.assertEqual(list.lastline, 9)
+
+		list = TextBufferList(buffer, 4, 7)
+		self.assertEqual(list.firstline, 7)
+		self.assertEqual(list.lastline, 9)
 
 
 class TestTextView(tests.TestCase, TextBufferTestCaseMixin):
@@ -2773,6 +2828,45 @@ Baz
 		self.assertFalse(pageview.edit_bar.get_property('visible'))
 		self.assertFalse(pageview.find_bar.get_property('visible'))
 
+	def testEditBarMenusAreMenuShells(self):
+		# Menu items in a Gtk.Popover register their mnemonics on the toplevel
+		# window instead of on the menu, because a popover is not a
+		# Gtk.MenuShell - so they shadow accelerators using the same key, also
+		# while the menu is closed. E.g. the "Heading 1" .. "Heading 5" items
+		# used to break the <Alt>1 .. <Alt>5 accelerators of the bookmarksbar
+		# plugin. See issue #2096.
+		def iter_widgets(widget):
+			yield widget
+			if isinstance(widget, Gtk.Container):
+				for child in widget.get_children():
+					yield from iter_widgets(child)
+
+		pageview = setUpPageView(self.setUpNotebook())
+		buttons = [
+			w for w in iter_widgets(pageview.edit_bar)
+				if isinstance(w, Gtk.MenuButton)
+		]
+		self.assertTrue(buttons) # ensure we are actually testing something
+		for button in buttons:
+			self.assertIsNone(button.get_popover())
+			self.assertIsInstance(button.get_popup(), Gtk.Menu)
+
+	def testShowFindWithAndWithoutSelection(self):
+		pageview = setUpPageView(self.setUpNotebook(), text='test 123\n')
+		buffer = pageview.textview.get_buffer()
+
+		buffer.place_cursor(buffer.get_start_iter())
+		pageview.show_find()
+		self.assertEqual(pageview.find_bar.find_entry.get_text(), 'test')
+
+		buffer.select_range(*buffer.get_bounds())
+		pageview.show_find()
+		self.assertEqual(pageview.find_bar.find_entry.get_text(), 'test 123')
+
+		buffer.place_cursor(buffer.get_end_iter()) # without word selection, keep as is
+		pageview.show_find()
+		self.assertEqual(pageview.find_bar.find_entry.get_text(), 'test 123')
+
 
 class TestFormatActions(tests.TestCase, TextBufferTestCaseMixin):
 
@@ -3087,25 +3181,175 @@ class TestPageViewActions(tests.TestCase):
 		pageview.uncheck_checkbox()
 		self.assertEqual(pageview.page.dump('wiki'), ['[ ] my task\n'])
 
+	def testUnCheckCheckBoxSelection(self):
+		pageview = setUpPageView(self.setUpNotebook(),
+			'[*] my task\n'
+			'[ ] open task\n'
+			'\n'
+			'Some other line\n'
+			'[x] x-checked task\n'
+		)
+		self._select_all(pageview)
+		pageview.uncheck_checkbox()
+		self.assertEqual(pageview.page.dump('wiki'), [
+			'[ ] my task\n',
+			'[ ] open task\n',
+			'\n',
+			'Some other line\n',
+			'[ ] x-checked task\n',
+		])
+
+	def _select_all(self, pageview):
+		buffer = pageview.textview.get_buffer()
+		buffer.select_range(*buffer.get_bounds())
+
 	def testToggleCheckBox(self):
 		pageview = setUpPageView(self.setUpNotebook(), '[ ] my task\n')
 		pageview.toggle_checkbox()
 		self.assertEqual(pageview.page.dump('wiki'), ['[*] my task\n'])
+		pageview.toggle_checkbox()
+		self.assertEqual(pageview.page.dump('wiki'), ['[ ] my task\n'])
+
+	def testToggleCheckBoxSelection(self):
+		input = ''.join([
+			'[*] my task\n',
+			'[ ] open task\n',
+			'\n',
+			'Some other line\n',
+			'[x] x-checked task\n',
+			'[ ] another open\n'
+		])
+		toggled = [
+			'[*] my task\n',
+			'[*] open task\n',
+			'\n',
+			'Some other line\n',
+			'[x] x-checked task\n',
+			'[*] another open\n'
+		]
+		pageview = setUpPageView(self.setUpNotebook(), input)
+		self._select_all(pageview)
+		pageview.toggle_checkbox()
+		self.assertEqual(pageview.page.dump('wiki'), toggled)
+		self._select_all(pageview)
+		pageview.toggle_checkbox()
+		self.assertEqual(pageview.page.dump('wiki'), toggled) # stable for repeated calls
 
 	def testXToggleCheckBox(self):
-		pageview = setUpPageView(self.setUpNotebook(), '[*] my task\n')
+		pageview = setUpPageView(self.setUpNotebook(), '[ ] my task\n')
 		pageview.xtoggle_checkbox()
 		self.assertEqual(pageview.page.dump('wiki'), ['[x] my task\n'])
+		pageview.xtoggle_checkbox()
+		self.assertEqual(pageview.page.dump('wiki'), ['[ ] my task\n'])
 
 	def testMigrateCheckBox(self):
 		pageview = setUpPageView(self.setUpNotebook(), '[*] my task\n')
 		pageview.migrate_checkbox()
 		self.assertEqual(pageview.page.dump('wiki'), ['[>] my task\n'])
+		pageview.migrate_checkbox()
+		self.assertEqual(pageview.page.dump('wiki'), ['[ ] my task\n'])
+
+	def testMigrateCheckBoxSelection(self):
+		input = ''.join([
+			'[*] my task\n',
+			'[ ] open task\n',
+			'\n',
+			'Some other line\n',
+			'[x] x-checked task\n',
+			'[ ] another open\n'
+		])
+		toggled = [
+			'[*] my task\n',
+			'[>] open task\n',
+			'\n',
+			'Some other line\n',
+			'[x] x-checked task\n',
+			'[>] another open\n',
+		]
+		pageview = setUpPageView(self.setUpNotebook(), input)
+		self._select_all(pageview)
+		pageview.migrate_checkbox()
+		self.assertEqual(pageview.page.dump('wiki'), toggled)
+		self._select_all(pageview)
+		pageview.toggle_checkbox()
+		self.assertEqual(pageview.page.dump('wiki'), toggled) # stable for repeated calls
 
 	def testTransmigrateCheckBox(self):
 		pageview = setUpPageView(self.setUpNotebook(), '[*] my task\n')
 		pageview.transmigrate_checkbox()
 		self.assertEqual(pageview.page.dump('wiki'), ['[<] my task\n'])
+
+	def testRecursiveCheckList(self):
+		# Only test preference, more detailed behavior in TestLists
+		pageview = setUpPageView(self.setUpNotebook(),
+			'[ ] my task\n'
+			'\t[ ] child 1\n'
+			'\t[ ] child 2\n'
+		)
+		pageview.preferences['recursive_checklist'] = True
+		buffer = pageview.textview.get_buffer()
+		buffer.place_cursor(buffer.get_start_iter())
+		pageview.toggle_checkbox()
+		self.assertEqual(pageview.page.dump('wiki'), [
+			'[*] my task\n',
+			'\t[*] child 1\n',
+			'\t[*] child 2\n',
+		])
+
+	def testNoRecursiveCheckList(self):
+		# Only test preference, more detailed behavior in TestLists
+		pageview = setUpPageView(self.setUpNotebook(),
+			'[ ] my task\n'
+			'\t[ ] child 1\n'
+			'\t[ ] child 2\n'
+		)
+		pageview.preferences['recursive_checklist'] = False
+		buffer = pageview.textview.get_buffer()
+		buffer.place_cursor(buffer.get_start_iter())
+		pageview.toggle_checkbox()
+		self.assertEqual(pageview.page.dump('wiki'), [
+			'[*] my task\n',
+			'\t[ ] child 1\n',
+			'\t[ ] child 2\n',
+		])
+
+	def _click_checkbox(self, textview, offset):
+		textview._set_pointer_location(textview.get_buffer().get_iter_at_offset(offset), (0,0))
+		textview.click_checkbox()
+
+	def testClickCheckBoxCycle(self):
+		pageview = setUpPageView(self.setUpNotebook(), '[ ] my task\n')
+		pageview.preferences['cycle_checkbox_type'] = True
+
+		self._click_checkbox(pageview.textview, 1)
+		self.assertEqual(pageview.page.dump('wiki'), ['[*] my task\n'])
+		self._click_checkbox(pageview.textview, 1)
+		self.assertEqual(pageview.page.dump('wiki'), ['[x] my task\n'])
+		self._click_checkbox(pageview.textview, 1)
+		self.assertEqual(pageview.page.dump('wiki'), ['[>] my task\n'])
+		self._click_checkbox(pageview.textview, 1)
+		self.assertEqual(pageview.page.dump('wiki'), ['[<] my task\n'])
+		self._click_checkbox(pageview.textview, 1)
+		self.assertEqual(pageview.page.dump('wiki'), ['[ ] my task\n'])
+
+		self._click_checkbox(pageview.textview, 3) # not at checkbox
+		self.assertEqual(pageview.page.dump('wiki'), ['[ ] my task\n'])
+
+	def testClickCheckBoxNoCycle(self):
+		pageview = setUpPageView(self.setUpNotebook(), '[ ] my task\n')
+		pageview.preferences['cycle_checkbox_type'] = False
+
+		self._click_checkbox(pageview.textview, 1)
+		self.assertEqual(pageview.page.dump('wiki'), ['[*] my task\n'])
+		self._click_checkbox(pageview.textview, 1)
+		self.assertEqual(pageview.page.dump('wiki'), ['[ ] my task\n'])
+		self._click_checkbox(pageview.textview, 1)
+		self.assertEqual(pageview.page.dump('wiki'), ['[*] my task\n'])
+		self._click_checkbox(pageview.textview, 1)
+		self.assertEqual(pageview.page.dump('wiki'), ['[ ] my task\n'])
+
+		self._click_checkbox(pageview.textview, 3) # not at checkbox
+		self.assertEqual(pageview.page.dump('wiki'), ['[ ] my task\n'])
 
 	def testEditObjectForLink(self):
 		pageview = setUpPageView(self.setUpNotebook(), '[[link]]\n')
@@ -3350,13 +3594,22 @@ class TestPageViewActions(tests.TestCase):
 		self.assertEqual(pageview.page.dump('wiki'), ['1. test 123\n'])
 
 	def testApplyCheckBoxList(self):
-		pageview = setUpPageView(self.setUpNotebook(), 'test 123\n')
-		buffer = pageview.textview.get_buffer()
-		begin = buffer.get_iter_at_offset(0)
-		end = buffer.get_iter_at_offset(8)
-		buffer.select_range(begin, end)
+		pageview = setUpPageView(self.setUpNotebook(),
+			'test 123\n'
+			'foo\n'
+			'bar\n'
+			'\n'
+			'[*] task done'
+		)
+		self._select_all(pageview)
 		pageview.apply_format_checkbox_list()
-		self.assertEqual(pageview.page.dump('wiki'), ['[ ] test 123\n'])
+		self.assertEqual(pageview.page.dump('wiki'), [
+			'[ ] test 123\n',
+			'[ ] foo\n',
+			'[ ] bar\n',
+			'\n',
+			'[*] task done',
+		]) # leave checked box alone
 
 	def testInsertTextFromFile(self):
 		pageview = setUpPageView(self.setUpNotebook())

@@ -34,12 +34,12 @@ And some empty space here:
 [[+foo]] links to page in a subnamespace
 [[foo|bar]] links to "foo" but display "bar"
 
-[[:foo:bar]] [](./file.png) <file:///etc/passwd>
+[[:foo:bar]] [](./file.png) file:///etc/passwd
 
-<mailto:foo@bar.org>
+mailto:foo@bar.org
 [[wp?Test]]
 
-External links like <http://nongnu.org> and <foo@bar.org> are also supported
+External links like http://nongnu.org and foo@bar.org are also supported
 
 [not:a:link]
 
@@ -156,19 +156,19 @@ And more text
 
 ## Some Objects
 
-```{code: lang="python" linenumbers="true"}
+``` python {linenumbers="true"}
 def dump():
 	for i in range(1, 5):
 		print i
 ```
 
 
-```{nonexistingobjecttype: foo="bar"}
+~~~ {.nonexistingobjecttype foo="bar"}
 Sing, O goddess, the rage of
 Achilles son of Peleus, that
 brought countless ills upon
 the Achaeans.
-```
+~~~
 
 ## A table
 

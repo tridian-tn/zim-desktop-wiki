@@ -304,6 +304,8 @@ class TestConvertNotebookCommand(tests.TestCase):
 
 ## ExportCommand() is tested in tests/export.py
 
+## SearchCommand() is tested in tests./search.py
+
 import os
 
 class TestZimScript(tests.TestCase):

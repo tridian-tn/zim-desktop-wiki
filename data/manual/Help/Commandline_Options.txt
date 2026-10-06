@@ -67,7 +67,10 @@ Import Options:
                     when PATH ends with a ":" or when multiple files are given
 
 Search Options:
-  -s, --with-scores print score for each page, sort by score
+  -s, --scores      print score for each page
+  -w, --whole-word  match whole words only
+  -c, --match-case  match case sensitive
+  --sorted          sort results either by name or by score
 
 Index Options:
   -f, --flush       flush the index first and force re-building

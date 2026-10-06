@@ -8,6 +8,9 @@ from zim.notebook import Path
 from zim.plugins import PluginManager, indexed_fts
 from zim.gui.pageview.find import FindQuery
 
+from zim.main import SearchCommand
+from tests.main import capture_stdout
+
 
 # some aliases to define queries
 _t = SearchQueryTerm
@@ -816,3 +819,62 @@ class TestCompileSearchQueryComparisonFunction(tests.TestCase):
 			check_func = compile_search_query_check_function(p_query, self.keywords)
 			result = list(map(check_func, self.records))
 			self.assertEqual(result, wanted, msg='Query: %s' % query)
+
+
+class TestSearchCommand(tests.TestCase):
+
+	PAGES = {
+		'page_a': 'test 123',
+		'page_b': 'foo bar',
+		'page_c': 'Foo Foo Bar',
+		'page_d': 'foobar',
+	}
+
+	def runTest(self):
+		notebook = self.setUpNotebook(mock=tests.MOCK_ALWAYS_REAL, content=self.PAGES)
+		query = 'foo'
+
+		# search query with and without flags
+		cmd = SearchCommand('search')
+		cmd.parse_options(notebook.folder.uri, query)
+		with capture_stdout() as output:
+			cmd.run()
+		self.assertEqual(output.getvalue(), 'page b\npage c\npage d\n')
+
+		cmd = SearchCommand('search')
+		cmd.parse_options('--whole-word', notebook.folder.uri, query)
+		with capture_stdout() as output:
+			cmd.run()
+		self.assertEqual(output.getvalue(), 'page b\npage c\n') # page_d drops out
+
+		cmd = SearchCommand('search')
+		cmd.parse_options('--match-case', notebook.folder.uri, query)
+		with capture_stdout() as output:
+			cmd.run()
+		self.assertEqual(output.getvalue(), 'page b\npage d\n') # page_c drops out
+
+		cmd = SearchCommand('search')
+		cmd.parse_options('-w', '-c', notebook.folder.uri, query)
+		with capture_stdout() as output:
+			cmd.run()
+		self.assertEqual(output.getvalue(), 'page b\n') # both page_c and page_d drop out
+
+		# sort results
+		cmd = SearchCommand('search')
+		cmd.parse_options('--sorted', notebook.folder.uri, query)
+		with capture_stdout() as output:
+			cmd.run()
+		self.assertEqual(output.getvalue(), 'page b\npage c\npage d\n')
+
+		# with scores
+		cmd = SearchCommand('search')
+		cmd.parse_options('--scores', notebook.folder.uri, query)
+		with capture_stdout() as output:
+			cmd.run()
+		self.assertEqual(output.getvalue(), '2\tpage b\n3\tpage c\n2\tpage d\n')
+
+		cmd = SearchCommand('search')
+		cmd.parse_options('--scores', '--sorted', notebook.folder.uri, query)
+		with capture_stdout() as output:
+			cmd.run()
+		self.assertEqual(output.getvalue(), '3\tpage c\n2\tpage b\n2\tpage d\n')
