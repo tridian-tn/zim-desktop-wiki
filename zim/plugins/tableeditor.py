@@ -7,6 +7,7 @@ from gi.repository import GObject
 from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import Pango
+from gi.repository import GLib
 
 import re
 import weakref
@@ -417,6 +418,7 @@ class TableViewWidget(InsertedObjectWidget):
 		self._cellinput_canceled = None  # cell changes should be skipped
 		self._toolbar_enabled = True  # sets if toolbar should be shown beneath a selected table
 		self._currently_edited = None # currently edited cell - tuple (editable, focus-out handler id, model, path, colid)
+		self._pending_cursor = None  # cell the cursor's about to move to on Tab - tuple (path, colindex)
 
 		# Toolbar for table actions
 		self.toolbar = self.create_toolbar()
@@ -591,6 +593,8 @@ class TableViewWidget(InsertedObjectWidget):
 	def create_treeview(self, model):
 		'''Initializes a treeview with its model (liststore) and all its columns'''
 		treeview = Gtk.TreeView(model.liststore)
+
+		treeview.connect('key-press-event', self.on_treeview_key_press_event)
 
 		# Set default sorting function.
 		model.liststore.set_default_sort_func(lambda *a: 0)
@@ -875,6 +879,131 @@ class TableViewWidget(InsertedObjectWidget):
 			editable.disconnect(focus_out_id)
 			editable.editing_done()
 			editable.remove_widget()
+
+	def on_treeview_key_press_event(self, treeview, event):
+		''' Event handler for key-press-events in treeview '''
+		keyname = Gdk.keyval_name(event.keyval)
+
+		# Leave Ctrl+Tab to GTK, which moves focus out of the table with it
+		if event.state & Gdk.ModifierType.CONTROL_MASK:
+			return False
+
+		row_direction = 0
+		col_direction = 0
+
+		# Detect cursor movements
+		# ISO_Left_Tab should be enough to signify shift-tab, but there's some doubt in sources on the Web, so also
+		# cope with 'Tab' where shift is pressed.
+		if keyname == 'ISO_Left_Tab':
+			col_direction = -1
+		elif keyname == 'Tab':
+			shift_pressed = event.state & Gdk.ModifierType.SHIFT_MASK
+			col_direction = -1 if shift_pressed else 1
+
+		if col_direction == 0 and row_direction == 0:
+			return False
+
+		columns = treeview.get_columns()
+		pending = self._pending_cursor
+		if pending:
+			# A move's already queued and the cursor hasn't got there yet, so carry on from its target
+			path, colindex = pending
+		else:
+			path, col = treeview.get_cursor()
+			if path is None or col is None:
+				return False
+			colindex = columns.index(col)
+
+		self.autosave_current_cell()
+
+		next_col, next_path = self.process_col_row_move(
+			colindex, path, len(columns), len(treeview.get_model()), col_direction, row_direction)
+		self._pending_cursor = (next_path, next_col)
+		if pending:
+			return True  # the queued move picks up the new target
+
+		def start_editing_next_cell():
+			target, self._pending_cursor = self._pending_cursor, None
+			# The treeview's replaced if the columns change, and unrealized if the page is closed
+			if target and treeview is self.treeview and treeview.get_realized():
+				treeview.set_cursor(target[0], columns[target[1]], True)
+			return False
+
+		# Don't start the next edit until a frame's been drawn since the last one was removed.
+		# Starting it any sooner (even from an idle callback) can leave GTK drawing the new
+		# editor in the top left of the table instead of in its cell.
+		clock = treeview.get_frame_clock()
+		if clock is None:
+			GLib.idle_add(start_editing_next_cell)
+			return True
+
+		def on_after_paint(clock):
+			clock.disconnect(paint_id)
+			GLib.source_remove(fallback_id)
+			GLib.idle_add(start_editing_next_cell)
+
+		def on_fallback():
+			# No frame came (the window's minimised, say), so don't leave the move queued and
+			# swallowing every Tab after it. The handler's already gone if the window's been destroyed.
+			if clock.handler_is_connected(paint_id):
+				clock.disconnect(paint_id)
+			return start_editing_next_cell()
+
+		paint_id = clock.connect('after-paint', on_after_paint)
+		fallback_id = GLib.timeout_add(200, on_fallback)
+		treeview.queue_draw()
+
+		return True  # event is handled - don't propagate to the parent
+
+	@staticmethod
+	def process_col_row_move(col, path, num_cols, num_rows, col_direction, row_direction):
+		'''
+		Works out where the cursor goes next, wrapping onto the next or previous row at the end of a row,
+		and round to the other end of the table at its first and last cells.
+
+		:param col: current column index
+		:param path: current row, as a Gtk.TreePath
+		:param num_cols: number of columns in the table
+		:param num_rows: number of rows in the table
+		:param col_direction: positive to move right, negative to move left
+		:param row_direction: positive to move down, negative to move up
+		:returns: tuple of the next column index and the next Gtk.TreePath
+		'''
+		if col_direction > 0:
+			# Move cursor to the next column. If it's the last column, move back to the first
+			if col + 1 < num_cols:
+				next_col = col + 1
+			else:
+				next_col = 0
+				row_direction = 1
+		elif col_direction < 0:
+			# Move cursor to the previous column. If it's the first column, move to the last
+			if col > 0:
+				next_col = col - 1
+			else:
+				next_col = num_cols - 1
+				row_direction = -1
+		else:
+			next_col = col
+
+		rowindex = path.get_indices()[0]
+		next_path = path.copy()
+		if row_direction > 0:
+			# Move cursor to the next row. If it's the last row, move back to the first
+			if rowindex + 1 < num_rows:
+				next_path.next()
+			else:
+				next_path = Gtk.TreePath.new_from_indices([0])
+		elif row_direction < 0:
+			# Move cursor to the previous row. If it's the first row, move to the last
+			if rowindex > 0:
+				next_path.prev()
+			else:
+				next_path = Gtk.TreePath.new_from_indices([num_rows - 1])
+		else:
+			pass
+
+		return next_col, next_path
 
 	def sort_by_number_or_string(self, liststore, treeiter1, treeiter2, colid):
 		'''
