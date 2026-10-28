@@ -311,6 +311,77 @@ class TestToolbarTimer(tests.TestCase):
 		self.assertIsNone(widget._timer)
 
 
+class TableWidgetInWindowTestCase(tests.TestCase):
+	'''Shows a table in a window, as GTK only starts editing a cell in a realized treeview'''
+
+	def setUp(self):
+		self.model = TableModel(
+			{'aligns': 'normal,normal', 'wraps': '0,0'}, ['h1', 'h2'],
+			[['a1', 'a2'], ['b1', 'b2'], ['c1', 'c2']]
+		)
+		self.widget = TableViewWidget(self.model)
+		self.window = Gtk.Window()
+		self.window.add(self.widget)
+		self.window.show_all()
+		tests.gtk_process_events()
+
+	def tearDown(self):
+		self.window.destroy()
+		tests.gtk_process_events()
+
+	def start_editing(self, row, col):
+		treeview = self.widget.treeview
+		treeview.set_cursor(Gtk.TreePath.new_from_indices([row]), treeview.get_column(col), True)
+		tests.gtk_process_events()
+		return self.get_editor()
+
+	def get_editor(self):
+		entries = [c for c in self.widget.treeview.get_children() if isinstance(c, Gtk.Entry)]
+		return entries[0] if entries else None
+
+	def rows(self):
+		return [list(row) for row in self.model.liststore]
+
+
+class TestSaveCellBeforeToolbarActions(TableWidgetInWindowTestCase):
+
+	def testMoveRowKeepsEdit(self):
+		self.start_editing(0, 0).set_text('edited')
+		self.widget.on_move_row(None, 1)
+		tests.gtk_process_events()
+		self.assertEqual(self.rows(), [['b1', 'b2'], ['edited', 'a2'], ['c1', 'c2']])
+
+	def testAddRowKeepsEdit(self):
+		self.start_editing(0, 1).set_text('edited')
+		self.widget.on_add_row(None)
+		tests.gtk_process_events()
+		self.assertEqual(self.rows(), [['a1', 'edited'], ['', ''], ['b1', 'b2'], ['c1', 'c2']])
+
+	def testAutosaveSavesOnce(self):
+		writes = []
+		self.model.liststore.connect('row-changed', lambda *a: writes.append(a))
+		self.start_editing(1, 0).set_text('edited')
+		self.widget.autosave_current_cell()
+		tests.gtk_process_events()
+		self.assertEqual(self.rows()[1], ['edited', 'b2'])
+		self.assertEqual(len(writes), 1)
+		self.assertIsNone(self.get_editor())
+
+	def testCancelledEditNotSaved(self):
+		# What the editor does when Escape is pressed
+		editor = self.start_editing(1, 1)
+		editor.set_text('cancelled')
+		editor.props.editing_canceled = True
+		editor.editing_done()
+		editor.remove_widget()
+		tests.gtk_process_events()
+
+		self.widget.treeview.get_selection().select_path(Gtk.TreePath.new_from_indices([0]))
+		self.widget.on_add_row(None)
+		tests.gtk_process_events()
+		self.assertEqual(self.rows(), [['a1', 'a2'], ['', ''], ['b1', 'b2'], ['c1', 'c2']])
+
+
 class TestTableFunctions(tests.TestCase):
 
 	def testCellFormater(self):
