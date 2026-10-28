@@ -416,6 +416,7 @@ class TableViewWidget(InsertedObjectWidget):
 		self._keep_toolbar_open = False  # a cell is currently edited, toolbar should not be hidden
 		self._cellinput_canceled = None  # cell changes should be skipped
 		self._toolbar_enabled = True  # sets if toolbar should be shown beneath a selected table
+		self._currently_edited = None # currently edited cell - tuple (editable, focus-out handler id, model, path, colid)
 
 		# Toolbar for table actions
 		self.toolbar = self.create_toolbar()
@@ -687,6 +688,7 @@ class TableViewWidget(InsertedObjectWidget):
 		Displays a context-menu on right button click
 		Opens the link of a tablecell on CTRL pressed and left button click
 		'''
+		self.autosave_current_cell()
 		if event.type == Gdk.EventType.BUTTON_PRESS and event.button == 1 and event.get_state() & Gdk.ModifierType.CONTROL_MASK:
 			# With CTRL + LEFT-Mouse-Click link of cell is opened
 			cellvalue = self.fetch_cell_by_event(event, treeview)
@@ -736,6 +738,7 @@ class TableViewWidget(InsertedObjectWidget):
 
 	def on_add_row(self, action):
 		''' Context menu: Add a row '''
+		self.autosave_current_cell()
 		selection = self.treeview.get_selection()
 		model, treeiter = selection.get_selected()
 		if not treeiter:  # no selected item
@@ -750,6 +753,7 @@ class TableViewWidget(InsertedObjectWidget):
 
 	def on_clone_row(self, action):
 		''' Context menu: Clone a row '''
+		self.autosave_current_cell()
 		selection = self.treeview.get_selection()
 		model, treeiter = selection.get_selected()
 		if not treeiter:  # no selected item
@@ -762,6 +766,7 @@ class TableViewWidget(InsertedObjectWidget):
 
 	def on_delete_row(self, action):
 		''' Context menu: Delete a row '''
+		self.autosave_current_cell()
 		selection = self.treeview.get_selection()
 		model, treeiter = selection.get_selected()
 		if not treeiter:  # no selected item
@@ -779,6 +784,7 @@ class TableViewWidget(InsertedObjectWidget):
 
 	def on_move_row(self, action, direction):
 		''' Trigger for moving a row one position up/down '''
+		self.autosave_current_cell()
 		selection = self.treeview.get_selection()
 		model, treeiter = selection.get_selected()
 		if not treeiter:  # no selected item
@@ -817,6 +823,7 @@ class TableViewWidget(InsertedObjectWidget):
 
 	def on_change_columns(self, action):
 		''' Context menu: Edit table, run the EditTableDialog '''
+		self.autosave_current_cell()
 		aligns = self.model.get_aligns()
 		wraps = self.model.get_wraps()
 		headers = [col.get_title() for col in self.treeview.get_columns()]
@@ -832,16 +839,18 @@ class TableViewWidget(InsertedObjectWidget):
 		markup = CellFormatReplacer.input_to_cell(text)
 		liststore[path][colid] = markup
 		self._cellinput_canceled = False
+		self._currently_edited = None
 
 	def on_cell_editing_started(self, cellrenderer, editable, path, liststore, colid):
 		''' Trigger before cell-editing, to transform text-field data into right format '''
 		self._keep_toolbar_open = True
 
-		editable.connect('focus-out-event', self.on_cell_focus_out, cellrenderer, path, liststore, colid)
+		focus_out_id = editable.connect('focus-out-event', self.on_cell_focus_out, cellrenderer, path, liststore, colid)
 		markup = liststore[path][colid]
 		markup = CellFormatReplacer.cell_to_input(markup)
 		editable.set_text(markup)
 		self._cellinput_canceled = False
+		self._currently_edited = (editable, focus_out_id, liststore, path, colid)
 
 	def on_cell_focus_out(self, editable, event, cellrenderer, path, liststore, colid):
 		if not self._cellinput_canceled:
@@ -850,7 +859,22 @@ class TableViewWidget(InsertedObjectWidget):
 	def on_cell_editing_canceled(self, renderer):
 		''' Trigger after a cell is edited but any change is skipped '''
 		self._cellinput_canceled = True
+		# The edit's over, so there's nothing left for autosave_current_cell() to save
+		self._currently_edited = None
 
+	def autosave_current_cell(self):
+		'''
+		Saves the current cell, if it's currently being edited.
+		This covers cases where a cell has been edited and the user clicks outside the cell, e.g. on a button.
+		'''
+		if self._currently_edited:
+			editable, focus_out_id = self._currently_edited[:2]
+			# editing_done() makes the renderer emit 'edited', which saves the cell through
+			# on_cell_changed(). The editor also loses focus on the way, so drop the focus-out
+			# handler first or it'd save the same text a second time.
+			editable.disconnect(focus_out_id)
+			editable.editing_done()
+			editable.remove_widget()
 
 	def sort_by_number_or_string(self, liststore, treeiter1, treeiter2, colid):
 		'''
