@@ -445,6 +445,7 @@ class TableViewWidget(InsertedObjectWidget):
 		self.treeview.connect('focus-in-event', self.on_focus_in, self.toolbar)
 		self.treeview.connect('focus-out-event', self.on_focus_out, self.toolbar)
 		self.treeview.connect('move-cursor', self.on_move_cursor)
+		self.treeview.connect('destroy', self.on_treeview_destroy)
 
 		# Set options
 		self.treeview.set_grid_lines(Gtk.TreeViewGridLines.BOTH)
@@ -511,6 +512,7 @@ class TableViewWidget(InsertedObjectWidget):
 		self._keep_toolbar_open = False
 		if self._timer:
 			GObject.source_remove(self._timer)
+			self._timer = None
 		if self._toolbar_enabled:
 			toolbar.show()
 
@@ -527,6 +529,16 @@ class TableViewWidget(InsertedObjectWidget):
 			return False
 
 		self._timer = GObject.timeout_add(500, receive_alarm)
+
+	def on_treeview_destroy(self, treeview):
+		'''
+		Cancels the toolbar's hide timer. A destroyed treeview loses focus first, which starts
+		the timer, and it'd then fail on the treeview's selection. That happens when the columns
+		are changed and when the window's closed.
+		'''
+		if self._timer:
+			GObject.source_remove(self._timer)
+			self._timer = None
 
 	def create_toolbar(self):
 		'''This function creates a toolbar which is displayed next to the table'''
