@@ -296,6 +296,21 @@ class TestEditTable(tests.TestCase):
 		self.assertTrue(isinstance(widget.treeview, Gtk.TreeView))
 
 
+class TestToolbarTimer(tests.TestCase):
+
+	def runTest(self):
+		model = TableModel({'aligns': 'normal,normal', 'wraps': '0,0'}, ['h1', 'h2'], [['t1', 't2']])
+		widget = TableViewWidget(model)
+
+		# Losing focus starts the timer that hides the toolbar
+		widget.on_focus_out(widget.treeview, None, widget.toolbar)
+		self.assertIsNotNone(widget._timer)
+
+		# Destroying the treeview must cancel it, or it fails on the destroyed treeview's selection
+		widget.treeview.destroy()
+		self.assertIsNone(widget._timer)
+
+
 class TestTableFunctions(tests.TestCase):
 
 	def testCellFormater(self):
